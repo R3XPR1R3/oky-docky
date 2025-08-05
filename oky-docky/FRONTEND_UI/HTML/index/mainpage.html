@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oky Docky - Генератор документов онлайн</title>
+    
+    <!-- Подключаем шрифты для красивого отображения -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Базовые стили и переменные цветов */
+        :root {
+            --primary-bg: #FFD4A3;
+            --card-bg: #FFFFFF;
+            --primary-text: #1F3A5F;
+            --secondary-text: #4A5568;
+            --accent-orange: #FF8C42;
+            --tag-bg: #E3F2FD;
+            --tag-text: #1976D2;
+            --border-radius: 20px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Сброс стандартных стилей */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--primary-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Контейнер для всего контента */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Шапка сайта с логотипом и выбором языка */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        /* Селектор языка в правом верхнем углу */
+        .language-selector {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            padding: 8px 15px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .language-selector:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .language-selector select {
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--primary-text);
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* Контейнер для маскота и заголовка */
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Анимированный маскот-документ */
+        .mascot {
+            width: 120px;
+            height: 150px;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* SVG маскот */
+        .mascot svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Анимация руки маскота */
+        .mascot-hand {
+            animation: wave 2s ease-in-out infinite;
+            transform-origin: 70% 70%;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-20deg); }
+            75% { transform: rotate(20deg); }
+        }
+
+        /* Заголовок сайта */
+        .site-title {
+            font-family: 'Fredoka', cursive;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 700;
+            color: var(--primary-text);
+            text-shadow: 2px 2px 0 rgba(255, 140, 66, 0.3);
+        }
+
+        /* Слоган под заголовком */
+        .tagline {
+            font-family: 'Fredoka', cursive;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-weight: 400;
+            color: var(--primary-text);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        /* Поле поиска */
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 20px 25px 20px 55px;
+            font-size: 18px;
+            border: 3px solid var(--primary-text);
+            border-radius: var(--border-radius);
+            background: white;
+            color: var(--primary-text);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .search-input:focus {
+            outline: none;
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .search-input::placeholder {
+            color: #9CA3AF;
+        }
+
+        /* Иконка поиска */
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            opacity: 0.6;
+        }
+
+        /* Сетка с карточками форм */
+        .forms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        /* Карточка формы */
+        .form-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 3px solid var(--primary-text);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        /* Заголовок карточки с иконкой */
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+
+        .form-title {
+            font-family: 'Fredoka', cursive;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-text);
+        }
+
+        /* Описание формы */
+        .form-description {
+            color: var(--secondary-text);
+            font-size: 1rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* Контейнер для тегов */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* Стиль тега */
+        .tag {
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tag:hover {
+            background: var(--tag-text);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* Кнопка генерации */
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Fredoka', cursive;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .generate-btn:hover {
+            background: #E67A3A;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 140, 66, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Модальное окно для выбора типа документа */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-family: 'Fredoka', cursive;
+            font-size: 1.8rem;
+            color: var(--primary-text);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--primary-text);
+        }
+
+        /* Опции покупки */
+        .pricing-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .pricing-option {
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .pricing-option:hover {
+            border-color: var(--accent-orange);
+            background: #FFF9F5;
+        }
+
+        .pricing-option.recommended {
+            border-color: var(--accent-orange);
+            background: #FFF9F5;
+        }
+
+        .pricing-option.recommended::before {
+            content: 'Рекомендуем';
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: var(--accent-orange);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .pricing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .pricing-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .pricing-price {
+            font-family: 'Fredoka', cursive;
+            font-size: 1.5rem;
+            color: var(--accent-orange);
+            font-weight: 600;
+        }
+
+        .pricing-description {
+            color: var(--secondary-text);
+            font-size: 0.95rem;
+        }
+
+        /* Мобильная адаптация */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .logo-section {
+                gap: 20px;
+            }
+
+            .mascot {
+                width: 80px;
+                height: 100px;
+            }
+
+            .forms-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .form-card {
+                padding: 20px;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+
+            .language-selector {
+                position: static;
+                margin-bottom: 20px;
+                width: fit-content;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+        /* Анимация появления карточек */
+        .form-card {
+            animation: fadeInUp 0.5s ease backwards;
+        }
+
+        .form-card:nth-child(1) { animation-delay: 0.1s; }
+        .form-card:nth-child(2) { animation-delay: 0.2s; }
+        .form-card:nth-child(3) { animation-delay: 0.3s; }
+        .form-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Дополнительные анимации для маскота */
+        .mascot-eye {
+            animation: blink 4s infinite;
+        }
+
+        @keyframes blink {
+            0%, 45%, 55%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Стиль для пустого состояния */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--secondary-text);
+        }
+
+        .empty-state svg {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-family: 'Fredoka', cursive;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Уведомление о копировании */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--primary-text);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка сайта -->
+        <header class="header">
+            <!-- Выбор языка -->
+            <div class="language-selector">
+                <span>🌐</span>
+                <select id="languageSelect" onchange="changeLanguage(this.value)">
+                    <option value="ru">🇷🇺 Русский</option>
+                    <option value="en">🇺🇸 English</option>
+                    <option value="id">🇮🇩 Indonesia</option>
+                    <option value="uk">🇺🇦 Українська</option>
+                    <option value="es">🇪🇸 Español</option>
+                </select>
+            </div>
+
+            <!-- Логотип и маскот -->
+            <div class="logo-section">
+                <!-- Анимированный маскот -->
+                <div class="mascot">
+                    <svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Тело документа -->
+                        <rect x="20" y="20" width="80" height="100" rx="10" fill="#FFF" stroke="#1F3A5F" stroke-width="3"/>
+                        
+                        <!-- Загнутый уголок -->
+                        <path d="M 80 20 L 100 40 L 80 40 Z" fill="#FFD4A3" stroke="#1F3A5F" stroke-width="3"/>
+                        
+                        <!-- Глаза -->
+                        <circle class="mascot-eye" cx="40" cy="50" r="3" fill="#1F3A5F"/>
+                        <circle class="mascot-eye" cx="80" cy="50" r="3" fill="#1F3A5F"/>
+                        
+                        <!-- Улыбка -->
+                        <path d="M 35 65 Q 60 75 85 65" stroke="#1F3A5F" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        
+                        <!-- Линии текста -->
+                        <line x1="30" y1="85" x2="70" y2="85" stroke="#FFD4A3" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="30" y1="95" x2="90" y2="95" stroke="#FFD4A3" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="30" y1="105" x2="80" y2="105" stroke="#FFD4A3" stroke-width="3" stroke-linecap="round"/>
+                        
+                        <!-- Левая рука (машет) -->
+                        <g class="mascot-hand">
+                            <line x1="20" y1="60" x2="5" y2="45" stroke="#1F3A5F" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="5" cy="45" r="5" fill="#FFF" stroke="#1F3A5F" stroke-width="3"/>
+                        </g>
+                        
+                        <!-- Правая рука -->
+                        <line x1="100" y1="60" x2="115" y2="75" stroke="#1F3A5F" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="115" cy="75" r="5" fill="#FFF" stroke="#1F3A5F" stroke-width="3"/>
+                        
+                        <!-- Ноги -->
+                        <line x1="40" y1="120" x2="40" y2="140" stroke="#1F3A5F" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="80" y1="120" x2="80" y2="140" stroke="#1F3A5F" stroke-width="3" stroke-linecap="round"/>
+                        
+                        <!-- Ботинки -->
+                        <ellipse cx="40" cy="143" rx="8" ry="5" fill="#1F3A5F"/>
+                        <ellipse cx="80" cy="143" rx="8" ry="5" fill="#1F3A5F"/>
+                    </svg>
+                </div>
+                
+                <h1 class="site-title">Oky Docky</h1>
+            </div>
+
+            <!-- Слоган -->
+            <p class="tagline" data-i18n="tagline">Lookie for a docki?<br>Okie dokie, Oky Docky</p>
+        </header>
+
+        <!-- Поиск -->
+        <div class="search-container">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="text" 
+                   class="search-input" 
+                   id="searchInput"
+                   placeholder="Поиск формы..."
+                   data-i18n-placeholder="searchPlaceholder">
+        </div>
+
+        <!-- Сетка с формами -->
+        <div class="forms-grid" id="formsGrid">
+            <!-- Карточки будут добавлены через JavaScript -->
+        </div>
+
+        <!-- Пустое состояние (показывается когда нет результатов) -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="50" width="100" height="120" rx="10" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="2"/>
+                <path d="M 120 50 L 150 80 L 120 80 Z" fill="#D1D5DB" stroke="#9CA3AF" stroke-width="2"/>
+                <text x="100" y="110" text-anchor="middle" font-size="40" fill="#9CA3AF">?</text>
+            </svg>
+            <h3 data-i18n="noResults">Ничего не найдено</h3>
+            <p data-i18n="tryDifferent">Попробуйте изменить поисковый запрос</p>
+        </div>
+    </div>
+
+    <!-- Модальное окно выбора типа документа -->
+    <div class="modal" id="pricingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" data-i18n="chooseFormat">Выберите формат</h2>
+                <button class="close-btn" onclick="closePricingModal()">&times;</button>
+            </div>
+            
+            <div class="pricing-options">
+                <!-- Бесплатный вариант -->
+                <div class="pricing-option" onclick="generateDocument('free')">
+                    <div class="pricing-header">
+                        <span class="pricing-title" data-i18n="freeOption">PNG с водяными знаками</span>
+                        <span class="pricing-price" data-i18n="free">Бесплатно</span>
+                    </div>
+                    <p class="pricing-description" data-i18n="freeDesc">5 водяных знаков, низкое качество</p>
+                </div>
+
+                <!-- Обычный PDF -->
+                <div class="pricing-option recommended" onclick="generateDocument('pdf')">
+                    <div class="pricing-header">
+                        <span class="pricing-title" data-i18n="pdfOption">Обычный PDF</span>
+                        <span class="pricing-price">$0.59</span>
+                    </div>
+                    <p class="pricing-description" data-i18n="pdfDesc">Высокое качество, без водяных знаков</p>
+                </div>
+
+                <!-- Редактируемый PDF -->
+                <div class="pricing-option" onclick="generateDocument('editable')">
+                    <div class="pricing-header">
+                        <span class="pricing-title" data-i18n="editableOption">Редактируемый PDF</span>
+                        <span class="pricing-price">$1.39</span>
+                    </div>
+                    <p class="pricing-description" data-i18n="editableDesc">Можно редактировать в PDF редакторах</p>
+                </div>
+
+                <!-- Подписка -->
+                <div class="pricing-option" onclick="generateDocument('subscription')">
+                    <div class="pricing-header">
+                        <span class="pricing-title" data-i18n="subscriptionOption">Подписка</span>
+                        <span class="pricing-price">$4.99<span style="font-size: 0.8rem; font-weight: 400;" data-i18n="perMonth">/месяц</span></span>
+                    </div>
+                    <p class="pricing-description" data-i18n="subscriptionDesc">Безлимит + приоритетная поддержка</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомление -->
+    <div class="toast" id="toast"></div>
+
+
+
+</body>
+</html>
