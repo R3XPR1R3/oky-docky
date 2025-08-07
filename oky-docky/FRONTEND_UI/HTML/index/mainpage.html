@@ -18,6 +18,8 @@
             --primary-text: #1F3A5F;
             --secondary-text: #4A5568;
             --accent-orange: #FF8C42;
+            --success-green: #10B981;
+            --error-red: #EF4444;
             --tag-bg: #E3F2FD;
             --tag-text: #1976D2;
             --border-radius: 20px;
@@ -53,6 +55,39 @@
             text-align: center;
             margin-bottom: 40px;
             position: relative;
+        }
+
+        /* Навигация */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: white;
+            border: 3px solid var(--primary-text);
+            border-radius: 30px;
+            font-family: 'Fredoka', cursive;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--primary-text);
+        }
+
+        .nav-tab.active {
+            background: var(--accent-orange);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .nav-tab:hover:not(.active) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
         }
 
         /* Селектор языка в правом верхнем углу */
@@ -188,6 +223,103 @@
             opacity: 0.6;
         }
 
+        /* Секции контента */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Форма загрузки шаблона */
+        .upload-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 3px solid var(--primary-text);
+            margin-bottom: 30px;
+        }
+
+        .upload-title {
+            font-family: 'Fredoka', cursive;
+            font-size: 1.8rem;
+            color: var(--primary-text);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .file-upload-area {
+            border: 3px dashed var(--accent-orange);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            background: #FFF9F5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .file-upload-area:hover {
+            background: #FFF5F0;
+            border-color: #E67A3A;
+        }
+
+        .file-upload-area.dragover {
+            background: var(--accent-orange);
+            color: white;
+            border-color: white;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: var(--secondary-text);
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #9CA3AF;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--primary-text);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-orange);
+        }
+
         /* Сетка с карточками форм */
         .forms-grid {
             display: grid;
@@ -268,12 +400,9 @@
             transform: scale(1.05);
         }
 
-        /* Кнопка генерации */
-        .generate-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--accent-orange);
-            color: white;
+        /* Кнопки */
+        .btn {
+            padding: 15px 30px;
             border: none;
             border-radius: 12px;
             font-size: 1.1rem;
@@ -283,19 +412,91 @@
             font-family: 'Fredoka', cursive;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
         }
 
-        .generate-btn:hover {
+        .btn-primary {
+            background: var(--accent-orange);
+            color: white;
+        }
+
+        .btn-primary:hover {
             background: #E67A3A;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 140, 66, 0.4);
         }
 
-        .generate-btn:active {
+        .btn-success {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .btn:active {
             transform: translateY(0);
         }
 
-        /* Модальное окно для выбора типа документа */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Форма заполнения переменных */
+        .variables-form {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 3px solid var(--primary-text);
+            margin-bottom: 30px;
+        }
+
+        .variables-title {
+            font-family: 'Fredoka', cursive;
+            font-size: 1.8rem;
+            color: var(--primary-text);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .variable-group {
+            margin-bottom: 20px;
+        }
+
+        .variable-label {
+            display: block;
+            font-weight: 600;
+            color: var(--primary-text);
+            margin-bottom: 8px;
+        }
+
+        .variable-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .variable-input:focus {
+            outline: none;
+            border-color: var(--accent-orange);
+        }
+
+        /* Модальное окно */
         .modal {
             display: none;
             position: fixed;
@@ -425,6 +626,90 @@
             font-size: 0.95rem;
         }
 
+        /* Уведомления */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--primary-text);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success-green);
+        }
+
+        .toast.error {
+            background: var(--error-red);
+        }
+
+        /* Загрузчик */
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Пустое состояние */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--secondary-text);
+        }
+
+        .empty-state svg {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-family: 'Fredoka', cursive;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Статусы загрузки */
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-success { background: var(--success-green); }
+        .status-error { background: var(--error-red); }
+        .status-loading { background: var(--accent-orange); animation: pulse 1s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
         /* Мобильная адаптация */
         @media (max-width: 768px) {
             .container {
@@ -460,6 +745,20 @@
                 margin-left: auto;
                 margin-right: auto;
             }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .nav-tab {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
         }
 
         /* Анимация появления карточек */
@@ -491,48 +790,6 @@
         @keyframes blink {
             0%, 45%, 55%, 100% { opacity: 1; }
             50% { opacity: 0; }
-        }
-
-        /* Стиль для пустого состояния */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--secondary-text);
-        }
-
-        .empty-state svg {
-            width: 150px;
-            height: 150px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .empty-state h3 {
-            font-family: 'Fredoka', cursive;
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-
-        /* Уведомление о копировании */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--primary-text);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 30px;
-            font-weight: 500;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 2000;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
         }
     </style>
 </head>
@@ -599,91 +856,666 @@
             </div>
 
             <!-- Слоган -->
-            <p class="tagline" data-i18n="tagline">Lookie for a docki?<br>Okie dokie, Oky Docky</p>
+            <p class="tagline" data-i18n="tagline">Ищешь документ?<br>Оки доки, Oky Docky</p>
+
+            <!-- Навигация -->
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="switchTab('templates')">📄 Шаблоны</div>
+                <div class="nav-tab" onclick="switchTab('upload')">⬆️ Загрузить</div>
+                <div class="nav-tab" onclick="switchTab('generate')">🔧 Генерировать</div>
+            </div>
         </header>
 
-        <!-- Поиск -->
-        <div class="search-container">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-            </svg>
-            <input type="text" 
-                   class="search-input" 
-                   id="searchInput"
-                   placeholder="Поиск формы..."
-                   data-i18n-placeholder="searchPlaceholder">
+        <!-- Секция шаблонов -->
+        <div id="templates-section" class="content-section active">
+            <!-- Поиск -->
+            <div class="search-container">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                <input type="text" 
+                       class="search-input" 
+                       id="searchInput"
+                       placeholder="Поиск шаблона..."
+                       data-i18n-placeholder="searchPlaceholder">
+            </div>
+
+            <!-- Сетка с формами -->
+            <div class="forms-grid" id="formsGrid">
+                <!-- Карточки загружаются из API -->
+            </div>
+
+            <!-- Пустое состояние -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="50" y="50" width="100" height="120" rx="10" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="2"/>
+                    <path d="M 120 50 L 150 80 L 120 80 Z" fill="#D1D5DB" stroke="#9CA3AF" stroke-width="2"/>
+                    <text x="100" y="110" text-anchor="middle" font-size="40" fill="#9CA3AF">?</text>
+                </svg>
+                <h3>Пока нет шаблонов</h3>
+                <p>Загрузите первый PDF шаблон в разделе "Загрузить"</p>
+            </div>
         </div>
 
-        <!-- Сетка с формами -->
-        <div class="forms-grid" id="formsGrid">
-            <!-- Карточки будут добавлены через JavaScript -->
+        <!-- Секция загрузки -->
+        <div id="upload-section" class="content-section">
+            <div class="upload-section">
+                <h2 class="upload-title">📤 Загрузить PDF шаблон</h2>
+                
+                <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
+                    <span class="upload-icon">📁</span>
+                    <div class="upload-text">Перетащите PDF файл сюда или нажмите для выбора</div>
+                    <div class="upload-hint">Поддерживаются файлы PDF с переменными вида {VARIABLE_NAME}</div>
+                    <input type="file" id="fileInput" accept=".pdf" style="display: none;" onchange="handleFileSelect(event)">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Название шаблона</label>
+                        <input type="text" class="form-input" id="templateName" placeholder="Например: Форма W-9">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ID шаблона (необязательно)</label>
+                        <input type="text" class="form-input" id="templateId" placeholder="Автогенерация">
+                    </div>
+                </div>
+
+                <button class="btn btn-success btn-full" id="uploadBtn" onclick="uploadTemplate()" disabled>
+                    <span id="uploadBtnText">Загрузить шаблон</span>
+                </button>
+
+                <div id="uploadResult" style="margin-top: 20px; display: none;"></div>
+            </div>
         </div>
 
-        <!-- Пустое состояние (показывается когда нет результатов) -->
-        <div class="empty-state" id="emptyState" style="display: none;">
-            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="50" width="100" height="120" rx="10" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="2"/>
-                <path d="M 120 50 L 150 80 L 120 80 Z" fill="#D1D5DB" stroke="#9CA3AF" stroke-width="2"/>
-                <text x="100" y="110" text-anchor="middle" font-size="40" fill="#9CA3AF">?</text>
-            </svg>
-            <h3 data-i18n="noResults">Ничего не найдено</h3>
-            <p data-i18n="tryDifferent">Попробуйте изменить поисковый запрос</p>
+        <!-- Секция генерации -->
+        <div id="generate-section" class="content-section">
+            <div id="templateSelector" class="upload-section">
+                <h2 class="upload-title">🔧 Выберите шаблон для заполнения</h2>
+                <select class="form-input" id="templateSelect" onchange="loadTemplateVariables()">
+                    <option value="">Выберите шаблон...</option>
+                </select>
+            </div>
+
+            <div id="variablesForm" class="variables-form" style="display: none;">
+                <h3 class="variables-title">📝 Заполните данные</h3>
+                <div id="variablesContainer">
+                    <!-- Поля для переменных генерируются динамически -->
+                </div>
+                <button class="btn btn-primary btn-full" onclick="openPricingModal()">
+                    Сгенерировать документ
+                </button>
+            </div>
         </div>
+
+        <!-- Модальное окно выбора формата -->
+        <div class="modal" id="pricingModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Выберите формат</h2>
+                    <button class="close-btn" onclick="closePricingModal()">&times;</button>
+                </div>
+                
+                <div class="pricing-options">
+                    <!-- Бесплатный вариант -->
+                    <div class="pricing-option" onclick="generateDocument('png')">
+                        <div class="pricing-header">
+                            <span class="pricing-title">PNG с водяными знаками</span>
+                            <span class="pricing-price">Бесплатно</span>
+                        </div>
+                        <p class="pricing-description">5 водяных знаков, среднее качество</p>
+                    </div>
+
+                    <!-- Обычный PDF -->
+                    <div class="pricing-option recommended" onclick="generateDocument('pdf')">
+                        <div class="pricing-header">
+                            <span class="pricing-title">Обычный PDF</span>
+                            <span class="pricing-price">$0.59</span>
+                        </div>
+                        <p class="pricing-description">Высокое качество, без водяных знаков</p>
+                    </div>
+
+                    <!-- Редактируемый PDF -->
+                    <div class="pricing-option" onclick="generateDocument('pdf_editable')">
+                        <div class="pricing-header">
+                            <span class="pricing-title">Редактируемый PDF</span>
+                            <span class="pricing-price">$1.39</span>
+                        </div>
+                        <p class="pricing-description">Можно редактировать в PDF редакторах</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Уведомления -->
+        <div class="toast" id="toast"></div>
     </div>
 
-    <!-- Модальное окно выбора типа документа -->
-    <div class="modal" id="pricingModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" data-i18n="chooseFormat">Выберите формат</h2>
-                <button class="close-btn" onclick="closePricingModal()">&times;</button>
+    <script>
+/**
+ * Улучшенный JavaScript для Oky Docky Frontend
+ * Работает с новым API и динамически генерирует формы
+ */
+
+class OkyDockyApp {
+    constructor() {
+        this.apiBase = '/api';
+        this.templates = {};
+        this.currentTemplate = null;
+        this.language = 'ru';
+        
+        // Элементы DOM
+        this.elements = {
+            formsGrid: document.getElementById('formsGrid'),
+            searchInput: document.getElementById('searchInput'),
+            emptyState: document.getElementById('emptyState'),
+            pricingModal: document.getElementById('pricingModal'),
+            toast: document.getElementById('toast')
+        };
+        
+        this.init();
+    }
+
+    async init() {
+        console.log('🚀 Инициализация Oky Docky...');
+        
+        // Настраиваем обработчики событий
+        this.setupEventListeners();
+        
+        // Загружаем шаблоны
+        await this.loadTemplates();
+        
+        // Отображаем шаблоны
+        this.renderTemplates();
+        
+        console.log('✅ Oky Docky готов!');
+    }
+
+    setupEventListeners() {
+        // Поиск
+        if (this.elements.searchInput) {
+            this.elements.searchInput.addEventListener('input', (e) => {
+                this.filterTemplates(e.target.value);
+            });
+        }
+
+        // Закрытие модального окна по клику вне его
+        if (this.elements.pricingModal) {
+            this.elements.pricingModal.addEventListener('click', (e) => {
+                if (e.target === this.elements.pricingModal) {
+                    this.closePricingModal();
+                }
+            });
+        }
+
+        // ESC для закрытия модального окна
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.elements.pricingModal.classList.contains('active')) {
+                this.closePricingModal();
+            }
+        });
+    }
+
+    async loadTemplates() {
+        try {
+            console.log('📥 Загрузка шаблонов...');
+            
+            const response = await fetch(`${this.apiBase}/templates`);
+            
+            if (!response.ok) {
+                throw new Error(`Ошибка загрузки: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                this.templates = data.templates;
+                console.log(`✅ Загружено шаблонов: ${data.total}`);
+                
+                // Отладочная информация
+                Object.keys(this.templates).forEach(templateName => {
+                    const template = this.templates[templateName];
+                    console.log(`📝 ${templateName}: ${template.stats.total_placeholders} плейсхолдеров`);
+                });
+            } else {
+                throw new Error('Не удалось загрузить шаблоны');
+            }
+            
+        } catch (error) {
+            console.error('❌ Ошибка загрузки шаблонов:', error);
+            this.showToast('Ошибка загрузки шаблонов', 'error');
+            
+            // Показываем демо-данные если API недоступен
+            this.loadDemoTemplates();
+        }
+    }
+
+    loadDemoTemplates() {
+        console.log('📄 Загружаем демо-шаблоны...');
+        
+        this.templates = {
+            'demo_contract.pdf': {
+                name: 'demo_contract.pdf',
+                placeholders: {
+                    'name': { name: 'name', count: 2 },
+                    'date': { name: 'date', count: 1 },
+                    'company': { name: 'company', count: 3 }
+                },
+                form_fields: [
+                    {
+                        name: 'name',
+                        label: 'Имя',
+                        type: 'text',
+                        required: true,
+                        placeholder: 'Введите имя'
+                    },
+                    {
+                        name: 'date',
+                        label: 'Дата',
+                        type: 'date',
+                        required: true,
+                        placeholder: 'Выберите дату'
+                    },
+                    {
+                        name: 'company',
+                        label: 'Компания',
+                        type: 'text',
+                        required: true,
+                        placeholder: 'Введите название компании'
+                    }
+                ],
+                stats: {
+                    total_placeholders: 3,
+                    total_occurrences: 6
+                }
+            }
+        };
+    }
+
+    renderTemplates(filteredTemplates = null) {
+        const templatesToRender = filteredTemplates || this.templates;
+        
+        if (!this.elements.formsGrid) {
+            console.error('❌ Элемент formsGrid не найден');
+            return;
+        }
+
+        // Очищаем сетку
+        this.elements.formsGrid.innerHTML = '';
+
+        if (Object.keys(templatesToRender).length === 0) {
+            this.showEmptyState();
+            return;
+        }
+
+        this.hideEmptyState();
+
+        // Рендерим карточки шаблонов
+        Object.values(templatesToRender).forEach((template, index) => {
+            const card = this.createTemplateCard(template, index);
+            this.elements.formsGrid.appendChild(card);
+        });
+    }
+
+    createTemplateCard(template, index) {
+        const card = document.createElement('div');
+        card.className = 'form-card';
+        card.style.animationDelay = `${(index + 1) * 0.1}s`;
+
+        // Определяем иконку на основе типа файла
+        const icon = this.getFileIcon(template.name);
+        
+        // Создаем теги для плейсхолдеров
+        const tags = Object.keys(template.placeholders || {}).map(placeholder => 
+            `<span class="tag">{${placeholder}}</span>`
+        ).join('');
+
+        card.innerHTML = `
+            <div class="form-header">
+                ${icon}
+                <h3 class="form-title">${this.getTemplateDisplayName(template.name)}</h3>
             </div>
             
-            <div class="pricing-options">
-                <!-- Бесплатный вариант -->
-                <div class="pricing-option" onclick="generateDocument('free')">
-                    <div class="pricing-header">
-                        <span class="pricing-title" data-i18n="freeOption">PNG с водяными знаками</span>
-                        <span class="pricing-price" data-i18n="free">Бесплатно</span>
-                    </div>
-                    <p class="pricing-description" data-i18n="freeDesc">5 водяных знаков, низкое качество</p>
-                </div>
-
-                <!-- Обычный PDF -->
-                <div class="pricing-option recommended" onclick="generateDocument('pdf')">
-                    <div class="pricing-header">
-                        <span class="pricing-title" data-i18n="pdfOption">Обычный PDF</span>
-                        <span class="pricing-price">$0.59</span>
-                    </div>
-                    <p class="pricing-description" data-i18n="pdfDesc">Высокое качество, без водяных знаков</p>
-                </div>
-
-                <!-- Редактируемый PDF -->
-                <div class="pricing-option" onclick="generateDocument('editable')">
-                    <div class="pricing-header">
-                        <span class="pricing-title" data-i18n="editableOption">Редактируемый PDF</span>
-                        <span class="pricing-price">$1.39</span>
-                    </div>
-                    <p class="pricing-description" data-i18n="editableDesc">Можно редактировать в PDF редакторах</p>
-                </div>
-
-                <!-- Подписка -->
-                <div class="pricing-option" onclick="generateDocument('subscription')">
-                    <div class="pricing-header">
-                        <span class="pricing-title" data-i18n="subscriptionOption">Подписка</span>
-                        <span class="pricing-price">$4.99<span style="font-size: 0.8rem; font-weight: 400;" data-i18n="perMonth">/месяц</span></span>
-                    </div>
-                    <p class="pricing-description" data-i18n="subscriptionDesc">Безлимит + приоритетная поддержка</p>
-                </div>
+            <p class="form-description">
+                Найдено плейсхолдеров: <strong>${template.stats?.total_placeholders || 0}</strong><br>
+                Всего вхождений: <strong>${template.stats?.total_occurrences || 0}</strong>
+            </p>
+            
+            <div class="tags-container">
+                ${tags}
             </div>
-        </div>
-    </div>
+            
+            <button class="generate-btn" onclick="okyDocky.openGenerateForm('${template.name}')">
+                Использовать шаблон
+            </button>
+        `;
 
-    <!-- Уведомление -->
-    <div class="toast" id="toast"></div>
+        return card;
+    }
 
+    getFileIcon(filename) {
+        const extension = filename.split('.').pop().toLowerCase();
+        
+        const icons = {
+            'pdf': `<svg class="form-icon" viewBox="0 0 24 24" fill="#FF6B6B">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>`,
+            'docx': `<svg class="form-icon" viewBox="0 0 24 24" fill="#4ECDC4">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>`,
+            'txt': `<svg class="form-icon" viewBox="0 0 24 24" fill="#95E1D3">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>`
+        };
+        
+        return icons[extension] || icons['pdf'];
+    }
 
+    getTemplateDisplayName(filename) {
+        // Убираем расширение и форматируем название
+        return filename.split('.')[0]
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, l => l.toUpperCase());
+    }
 
+    filterTemplates(searchTerm) {
+        if (!searchTerm.trim()) {
+            this.renderTemplates();
+            return;
+        }
+
+        const filtered = {};
+        const term = searchTerm.toLowerCase();
+
+        Object.entries(this.templates).forEach(([key, template]) => {
+            const searchableText = [
+                template.name,
+                ...Object.keys(template.placeholders || {})
+            ].join(' ').toLowerCase();
+
+            if (searchableText.includes(term)) {
+                filtered[key] = template;
+            }
+        });
+
+        this.renderTemplates(filtered);
+    }
+
+    showEmptyState() {
+        if (this.elements.emptyState) {
+            this.elements.emptyState.style.display = 'block';
+        }
+    }
+
+    hideEmptyState() {
+        if (this.elements.emptyState) {
+            this.elements.emptyState.style.display = 'none';
+        }
+    }
+
+    async openGenerateForm(templateName) {
+        console.log(`📝 Открытие формы для шаблона: ${templateName}`);
+        
+        const template = this.templates[templateName];
+        if (!template) {
+            this.showToast('Шаблон не найден', 'error');
+            return;
+        }
+
+        this.currentTemplate = template;
+        
+        // Создаем и показываем форму генерации
+        this.showGenerateFormModal(template);
+    }
+
+    showGenerateFormModal(template) {
+        // Создаем модальное окно с формой
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.id = 'generateModal';
+        
+        const formFields = template.form_fields.map(field => this.createFormField(field)).join('');
+        
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">Заполните данные</h2>
+                    <button class="close-btn" onclick="okyDocky.closeGenerateModal()">&times;</button>
+                </div>
+                
+                <form id="generateForm" onsubmit="okyDocky.submitGenerateForm(event)">
+                    <div style="margin-bottom: 20px;">
+                        <strong>Шаблон:</strong> ${this.getTemplateDisplayName(template.name)}
+                    </div>
+                    
+                    ${formFields}
+                    
+                    <div style="margin-top: 30px;">
+                        <button type="submit" class="generate-btn">
+                            Перейти к выбору формата
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Фокус на первое поле
+        setTimeout(() => {
+            const firstInput = modal.querySelector('input, select, textarea');
+            if (firstInput) firstInput.focus();
+        }, 100);
+    }
+
+    createFormField(field) {
+        const required = field.required ? 'required' : '';
+        const placeholder = field.placeholder || '';
+        
+        let inputElement;
+        
+        switch (field.type) {
+            case 'textarea':
+                inputElement = `<textarea name="${field.name}" placeholder="${placeholder}" ${required} 
+                    style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; 
+                    font-size: 16px; min-height: 100px; resize: vertical;"></textarea>`;
+                break;
+                
+            case 'select':
+                const options = field.options?.map(opt => 
+                    `<option value="${opt.value}">${opt.label}</option>`
+                ).join('') || '';
+                inputElement = `<select name="${field.name}" ${required} 
+                    style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; 
+                    font-size: 16px;">${options}</select>`;
+                break;
+                
+            default:
+                inputElement = `<input type="${field.type}" name="${field.name}" 
+                    placeholder="${placeholder}" ${required}
+                    style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; 
+                    font-size: 16px;">`;
+        }
+        
+        return `
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-text);">
+                    ${field.label} ${field.required ? '<span style="color: red;">*</span>' : ''}
+                </label>
+                ${inputElement}
+                ${field.validation?.message ? `<small style="color: #6B7280; margin-top: 4px; display: block;">${field.validation.message}</small>` : ''}
+            </div>
+        `;
+    }
+
+    closeGenerateModal() {
+        const modal = document.getElementById('generateModal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    async submitGenerateForm(event) {
+        event.preventDefault();
+        
+        const form = event.target;
+        const formData = new FormData(form);
+        const fieldData = {};
+        
+        // Собираем данные формы
+        for (let [key, value] of formData.entries()) {
+            fieldData[key] = value;
+        }
+        
+        console.log('📤 Отправка данных формы:', fieldData);
+        
+        // Закрываем форму и открываем выбор формата
+        this.closeGenerateModal();
+        this.openPricingModal(fieldData);
+    }
+
+    openPricingModal(fieldData = null) {
+        if (fieldData) {
+            this.currentFieldData = fieldData;
+        }
+        
+        if (this.elements.pricingModal) {
+            this.elements.pricingModal.classList.add('active');
+        }
+    }
+
+    closePricingModal() {
+        if (this.elements.pricingModal) {
+            this.elements.pricingModal.classList.remove('active');
+        }
+    }
+
+    async generateDocument(formatType) {
+        if (!this.currentTemplate || !this.currentFieldData) {
+            this.showToast('Ошибка: данные не найдены', 'error');
+            return;
+        }
+
+        try {
+            console.log(`🔄 Генерация документа в формате: ${formatType}`);
+            
+            this.closePricingModal();
+            this.showToast('Генерация документа...', 'info');
+            
+            const formData = new FormData();
+            formData.append('format_type', formatType);
+            formData.append('field_data', JSON.stringify(this.currentFieldData));
+            
+            const response = await fetch(`${this.apiBase}/generate/${this.currentTemplate.name}`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showToast('Документ успешно сгенерирован!', 'success');
+                
+                // Если есть ссылка на скачивание
+                if (result.download_url) {
+                    setTimeout(() => {
+                        window.open(result.download_url, '_blank');
+                    }, 1000);
+                }
+            } else {
+                throw new Error(result.message || 'Ошибка генерации');
+            }
+            
+        } catch (error) {
+            console.error('❌ Ошибка генерации:', error);
+            this.showToast('Ошибка генерации документа', 'error');
+        }
+    }
+
+    showToast(message, type = 'info') {
+        if (!this.elements.toast) return;
+        
+        const toast = this.elements.toast;
+        toast.textContent = message;
+        toast.className = `toast show ${type}`;
+        
+        // Автоматически скрываем через 3 секунды
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // Методы для работы с языками
+    changeLanguage(lang) {
+        this.language = lang;
+        console.log(`🌐 Смена языка на: ${lang}`);
+        // Здесь можно добавить логику перевода
+    }
+
+    // Отладочные методы
+    async debugTemplate(templateName) {
+        try {
+            const response = await fetch(`${this.apiBase}/debug/placeholder_test/${templateName}`);
+            const data = await response.json();
+            
+            console.log('🔍 Отладочная информация:', data);
+            return data;
+            
+        } catch (error) {
+            console.error('❌ Ошибка отладки:', error);
+        }
+    }
+
+    async refreshTemplates() {
+        try {
+            const response = await fetch(`${this.apiBase}/rescan_templates`, {
+                method: 'POST'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showToast('Шаблоны обновлены', 'success');
+                await this.loadTemplates();
+                this.renderTemplates();
+            }
+            
+        } catch (error) {
+            console.error('❌ Ошибка обновления:', error);
+            this.showToast('Ошибка обновления шаблонов', 'error');
+        }
+    }
+}
+
+// Глобальные функции для совместимости с HTML
+let okyDocky;
+
+document.addEventListener('DOMContentLoaded', () => {
+    okyDocky = new OkyDockyApp();
+});
+
+// Функции, вызываемые из HTML
+function generateDocument(formatType) {
+    if (okyDocky) {
+        okyDocky.generateDocument(formatType);
+    }
+}
+
+function closePricingModal() {
+    if (okyDocky) {
+        okyDocky.closePricingModal();
+    }
+}
+
+function changeLanguage(lang) {
+    if (okyDocky) {
+        okyDocky.changeLanguage(lang);
+    }
+}
+
+// Экспортируем для использования в других модулях
+window.OkyDockyApp = OkyDockyApp;
+    </script>
 </body>
 </html>
