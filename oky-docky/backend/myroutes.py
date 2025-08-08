@@ -4,6 +4,10 @@ from fastapi.templating import Jinja2Templates
 from typing import Dict, Optional, List
 import os
 import uuid
+
+
+import traceback
+
 import json
 from datetime import datetime
 from pathlib import Path
@@ -14,12 +18,21 @@ from storage import Storage
 from models import FormData
 
 # Роутер - ВСЕ ПУТИ ЗДЕСЬ!
+
 router = APIRouter()
 
 # Инициализация компонентов
 pdf_processor = PDFProcessor()
 storage = Storage()
-
+# В начале файла добавь:
+try:
+    import fitz
+    print("✅ Используем PyMuPDF")
+except ImportError:
+    print("⚠️ PyMuPDF недоступен, используем fallback")
+    # Переключаемся на fallback процессор
+    from pdf_processor_fallback import FallbackPDFProcessor
+    pdf_processor = FallbackPDFProcessor()
 # ===========================
 # ГЛАВНАЯ СТРАНИЦА (ФРОНТЕНД)
 # ===========================
@@ -28,10 +41,23 @@ storage = Storage()
 async def home(request: Request):
     """Главная страница с нашим красивым фронтендом"""
     
-    # Читаем HTML из артефакта (в продакшне лучше из файла)
-    html_content = open("/workspaces/oky-docky/oky-docky/FRONTEND_UI/HTML/index/mainpage.html", "r", encoding="utf-8").read()
+    # Читаем HTML файл
+    html_file_path = Path("/workspaces/oky-docky/oky-docky/FRONTEND_UI/HTML/index/mainpage.html")
     
-    return HTMLResponse(content=html_content)
+    try:
+        with open(html_file_path, "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        return HTMLResponse(content="""
+        <h1>🚀 Oky Docky API</h1>
+        <p>Frontend файл не найден. API работает на:</p>
+        <ul>
+            <li><a href="/docs">/docs - Swagger UI</a></li>
+            <li><a href="/api/templates">/api/templates - Список шаблонов</a></li>
+            <li><a href="/health">/health - Статус сервера</a></li>
+        </ul>
+        """)
 
 # ===========================
 # СЛУЖЕБНЫЕ ЭНДПОИНТЫ
@@ -94,7 +120,196 @@ async def get_stats():
         raise HTTPException(status_code=500, detail=f"Ошибка получения статистики: {str(e)}")
 
 # ===========================
-# API ДЛЯ ШАБЛОНОВ
+# НОВЫЕ API ДЛЯ УЛУЧШЕННОГО ПАРСИНГА
+# ===========================
+
+@router.get("/api/templates")
+async def get_templates():
+    """
+    ОБНОВЛЕНО: Получить список шаблонов с улучшенной информацией о плейсхолдерах
+    """
+    templates = []
+    
+    try:
+        for json_file in pdf_processor.templates_dir.glob("*.json"):
+            with open(json_file, encoding='utf-8') as f:
+                metadata = json.load(f)
+                
+                # Получаем PDF файл
+                pdf_file = pdf_processor.templates_dir / f"{metadata['id']}.pdf"
+                
+                if pdf_file.exists():
+                    # НОВОЕ! Получаем расширенную информацию о плейсхолдерах
+                    try:
+                        placeholders = pdf_processor.advanced_parser.analyze_template_file(pdf_file)
+                        form_fields = pdf_processor.advanced_parser.generate_form_fields(placeholders)
+                        
+                        # Добавляем новую информацию к метаданным
+                        metadata['placeholders'] = {
+                            name: {
+                                'name': info.name,
+                                'count': info.count,
+                                'positions': info.positions,
+                                'file_type': info.file_type
+                            } for name, info in placeholders.items()
+                        }
+                        metadata['form_fields'] = form_fields
+                        metadata['stats'] = {
+                            'total_placeholders': len(placeholders),
+                            'total_occurrences': sum(p.count for p in placeholders.values())
+                        }
+                        
+                    except Exception as e:
+                        print(f"⚠️ Ошибка анализа шаблона {metadata['id']}: {e}")
+                        # Fallback на старые данные
+                        metadata['placeholders'] = {}
+                        metadata['form_fields'] = []
+                        metadata['stats'] = {
+                            'total_placeholders': len(metadata.get('variables', [])),
+                            'total_occurrences': 0
+                        }
+                
+                templates.append(metadata)
+        
+        # Сортируем по дате загрузки (новые первыми)
+        templates.sort(key=lambda x: x.get('uploaded_at', ''), reverse=True)
+        
+        return {
+            "success": True,
+            "templates": {t['name']: t for t in templates},  # Формат как в frontend
+            "total": len(templates),
+            "last_scan": datetime.now().isoformat()
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка получения шаблонов: {str(e)}")
+
+@router.get("/api/template/{template_name}")
+async def get_template_info(template_name: str):
+    """
+    НОВОЕ: Получить подробную информацию о конкретном шаблоне
+    """
+    try:
+        # Ищем шаблон по имени файла
+        template_found = None
+        
+        for json_file in pdf_processor.templates_dir.glob("*.json"):
+            with open(json_file, encoding='utf-8') as f:
+                metadata = json.load(f)
+                if metadata.get('name') == template_name or f"{metadata.get('id')}.pdf" == template_name:
+                    template_found = metadata
+                    break
+        
+        if not template_found:
+            raise HTTPException(status_code=404, detail=f"Шаблон {template_name} не найден")
+        
+        # Получаем расширенную информацию
+        pdf_file = pdf_processor.templates_dir / f"{template_found['id']}.pdf"
+        if pdf_file.exists():
+            placeholders = pdf_processor.advanced_parser.analyze_template_file(pdf_file)
+            form_fields = pdf_processor.advanced_parser.generate_form_fields(placeholders)
+            
+            template_found['placeholders'] = {
+                name: {
+                    'name': info.name,
+                    'count': info.count,
+                    'positions': info.positions,
+                    'file_type': info.file_type
+                } for name, info in placeholders.items()
+            }
+            template_found['form_fields'] = form_fields
+            template_found['stats'] = {
+                'total_placeholders': len(placeholders),
+                'total_occurrences': sum(p.count for p in placeholders.values())
+            }
+        
+        return {
+            "success": True,
+            "template": template_found
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка получения информации о шаблоне: {str(e)}")
+
+@router.get("/api/debug/placeholder_test/{template_name}")
+async def debug_placeholder_test(template_name: str):
+    """
+    НОВОЕ: Отладочный эндпоинт для тестирования парсинга плейсхолдеров
+    """
+    try:
+        # Ищем файл
+        template_path = None
+        
+        # Сначала ищем по прямому имени файла
+        direct_path = pdf_processor.templates_dir / template_name
+        if direct_path.exists():
+            template_path = direct_path
+        else:
+            # Ищем по ID в JSON файлах
+            for json_file in pdf_processor.templates_dir.glob("*.json"):
+                with open(json_file, encoding='utf-8') as f:
+                    metadata = json.load(f)
+                    if metadata.get('name') == template_name:
+                        template_path = pdf_processor.templates_dir / f"{metadata['id']}.pdf"
+                        break
+        
+        if not template_path or not template_path.exists():
+            raise HTTPException(status_code=404, detail=f"Файл {template_name} не найден")
+        
+        # Получаем отладочную информацию
+        debug_info = pdf_processor.debug_template(str(template_path))
+        
+        return {
+            "success": True,
+            "debug_info": debug_info
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка отладки: {str(e)}")
+
+@router.post("/api/rescan_templates")
+async def rescan_templates():
+    """
+    НОВОЕ: Принудительное пересканирование шаблонов
+    """
+    try:
+        # Очищаем кэш
+        pdf_processor.template_cache.clear()
+        
+        # Пересканируем все шаблоны
+        rescanned_count = 0
+        for json_file in pdf_processor.templates_dir.glob("*.json"):
+            try:
+                with open(json_file, encoding='utf-8') as f:
+                    metadata = json.load(f)
+                
+                pdf_file = pdf_processor.templates_dir / f"{metadata['id']}.pdf"
+                if pdf_file.exists():
+                    # Повторно анализируем плейсхолдеры
+                    variables = pdf_processor.extract_variables_from_template(str(pdf_file))
+                    metadata['variables'] = variables
+                    
+                    # Сохраняем обновленные метаданные
+                    with open(json_file, 'w', encoding='utf-8') as f:
+                        json.dump(metadata, f, indent=2, ensure_ascii=False)
+                    
+                    rescanned_count += 1
+                    
+            except Exception as e:
+                print(f"⚠️ Ошибка пересканирования {json_file}: {e}")
+        
+        return {
+            "success": True,
+            "message": "Шаблоны пересканированы",
+            "total_templates": rescanned_count,
+            "scan_time": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка пересканирования: {str(e)}")
+
+# ===========================
+# ОСТАЛЬНЫЕ ОРИГИНАЛЬНЫЕ ЭНДПОИНТЫ (БЕЗ ИЗМЕНЕНИЙ)
 # ===========================
 
 @router.post("/api/upload-template")
@@ -121,7 +336,7 @@ async def upload_template(
         with open(template_path, "wb") as f:
             f.write(content)
         
-        # Извлекаем переменные из шаблона
+        # ОБНОВЛЕНО: Используем новый парсер для извлечения переменных
         variables = pdf_processor.extract_variables_from_template(str(template_path))
         
         # Сохраняем метаданные
@@ -142,6 +357,7 @@ async def upload_template(
             "form_id": form_id,
             "name": metadata["name"],
             "variables": variables,
+            "placeholders_found": len(variables),
             "message": f"Шаблон загружен! Найдено {len(variables)} переменных"
         }
         
@@ -151,28 +367,9 @@ async def upload_template(
             template_path.unlink()
         raise HTTPException(status_code=500, detail=f"Ошибка обработки файла: {str(e)}")
 
-@router.get("/api/templates")
-async def get_templates():
-    """Получить список всех загруженных шаблонов"""
-    templates = []
-    
-    try:
-        for json_file in pdf_processor.templates_dir.glob("*.json"):
-            with open(json_file, encoding='utf-8') as f:
-                metadata = json.load(f)
-                templates.append(metadata)
-        
-        # Сортируем по дате загрузки (новые первыми)
-        templates.sort(key=lambda x: x.get('uploaded_at', ''), reverse=True)
-        
-        return templates
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ошибка получения шаблонов: {str(e)}")
-
 @router.get("/api/template/{form_id}")
-async def get_template_info(form_id: str):
-    """Получить информацию о конкретном шаблоне"""
+async def get_template_info_by_id(form_id: str):
+    """Получить информацию о конкретном шаблоне по ID"""
     metadata_path = pdf_processor.templates_dir / f"{form_id}.json"
     
     if not metadata_path.exists():
@@ -226,12 +423,149 @@ async def delete_template(form_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка удаления: {str(e)}")
 
-# ===========================
-# API ДЛЯ ГЕНЕРАЦИИ
-# ===========================
+# Замени в myroutes.py функцию generate_document_by_name на эту:
 
-@router.post("/api/generate")
-async def generate_document(request: FormData, background_tasks: BackgroundTasks):
+@router.post("/api/generate/{template_name}")
+async def generate_document_by_name(
+    template_name: str,
+    request: Request
+):
+    """
+    ИСПРАВЛЕНО: Генерация документа по имени шаблона (для совместимости с frontend)
+    Принимает данные как FormData
+    """
+    try:
+        # Получаем данные из FormData
+        form_data = await request.form()
+        
+        format_type = form_data.get('format_type', 'pdf')
+        field_data_str = form_data.get('field_data', '{}')
+        
+        print(f"🔍 Получены данные: format_type={format_type}, field_data={field_data_str}")
+        
+        # Парсим данные полей
+        try:
+            import json
+            fields = json.loads(field_data_str)
+            print(f"📝 Распарсенные поля: {fields}")
+        except json.JSONDecodeError as e:
+            print(f"❌ Ошибка парсинга JSON: {e}")
+            raise HTTPException(status_code=400, detail=f"Некорректный JSON в field_data: {e}")
+        
+        # Ищем шаблон по имени
+        template_found = None
+        for json_file in pdf_processor.templates_dir.glob("*.json"):
+            with open(json_file, encoding='utf-8') as f:
+                metadata = json.load(f)
+                if metadata.get('name') == template_name or metadata.get('original_filename') == template_name:
+                    template_found = metadata
+                    print(f"✅ Найден шаблон: {metadata['name']} (ID: {metadata['id']})")
+                    break
+        
+        if not template_found:
+            print(f"❌ Шаблон {template_name} не найден")
+            # Покажем доступные шаблоны для отладки
+            available_templates = []
+            for json_file in pdf_processor.templates_dir.glob("*.json"):
+                with open(json_file, encoding='utf-8') as f:
+                    metadata = json.load(f)
+                    available_templates.append(metadata.get('name', 'Unknown'))
+            
+            raise HTTPException(
+                status_code=404, 
+                detail=f"Шаблон '{template_name}' не найден. Доступные: {available_templates}"
+            )
+        
+        # Проверяем существование PDF файла
+        pdf_path = pdf_processor.templates_dir / f"{template_found['id']}.pdf"
+        if not pdf_path.exists():
+            raise HTTPException(
+                status_code=404, 
+                detail=f"PDF файл для шаблона {template_name} не найден"
+            )
+        
+        print(f"📄 Обрабатываем PDF: {pdf_path}")
+        
+        # Обрабатываем PDF с новым процессором
+        try:
+            result_bytes = pdf_processor.process_pdf_with_variables(
+                str(pdf_path),
+                fields,
+                format_type
+            )
+            print(f"✅ PDF обработан, размер: {len(result_bytes)} байт")
+        except Exception as e:
+            print(f"❌ Ошибка обработки PDF: {e}")
+            raise HTTPException(status_code=500, detail=f"Ошибка обработки PDF: {e}")
+        
+        # Определяем расширение и content-type
+        if format_type == "png":
+            extension = "png"
+            content_type = "image/png"
+        else:
+            extension = "pdf"
+            content_type = "application/pdf"
+        
+        # Генерируем имя файла
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{template_found['id']}_{timestamp}_{uuid.uuid4().hex[:6]}.{extension}"
+        
+        print(f"💾 Сохраняем файл: {filename}")
+        
+        # Сохраняем файл
+        try:
+            file_url = await storage.save_file(
+                result_bytes,
+                filename,
+                content_type
+            )
+            print(f"✅ Файл сохранен: {file_url}")
+        except Exception as e:
+            print(f"❌ Ошибка сохранения файла: {e}")
+            raise HTTPException(status_code=500, detail=f"Ошибка сохранения файла: {e}")
+        
+        return {
+            "success": True,
+            "message": "Документ успешно сгенерирован",
+            "output_file": filename,
+            "format": format_type,
+            "download_url": file_url,
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        # Перебрасываем HTTP исключения как есть
+        raise
+    except Exception as e:
+        print(f"💥 Неожиданная ошибка: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Внутренняя ошибка сервера: {str(e)}")
+
+
+# ТАКЖЕ добавь вспомогательный endpoint для отладки:
+
+@router.get("/api/debug/form_data_test")
+async def debug_form_data_test():
+    """Отладочный endpoint для проверки данных"""
+    templates = []
+    for json_file in pdf_processor.templates_dir.glob("*.json"):
+        with open(json_file, encoding='utf-8') as f:
+            metadata = json.load(f)
+            templates.append({
+                "id": metadata.get('id'),
+                "name": metadata.get('name'),
+                "original_filename": metadata.get('original_filename'),
+                "variables": metadata.get('variables', []),
+                "pdf_exists": (pdf_processor.templates_dir / f"{metadata['id']}.pdf").exists()
+            })
+    
+    return {
+        "available_templates": templates,
+        "templates_dir": str(pdf_processor.templates_dir),
+        "storage_dir": str(storage.local_storage)
+    }
     """Генерация документа с заполненными данными"""
     
     # Проверяем существование шаблона
@@ -276,6 +610,64 @@ async def generate_document(request: FormData, background_tasks: BackgroundTasks
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка генерации: {str(e)}")
+
+# НОВОЕ! Эндпоинт для генерации с новым форматом (совместимость с frontend)
+@router.post("/api/generate/{template_name}")
+async def generate_document_by_name(
+    template_name: str,
+    format_type: str,
+    field_data: str
+):
+    """
+    НОВОЕ: Генерация документа по имени шаблона (для совместимости с frontend)
+    """
+    try:
+        import json
+        
+        # Парсим данные полей
+        try:
+            fields = json.loads(field_data)
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=400, detail="Некорректный JSON в field_data")
+        
+        # Ищем шаблон по имени
+        template_found = None
+        for json_file in pdf_processor.templates_dir.glob("*.json"):
+            with open(json_file, encoding='utf-8') as f:
+                metadata = json.load(f)
+                if metadata.get('name') == template_name:
+                    template_found = metadata
+                    break
+        
+        if not template_found:
+            raise HTTPException(status_code=404, detail=f"Шаблон {template_name} не найден")
+        
+        # Создаем запрос в старом формате
+        from models import FormData, OutputFormat
+        
+        # Преобразуем формат
+        format_mapping = {
+            'png': OutputFormat.PNG_FREE,
+            'pdf': OutputFormat.PDF_LOCKED,
+            'pdf_editable': OutputFormat.PDF_EDITABLE
+        }
+        
+        output_format = format_mapping.get(format_type, OutputFormat.PDF_LOCKED)
+        
+        request = FormData(
+            form_id=template_found['id'],
+            variables=fields,
+            output_format=output_format
+        )
+        
+        # Используем существующую функцию генерации
+        from fastapi import BackgroundTasks
+        result = await generate_document(request, BackgroundTasks())
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка генерации документа: {str(e)}")
 
 @router.post("/api/generate-batch")
 async def generate_batch(
@@ -372,3 +764,145 @@ async def get_file(filename: str):
         media_type=media_type,
         filename=filename
     )
+
+@router.get("/api/download/{filename}")
+async def download_file(filename: str):
+    """
+    НОВОЕ: Скачивание сгенерированного файла (совместимость с frontend)
+    """
+    return await get_file(filename)
+# ДОБАВЬ ЭТИ ЭНДПОИНТЫ В КОНЕЦ backend/myroutes.py (перед последней строкой):
+
+@router.post("/api/generate/{template_name}")
+async def generate_document_by_name(
+    template_name: str,
+    request: Request
+):
+    """Генерация документа по имени шаблона (для совместимости с frontend)"""
+    try:
+        # Получаем данные из FormData
+        form_data = await request.form()
+        
+        format_type = form_data.get('format_type', 'pdf')
+        field_data_str = form_data.get('field_data', '{}')
+        
+        print(f"🔍 Получены данные: format_type={format_type}, field_data={field_data_str}")
+        
+        # Парсим данные полей
+        try:
+            fields = json.loads(field_data_str)
+            print(f"📝 Распарсенные поля: {fields}")
+        except json.JSONDecodeError as e:
+            print(f"❌ Ошибка парсинга JSON: {e}")
+            raise HTTPException(status_code=400, detail=f"Некорректный JSON в field_data: {e}")
+        
+        # Ищем шаблон по имени
+        template_found = None
+        for json_file in pdf_processor.templates_dir.glob("*.json"):
+            with open(json_file, encoding='utf-8') as f:
+                metadata = json.load(f)
+                if metadata.get('name') == template_name or metadata.get('original_filename') == template_name:
+                    template_found = metadata
+                    print(f"✅ Найден шаблон: {metadata['name']} (ID: {metadata['id']})")
+                    break
+        
+        if not template_found:
+            print(f"❌ Шаблон {template_name} не найден")
+            # Покажем доступные шаблоны для отладки
+            available_templates = []
+            for json_file in pdf_processor.templates_dir.glob("*.json"):
+                with open(json_file, encoding='utf-8') as f:
+                    metadata = json.load(f)
+                    available_templates.append(metadata.get('name', 'Unknown'))
+            
+            raise HTTPException(
+                status_code=404, 
+                detail=f"Шаблон '{template_name}' не найден. Доступные: {available_templates}"
+            )
+        
+        # Проверяем существование PDF файла
+        pdf_path = pdf_processor.templates_dir / f"{template_found['id']}.pdf"
+        if not pdf_path.exists():
+            raise HTTPException(
+                status_code=404, 
+                detail=f"PDF файл для шаблона {template_name} не найден"
+            )
+        
+        print(f"📄 Обрабатываем PDF: {pdf_path}")
+        
+        # Обрабатываем PDF с новым процессором
+        try:
+            result_bytes = pdf_processor.process_pdf_with_variables(
+                str(pdf_path),
+                fields,
+                format_type
+            )
+            print(f"✅ PDF обработан, размер: {len(result_bytes)} байт")
+        except Exception as e:
+            print(f"❌ Ошибка обработки PDF: {e}")
+            raise HTTPException(status_code=500, detail=f"Ошибка обработки PDF: {e}")
+        
+        # Определяем расширение и content-type
+        if format_type == "png":
+            extension = "png"
+            content_type = "image/png"
+        else:
+            extension = "pdf"
+            content_type = "application/pdf"
+        
+        # Генерируем имя файла
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{template_found['id']}_{timestamp}_{uuid.uuid4().hex[:6]}.{extension}"
+        
+        print(f"💾 Сохраняем файл: {filename}")
+        
+        # Сохраняем файл
+        try:
+            file_url = await storage.save_file(
+                result_bytes,
+                filename,
+                content_type
+            )
+            print(f"✅ Файл сохранен: {file_url}")
+        except Exception as e:
+            print(f"❌ Ошибка сохранения файла: {e}")
+            raise HTTPException(status_code=500, detail=f"Ошибка сохранения файла: {e}")
+        
+        return {
+            "success": True,
+            "message": "Документ успешно сгенерирован",
+            "output_file": filename,
+            "format": format_type,
+            "download_url": file_url,
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        # Перебрасываем HTTP исключения как есть
+        raise
+    except Exception as e:
+        print(f"💥 Неожиданная ошибка: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Внутренняя ошибка сервера: {str(e)}")
+
+
+@router.get("/api/debug/form_data_test")
+async def debug_form_data_test():
+    """Отладочный endpoint для проверки данных"""
+    templates = []
+    for json_file in pdf_processor.templates_dir.glob("*.json"):
+        with open(json_file, encoding='utf-8') as f:
+            metadata = json.load(f)
+            templates.append({
+                "id": metadata.get('id'),
+                "name": metadata.get('name'),
+                "original_filename": metadata.get('original_filename'),
+                "variables": metadata.get('variables', []),
+                "pdf_exists": (pdf_processor.templates_dir / f"{metadata['id']}.pdf").exists()
+            })
+    
+    return {
+        "available_templates": templates,
+        "templates_dir": str(pdf_processor.templates_dir),
+        "storage_dir": str(storage.local_storage)
+    }
