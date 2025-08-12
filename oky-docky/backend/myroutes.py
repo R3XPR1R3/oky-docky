@@ -3,6 +3,8 @@ from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from typing import Dict, Optional, List
 import os
+from pydantic import BaseModel
+from typing import Dict
 import uuid
 
 
@@ -708,34 +710,35 @@ async def generate_batch(
         "failed": len(results) - success_count
     }
 
+class ValidateRequest(BaseModel):
+    form_id: str
+    variables: Dict[str, str]
+
 @router.post("/api/validate-variables")
-async def validate_variables(form_id: str, variables: Dict[str, str]):
-    """Валидация переменных перед генерацией"""
+async def validate_variables(payload: ValidateRequest):
     try:
-        # Получаем список переменных из шаблона
         template_variables = pdf_processor.extract_variables_from_template(
-            str(pdf_processor.templates_dir / f"{form_id}.pdf")
+            str(pdf_processor.templates_dir / f"{payload.form_id}.pdf")
         )
-        
+
         missing_variables = []
         empty_variables = []
-        
+
         for var in template_variables:
-            if var not in variables:
+            if var not in payload.variables:
                 missing_variables.append(var)
-            elif not variables[var].strip():
+            elif not (payload.variables[var] or "").strip():
                 empty_variables.append(var)
-        
-        is_valid = len(missing_variables) == 0 and len(empty_variables) == 0
-        
+
+        is_valid = not missing_variables and not empty_variables
+
         return {
             "valid": is_valid,
             "missing_variables": missing_variables,
             "empty_variables": empty_variables,
-            "provided_variables": list(variables.keys()),
+            "provided_variables": list(payload.variables.keys()),
             "required_variables": template_variables
         }
-        
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка валидации: {str(e)}")
 

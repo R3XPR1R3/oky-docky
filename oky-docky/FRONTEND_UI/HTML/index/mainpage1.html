@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oky Docky - Генератор документов онлайн</title>
+    
+    <!-- SEO мета-теги -->
+    <meta name="description" content="Oky Docky - профессиональный генератор документов с автозаполнением. Создавайте PDF формы быстро и легко.">
+    <meta name="keywords" content="генератор документов, PDF, формы, автозаполнение, онлайн">
+    <meta name="author" content="Oky Docky">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Oky Docky - Генератор документов">
+    <meta property="og:description" content="Профессиональный генератор документов с автозаполнением">
+    <meta property="og:type" content="website">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3e%3ctext y='.9em' font-size='90'%3e📄%3c/text%3e%3c/svg%3e">
+    
+    <!-- Современные шрифты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Anime.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <!-- Стили - ВСЕ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ -->
+    <style>
+        /* ============ CSS ПЕРЕМЕННЫЕ ============ */
+        :root {
+            /* Цветовая палитра - профессиональный минимализм */
+            --primary: #1a1a1a;
+            --primary-light: #2d2d2d;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-dark: #4f46e5;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+        }
+
+        /* Темная тема */
+        [data-theme="dark"] {
+            --primary: #ffffff;
+            --primary-light: #f1f5f9;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --border: #334155;
+            --border-light: #1e293b;
+        }
+
+        /* ============ СБРОС И БАЗОВЫЕ СТИЛИ ============ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* ============ ТИПОГРАФИКА ============ */
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-base { font-size: 1rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-4xl { font-size: 2.25rem; }
+        .text-5xl { font-size: 3rem; }
+
+        .font-light { font-weight: 300; }
+        .font-normal { font-weight: 400; }
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+
+        /* ============ LAYOUT ============ */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .section {
+            padding: 4rem 0;
+        }
+
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+        .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+        @media (min-width: 768px) {
+            .md\\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+            .md\\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (min-width: 1024px) {
+            .lg\\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+            .lg\\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        /* ============ КОМПОНЕНТЫ ============ */
+
+        /* Хедер */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-light);
+            padding: 1rem 0;
+            opacity: 0;
+            transform: translateY(-100%);
+        }
+
+        [data-theme="dark"] .header {
+            background: rgba(15, 23, 42, 0.95);
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            position: relative;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--accent);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Кнопки */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+
+        /* Карточки */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--accent-light);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        /* Инпуты */
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Поиск */
+        .search-container {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto 3rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-input {
+            padding-left: 3rem;
+            font-size: 1rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        /* Теги */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-secondary);
+            color: var(--accent);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .tag:hover {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* Модальные окна */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        /* Уведомления */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow-xl);
+            z-index: 200;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-color: var(--success);
+            background: var(--bg-card);
+        }
+
+        .toast.error {
+            border-color: var(--error);
+            background: var(--bg-card);
+        }
+
+        /* Hero секция */
+        .hero {
+            padding: 6rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            z-index: -1;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .hero-cta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        /* Статистика */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Темная тема переключатель */
+        .theme-toggle {
+            width: 48px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .theme-toggle.active {
+            background: var(--accent);
+        }
+
+        .theme-toggle-thumb {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle.active .theme-toggle-thumb {
+            transform: translateX(24px);
+        }
+
+        /* Анимации загрузки */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 4rem 0;
+            }
+
+            .section {
+                padding: 3rem 0;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Утилиты */
+        .hidden { display: none !important; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+        .transition { transition: all 0.3s ease; }
+        .opacity-0 { opacity: 0; }
+        .opacity-100 { opacity: 1; }
+        .transform { transform: translateY(0); }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="#" class="logo">
+                    <div class="logo-icon">📄</div>
+                    <span class="font-display">Oky Docky</span>
+                </a>
+                
+                <ul class="nav-links">
+                    <li><a href="#templates" class="nav-link active">Шаблоны</a></li>
+                    <li><a href="#upload" class="nav-link">Загрузить</a></li>
+                    <li><a href="#generate" class="nav-link">Генерировать</a></li>
+                </ul>
+                
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="theme-toggle" id="themeToggle">
+                        <div class="theme-toggle-thumb"></div>
+                    </div>
+                    <button class="btn btn-primary">Начать</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="hero-bg"></div>
+            <div class="container">
+                <h1 class="hero-title font-display" id="heroTitle">
+                    Создавайте документы<br>
+                    <span style="color: var(--accent);">профессионально</span>
+                </h1>
+                
+                <p class="hero-subtitle" id="heroSubtitle">
+                    Oky Docky — современная платформа для генерации документов с автозаполнением переменных. 
+                    Быстро, удобно, безопасно.
+                </p>
+                
+                <div class="hero-cta" id="heroCta">
+                    <button class="btn btn-primary btn-lg">Попробовать бесплатно</button>
+                    <button class="btn btn-secondary btn-lg">Посмотреть демо</button>
+                </div>
+
+                <!-- Статистика -->
+                <div class="stats" id="stats">
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="1000">0</div>
+                        <div class="stat-label">Создано документов</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="50">0</div>
+                        <div class="stat-label">Активных шаблонов</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="99">0</div>
+                        <div class="stat-label">Точность заполнения</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Section -->
+        <section class="section" id="searchSection">
+            <div class="container">
+                <div class="search-container" id="searchContainer">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" class="input search-input" placeholder="Найти шаблон документа..." id="searchInput">
+                </div>
+            </div>
+        </section>
+
+        <!-- Templates Section -->
+        <section class="section" id="templatesSection">
+            <div class="container">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" id="templatesGrid">
+                    <!-- Карточки шаблонов будут добавлены динамически -->
+                </div>
+
+                <!-- Пустое состояние -->
+                <div class="hidden" id="emptyState" style="text-align: center; padding: 4rem 0;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">📄</div>
+                    <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Пока нет шаблонов</h3>
+                    <p style="color: var(--text-secondary);">Загрузите первый PDF шаблон, чтобы начать работу</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal для генерации -->
+    <div class="modal" id="generateModal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-size: 1.5rem; font-weight: 600;">Заполните данные</h2>
+                <button class="btn btn-ghost" onclick="closeGenerateModal()" style="padding: 0.5rem;">✕</button>
+            </div>
+            
+            <form id="generateForm">
+                <div id="formFields">
+                    <!-- Поля формы будут добавлены динамически -->
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        Сгенерировать документ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<div class="modal" id="formatModal">
+  <div class="modal-content">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
+      <h2 style="font-size:1.5rem;font-weight:600;">Выберите формат</h2>
+      <button class="btn btn-ghost" onclick="closeFormatModal()" style="padding:0.5rem;">✕</button>
+    </div>
+
+    <div class="grid grid-cols-1" style="gap:1rem;">
+      <div class="card" id="fmtPNG" style="cursor:pointer;margin:0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+          <h3 style="font-weight:600;">PNG с водяными знаками</h3>
+          <span style="color:var(--success);font-weight:600;">Бесплатно</span>
+        </div>
+        <p style="color:var(--text-secondary);font-size:0.875rem;">Изображение среднего качества с водяными знаками</p>
+      </div>
+
+      <div class="card" id="fmtPDF" style="cursor:pointer;margin:0;border-color:var(--accent);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+          <h3 style="font-weight:600;">PDF документ</h3>
+          <span style="color:var(--accent);font-weight:600;">$0.59</span>
+        </div>
+        <p style="color:var(--text-secondary);font-size:0.875rem;">Высокое качество, без водяных знаков</p>
+      </div>
+
+      <div class="card" id="fmtPDFE" style="cursor:pointer;margin:0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+          <h3 style="font-weight:600;">Редактируемый PDF</h3>
+          <span style="color:var(--accent);font-weight:600;">$1.39</span>
+        </div>
+        <p style="color:var(--text-secondary);font-size:0.875rem;">Можно редактировать в PDF редакторах</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ЛОКАЛЬНЫЙ скрипт сразу под блоком -->
+<script>
+(() => {
+  const byId = (id) => document.getElementById(id);
+  const call = (fmt) => {
+    if (!window.app || typeof window.app.generateDocument !== 'function') {
+      console.error('app.generateDocument недоступен'); 
+      return;
+    }
+    window.app.generateDocument(fmt);
+  };
+
+  byId('fmtPNG') ?.addEventListener('click', () => call('png'));
+  byId('fmtPDF') ?.addEventListener('click', () => call('pdf'));
+  byId('fmtPDFE')?.addEventListener('click', () => call('pdf_editable'));
+})();
+</script>
+
+    <!-- Toast уведомления -->
+    <div class="toast" id="toast">
+        <div id="toastMessage"></div>
+    </div>
+
+    <!-- ✅ ИСПРАВЛЕННЫЙ ПУТЬ К JS! -->
+    <script  src="/js/SCRIPTS/main.js"></script>
+    
+    <!-- Fallback на случай если не работает -->
+    <script>
+        // Проверяем загрузился ли главный скрипт
+        setTimeout(() => {
+            if (typeof app === 'undefined') {
+                console.error('❌ main.js не загрузился! Пробуем альтернативные пути...');
+                
+                // Пробуем разные пути
+                const alternativePaths = [
+
+                    '/workspaces/oky-docky/oky-docky/FRONTEND_UI/JS/SCRIPTS/main.js',
+
+                ];
+                
+                let pathIndex = 0;
+                
+                function tryNextPath() {
+                    if (pathIndex >= alternativePaths.length) {
+                        console.error('💥 Не удалось загрузить JS файл по всем путям!');
+                        
+                        // Показываем ошибку пользователю
+                        document.body.innerHTML += `
+                            <div style="position: fixed; top: 0; left: 0; width: 100%; background: #ef4444; color: white; padding: 1rem; text-align: center; z-index: 9999;">
+                                ⚠️ Ошибка загрузки JavaScript. Обновите страницу или проверьте консоль.
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    const script = document.createElement('script');
+                    script.src = alternativePaths[pathIndex];
+                    script.onload = () => {
+                        console.log(`✅ JS загружен по пути: ${alternativePaths[pathIndex]}`);
+                    };
+                    script.onerror = () => {
+                        console.warn(`❌ Не удалось загрузить: ${alternativePaths[pathIndex]}`);
+                        pathIndex++;
+                        tryNextPath();
+                    };
+                    
+                    document.head.appendChild(script);
+                }
+                
+                tryNextPath();
+            } else {
+                console.log('✅ main.js успешно загружен!');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
