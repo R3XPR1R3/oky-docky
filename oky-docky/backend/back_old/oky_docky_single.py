@@ -894,17 +894,83 @@ def render_pdf_from_template_path(
     return render_pdf_from_json(root, out_path, external_images=external_images or {}, values=values or {})
 
 
+from typing import Dict, Any, List
+
 def introspect_template_path(template_path: str) -> Dict[str, Any]:
+    """
+    Загружает JSON-шаблон, валидирует и вытаскивает:
+    - placeholders: список текстовых плейсхолдеров (как раньше)
+    - cb_counts: сырая инфа по чекбоксам (как раньше)
+    - fields: единый список полей для фронта:
+        [
+          {"kind": "text", "key": "first_name", "order": 0},
+          {"kind": "text", "key": "last_name",  "order": 1},
+          {"kind": "checkbox", "group_id": "cb1",
+           "options": ["cb1.opt1", "cb1.opt2"], "exclusive": True, "order": 2},
+          ...
+        ]
+    """
     data = json_scraper(template_path)
     if data is None:
         raise ValueError("Template file not found or invalid JSON")
+
     ok, root = validate_json_structure(data)
     if not ok or root is None:
         raise ValueError("Invalid template JSON structure")
+
+    # то, что уже было
+    placeholders: List[str] = collect_placeholders_from_text_nodes(root)
+    cb_counts: Dict[str, int] = count_cb_occurrences(root)
+    
+
+
+    # --- группируем чекбоксы по "cb1", "cb1.opt1" и т.п. ---
+    # ожидаем, что ключи в cb_counts выглядят типа:
+    #   "cb1" или "cb1.opt1", "cb1.opt2"
+    checkbox_groups: Dict[str, List[str]] = {}
+
+    for cb_key in cb_counts.keys():
+        if "." in cb_key:
+            group_id, _ = cb_key.split(".", 1)
+        else:
+            group_id = cb_key
+        checkbox_groups.setdefault(group_id, []).append(cb_key)
+
+    # --- собираем единый список полей ---
+    fields: List[Dict[str, Any]] = []
+    order = 0
+
+    # текстовые плейсхолдеры
+    for key in placeholders:
+        fields.append({
+            "kind": "text",
+            "key": key,
+            "order": order,
+            # сюда потом можно добавить "page", "x", "y", если появятся
+        })
+        order += 1
+
+    # чекбокс-группы
+    for group_id, count in checkbox_groups.items():
+        fields.append({
+            "kind": "checkbox",
+            "group_id": group_id,
+            "count": count,       # 👈 вот это важно
+            
+            "exclusive": True,   # пока считаем, что это радио-группа; можно сделать настройкой
+            "order": order,
+        })
+        order += 1
+
+    # на всякий случай сортируем по order (если выше когда-нибудь сменишь цикл)
+    fields.sort(key=lambda f: f["order"])
+
     return {
-        "placeholders": collect_placeholders_from_text_nodes(root),
-        "cb_counts": count_cb_occurrences(root),
+        "placeholders": placeholders,
+        "cb_counts": cb_counts,
+        "fields": fields,
     }
+
 
 
 # =========================

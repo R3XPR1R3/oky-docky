@@ -2,62 +2,84 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Oky Docky — forms</title>
+  <title>Oky Docky – Form playground</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Header -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <!-- === LOGO SLOT === -->
-      <a class="logo" href="#" aria-label="Oky Docky home">
-        <!-- оставляю чистый слот под твой SVG-логотип -->
-        <svg width="120" height="42" viewBox="0 0 120 42" role="img" aria-label="Logo placeholder">
-          <rect x="2" y="2" width="116" height="38" rx="8" fill="none" stroke="currentColor" stroke-dasharray="6 6" opacity="0.5"/>
-          <text x="60" y="26" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.55">your logo here</text>
-        </svg>
-      </a>
-
-      <nav class="header-actions" aria-label="Quick actions">
-        <button class="icon-btn" title="Sign in" aria-label="Sign in">
-          <span class="dot"></span>
-        </button>
-        <button class="icon-btn" title="Help" aria-label="Help">
-          ?
-        </button>
-      </nav>
+  <header class="pg-header">
+    <div class="pg-container pg-header__inner">
+      <div class="pg-logo-slot">
+        <!-- сюда можно тот же SVG логотип, что и на лендинге -->
+        <span class="pg-logo-text">Oky Docky • playground</span>
+      </div>
     </div>
   </header>
 
-  <!-- Search block -->
-  <section class="search-wrap">
-    <div class="container">
-      <div class="search-card" role="search">
-        <h1 class="search-title">search for form here</h1>
-        <div class="search-input-wrap">
-          <span class="search-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M10.5 3a7.5 7.5 0 015.9 12.2l3.7 3.7-1.8 1.8-3.7-3.7A7.5 7.5 0 1110.5 3zm0 2.5a5 5 0 100 10 5 5 0 000-10z"/></svg>
-          </span>
-          <input id="search" class="search-input" type="text" placeholder="Type to filter…" autocomplete="off">
+  <main class="pg-container pg-layout">
+    <!-- LEFT: форма / шаблон -->
+    <section class="pg-panel" aria-label="Template selection">
+      <h2>1. Choose form or upload JSON</h2>
+
+      <div class="pg-block">
+        <label for="form-select">Predefined forms:</label>
+        <select id="form-select">
+          <option value="">— select form —</option>
+        </select>
+        <button id="btn-load-form" class="pg-btn">Load placeholders</button>
+        <p class="pg-hint">Server will load corresponding *.json from /templates by form id.</p>
+      </div>
+
+      <div class="pg-block">
+        <p class="pg-or">or</p>
+        <label for="json-file">Upload template JSON:</label>
+        <input id="json-file" type="file" accept="application/json">
+        <button id="btn-introspect-upload" class="pg-btn pg-btn--ghost">Introspect uploaded JSON</button>
+        <p class="pg-hint">Uses /introspect endpoint (multipart/form-data).</p>
+      </div>
+
+      <div class="pg-block">
+        <label for="image-files">Optional images (for template):</label>
+        <input id="image-files" type="file" multiple accept="image/*">
+        <p class="pg-hint">You can reference them in template via imageRef keys (advanced).</p>
+      </div>
+
+      <div id="status" class="pg-status" aria-live="polite"></div>
+    </section>
+
+    <!-- MIDDLE: плейсхолдеры / значения -->
+    <section class="pg-panel" aria-label="Fill values">
+      <h2>2. Fill placeholders</h2>
+      <form id="values-form" class="pg-values-form">
+        <div id="placeholders-empty" class="pg-hint">
+          No placeholders yet. Load a form or introspect JSON first.
+        </div>
+        <div id="placeholders-list"></div>
+        <section class="pg-section">
+          <h2 class="pg-section__title">Checkboxes</h2>
+            <p id="cb-empty" class="pg-muted">
+            No checkbox groups in this template.
+            </p>
+          <div id="cb-list"></div>
+        </section>  
+        <div class="pg-block pg-block--buttons">
+          <button type="button" id="btn-render" class="pg-btn" disabled>Render PDF</button>
+          <button type="button" id="btn-download" class="pg-btn pg-btn--ghost" disabled>Download PDF</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- RIGHT: PDF preview -->
+    <section class="pg-panel" aria-label="Preview">
+      <h2>3. Preview</h2>
+      <div id="preview-wrap" class="pg-preview-wrap">
+        <iframe id="preview-frame" title="PDF preview" class="pg-preview-frame"></iframe>
+        <div id="preview-empty" class="pg-preview-empty">
+          PDF preview will appear here after render.
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Cards grid -->
-  <main class="container">
-    <div id="cards" class="card-grid" aria-live="polite"></div>
+    </section>
   </main>
-
-  <footer class="site-footer">
-    <div class="container">
-      <small>© <span id="year"></span> Oky Docky. Paperwork without pain.</small>
-    </div>
-  </footer>
 
   <script src="app.js"></script>
 </body>

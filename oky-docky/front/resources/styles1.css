@@ -1,0 +1,690 @@
+:root{
+  /* palette — теплый офисный вайб */
+  --bg: #FAF7F2;          /* бумажный фон */
+  --panel: #F4EDE5;       /* мягкие панели */
+  --ink: #2C2C2C;         /* текст */
+  --accent: #4A7B9D;      /* умный офисный сине-серый */
+  --accent-2: #F0A868;    /* тёплый песочно-оранжевый */
+  --mint: #85BDBF;        /* мягкий мятный для ховеров */
+  --shadow: 0 10px 30px rgba(0,0,0,.08), 0 2px 7px rgba(0,0,0,.06);
+  --radius-lg: 28px;
+  --radius-md: 16px;
+  --radius-sm: 10px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
+  color:var(--ink);
+  background: var(--bg);
+  line-height:1.5;
+}
+
+/* containers */
+.container{width:min(1200px, 92%); margin-inline:auto}
+
+/* header */
+.site-header{
+  position: sticky; top:0; z-index:10;
+  background: linear-gradient(0deg, rgba(250,247,242,0.85), rgba(250,247,242,0.95));
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.header-inner{display:flex; align-items:center; justify-content:space-between; padding:14px 0}
+.logo{display:inline-flex; align-items:center; color:var(--accent); text-decoration:none}
+.header-actions{display:flex; gap:10px}
+.icon-btn{
+  width:42px; height:42px; border-radius:12px; border:none; cursor:pointer;
+  background: var(--mint);
+  color:white; font-weight:800;
+  box-shadow: var(--shadow);
+  transition: transform .08s ease, filter .2s ease;
+}
+.icon-btn .dot{display:block; width:10px; height:10px; border-radius:50%; background:white; 
+  margin:inline-auto; 
+  margin-top:16px;}
+.icon-btn:hover{transform: translateY(-1px)}
+.icon-btn:active{transform: translateY(0) scale(.98)}
+
+/* search area */
+.search-wrap{padding:40px 0 26px}
+.search-card{
+  background: #9D6B84; /* приглушённая слива, как в макете, но чище */
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 28px 24px 30px;
+  box-shadow: var(--shadow);
+}
+.search-title{
+  font: 800 42px/1.15 Nunito, Inter, sans-serif;
+  margin: 8px 0 18px;
+  letter-spacing:.5px;
+  text-align:center;
+}
+.search-input-wrap{
+  display:flex; align-items:center; gap:12px;
+  background: linear-gradient(0deg, #ffffff, #ffffff);
+  border-radius: 14px;
+  padding: 8px 12px 8px 14px;
+  outline: 3px solid rgba(255,255,255,.28);
+  box-shadow: inset 0 1px 0 rgba(0,0,0,.05);
+}
+.search-icon{display:inline-flex; width:28px; height:28px; color:#8A7B84}
+.search-icon svg{fill:currentColor}
+.search-input{
+  flex:1; border:none; background:transparent;
+  padding: 12px 10px; font-size:18px; color:var(--ink);
+}
+.search-input::placeholder{color:#B5A8B1}
+.search-input:focus{outline:none}
+
+/* grid */
+.card-grid{
+  display:grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 22px;
+  padding: 24px 0 80px;
+}
+@media (max-width: 1100px){
+  .card-grid{grid-template-columns: repeat(8, 1fr)}
+}
+@media (max-width: 720px){
+  .card-grid{grid-template-columns: repeat(4, 1fr)}
+}
+
+/* card */
+.card{
+  grid-column: span 3;
+  background: var(--panel);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(0,0,0,.06);
+  overflow:hidden;
+  display:flex; flex-direction:column;
+  transition: transform .12s ease, box-shadow .2s ease;
+}
+.card:hover{transform: translateY(-3px); box-shadow: 0 14px 36px rgba(0,0,0,.12), 0 4px 10px rgba(0,0,0,.08)}
+.card__title{
+  font: 800 18px/1.25 Nunito, Inter, sans-serif;
+  padding: 12px 16px;
+  background: #F8EFE9;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.card__media{
+  aspect-ratio: 4 / 3;
+  display:grid; place-items:center;
+  background:
+    radial-gradient(120px 60px at 50% 30%, rgba(0,0,0,.06), transparent 60%),
+    linear-gradient(#fff, #FAF7F2);
+}
+.paper-stack{
+  width:78%; max-width:340px; position:relative; filter: drop-shadow(0 6px 12px rgba(0,0,0,.12));
+}
+.paper-1,.paper-2,.paper-3{
+  position:absolute; inset:0;
+  background: linear-gradient(#FFFCEB, #E9D9B8);
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,.12);
+}
+.paper-1{transform: rotate(-9deg) translate(-12px, 8px)}
+.paper-2{transform: rotate(-2deg)}
+.paper-3{transform: rotate(10deg) translate(12px, 6px)}
+.paper-lines::before{
+  content:""; position:absolute; left:12%; right:12%; top:24%;
+  height:48%; background:
+    repeating-linear-gradient( to bottom,
+      rgba(0,0,0,.55), rgba(0,0,0,.55) 8px,
+      transparent 8px, transparent 18px
+    );
+  filter: blur(.6px); opacity:.7;
+}
+
+.card__tags{
+  display:grid; grid-template-columns: repeat(3, 1fr); gap:8px;
+  padding: 12px; margin-top:auto;
+  border-top: 1px solid rgba(0,0,0,.06);
+  background:#fff;
+}
+.tag{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding: 8px 6px; border-radius: 8px;
+  font-size:12px; font-weight:600; letter-spacing:.02em;
+  background: #EEF6F6; color:#2f6162; border:1px solid #d1ecec;
+}
+
+/* footer */
+.site-footer{border-top:1px solid rgba(0,0,0,.06); padding:20px 0; color:#666}
+
+
+/* === FORM PANEL / DRAWER === */
+
+/* === POPUP CARD === */
+
+.form-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+}
+
+.form-panel.is-open {
+  display: block;
+}
+
+.form-panel__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(3px);
+}
+
+/* сама карточка, как на скрине */
+.form-card {
+  position: relative;
+  max-width: 380px;
+  width: 100%;
+  background: #f4ecdf;
+  border-radius: 20px;
+  margin: 40px auto;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.12);
+  font-size: 14px;
+}
+
+/* когда есть превью — чуть увеличиваем высоту */
+.form-panel.has-preview .form-card {
+  max-width: 540px;
+}
+
+/* шапка */
+.form-card__header {
+  background: #e8ddcf;
+  padding: 8px 14px 6px;
+  border-bottom: 1px solid rgba(0,0,0,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-card__title {
+  margin: 0;
+  text-align: center;
+  font: 700 18px/1.2 Nunito, Inter, sans-serif;
+}
+
+.form-card__subtitle {
+  margin: 2px 0 0;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.form-card__close {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+.form-card__close:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+/* тело карточки */
+.form-card__body {
+  padding: 8px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-card__status {
+  min-height: 16px;
+  font-size: 11px;
+  color: #7b6f72;
+}
+
+/* поля */
+.form-card__fields-wrap {
+  max-height: 450px;
+  overflow-y: auto;
+  background: #f4ecdf;
+  border-radius: 4px;
+}
+
+.form-card__empty {
+  font-size: 13px;
+  color: #8b7e81;
+  padding: 4px 4px 8px;
+}
+
+/* сами поля — используем твой старый стиль */
+.form-card__fields {
+  padding-right: 6px;
+}
+
+.pg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 6px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.pg-field label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pg-field__key {
+  font-size: 11px;
+  opacity: .6;
+}
+
+.pg-field textarea,
+.pg-field input[type="text"] {
+  resize: vertical;
+  min-height: 28px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.3);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+/* чекбоксы / радио-группы */
+.form-card__checkboxes {
+  margin-top: 4px;
+}
+
+.cb-group {
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 6px;
+  padding: 8px 8px;
+  margin-bottom: 4px;
+  background: #f7efe2;
+}
+
+.cb-group label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cb-group legend {
+  font-size: 20px;
+  bottom: 12px;
+  font-weight: 800;
+  padding: 0 7px;
+}
+
+.cb-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 15px;
+  margin: 2px 0;
+}
+
+.cb-option input[type="radio"] {
+  width: 18px;
+  height: 18px;
+}
+
+/* PDF превью */
+.form-card__preview-wrap {
+  margin-top: 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.15);
+  overflow: hidden;
+  overflow-y: auto;
+  height: 0;
+  opacity: 0;
+  transition: height .2s ease, opacity .2s ease;
+}
+
+.form-card__preview-wrap iframe {
+  width: 100%;
+  height: 260px;
+  border: none;
+  background: #fff;
+}
+
+/* показываем превью */
+.form-card__preview-wrap.is-visible {
+  height: 260px;
+  opacity: 1;
+}
+
+/* кнопки */
+.form-card__buttons {
+  margin-top: 8px;
+  display: flex;
+  gap: 10px;
+}
+
+.form-card__btn {
+  flex: 1;
+  border-radius: 14px;
+  padding: 8px 0;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.form-card__btn--primary {
+  background: #44759b;
+  color: #fff;
+}
+
+.form-card__btn--primary:disabled {
+  opacity: .6;
+  cursor: default;
+}
+
+.form-card__btn--ghost {
+  background: #f9f5ef;
+  border: 1px solid rgba(0,0,0,0.15);
+}
+
+.form-card__btn--ghost:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+@media (max-width: 480px) {
+  .form-card {
+    margin: 20px 12px;
+  }
+}
+
+
+#panel-fields {
+  margin-top: 6px;
+  padding-right: 6px;
+  overflow-y: auto;  /* 👈 скроллим только список полей */
+}
+
+/* поля ввода плейсхолдеров */
+
+.pg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+  border: 1px solid rgba(0,0,0,0.04);
+  margin-bottom: 8px;
+}
+
+.pg-field label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pg-field__key {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.pg-field textarea {
+  resize: vertical;
+  min-height: 32px;
+  max-height: 120px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.12);
+  font-size: 13px;
+  font-family: inherit;
+  background: #fff;
+}
+
+.pg-field textarea:focus {
+  outline: 2px solid #4A7B9D;
+  outline-offset: 1px;
+}
+
+/* правая часть — превью */
+
+.form-panel__preview {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.form-panel__buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+/* кнопки можно привязать к уже существующему стилю, но на всякий случай: */
+
+.primary-btn,
+.ghost-btn {
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background: #4A7B9D;
+  color: #fff;
+}
+
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.ghost-btn {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.15);
+}
+
+.ghost-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.form-panel__frame-wrap {
+  flex: 1;
+  min-height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fdfaf5;
+}
+
+.form-panel__frame-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* адаптив под мобилку */
+
+@media (max-width: 900px) {
+  .form-panel__body {
+    inset: 0;
+    border-radius: 0;
+  }
+  .form-panel__content {
+    grid-template-columns: 1fr;
+  }
+  .form-panel__frame-wrap {
+    min-height: 260px;
+  }
+}
+
+.card__media{
+  aspect-ratio: 4 / 3;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 12px 14px 16px;
+  background:
+    radial-gradient(120px 60px at 50% 25%, rgba(0,0,0,.05), transparent 60%),
+    linear-gradient(#fff, #FAF7F2);
+}
+
+.card-art{
+  width: 88%;
+  aspect-ratio: 4 / 3;
+  border-radius: 14px;
+  position: relative;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  overflow: hidden;
+}
+
+/* общая сетка-линии, чтобы выглядело как документ */
+.card-art::before{
+  content:"";
+  position:absolute;
+  inset:14px 16px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,.35),
+      rgba(0,0,0,.35) 6px,
+      transparent 6px,
+      transparent 14px
+    );
+  opacity:.7;
+  filter: blur(.4px);
+}
+
+/* маленький бейдж сверху справа */
+.card-art::after{
+  content: attr(data-label);
+  position:absolute;
+  top:10px; right:10px;
+  font-size:10px;
+  font-weight:700;
+  padding:3px 7px;
+  border-radius:999px;
+  background:rgba(0,0,0,.75);
+  color:#fff;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+
+/* разные типы — только фоны/цвета меняем */
+
+.card-art--tax{
+  background: linear-gradient(135deg, #FDF8E5, #F2D89A);
+}
+.card-art--tax::after{
+  content:"TAX";
+  background:#4A7B9D;
+}
+
+.card-art--notary{
+  background: radial-gradient(circle at 10% 0%, #FCEFE8, #E2C0A3);
+}
+.card-art--notary::after{
+  content:"NOTARY";
+  background:#8E5A3A;
+}
+
+.card-art--generic{
+  background: linear-gradient(135deg, #F5F0FF, #E0E6FF);
+}
+.card-art--generic::after{
+  content:"FORM";
+  background:#5C5AA8;
+}
+
+/* иконка-печать / штамп */
+.card-art__icon{
+  position:absolute;
+  right:18px;
+  bottom:16px;
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  border:2px dashed rgba(0,0,0,.45);
+  opacity:.55;
+}
+
+/* описание формы под иконкой */
+.card__desc{
+  padding: 8px 16px 14px;
+  font-size: 13px;
+  color:#6b6465;
+}
+
+.form-panel__section-title{
+  margin: 10px 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color:#8b7e81;
+}
+
+.cb-group{
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.9);
+  border: 1px solid rgba(0,0,0,.06);
+}
+
+.cb-group legend{
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.cb-option{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size: 12px;
+  margin: 2px 0;
+}
+
+.cb-option input{
+  accent-color:#4A7B9D;
+}
+
+
+@media (max-width: 640px) {
+  .form-card {
+    margin: 0;
+    max-width: 100%;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .form-card__body {
+    height: calc(100vh - 46px); /* минус высота хедера карточки */
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-card__fields-wrap {
+    max-height: 38vh;
+  }
+
+  .form-card__preview-wrap.is-visible {
+    height: 38vh;
+  }
+
+  .form-card__buttons {
+    margin-top: 6px;
+  }
+}
