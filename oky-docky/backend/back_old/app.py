@@ -1,17 +1,52 @@
 import os
 import base64
 from typing import Dict, Any, Optional
+from pathlib import Path
 
+
+from pdf_debug_overlay import build_debug_pdf_for_form
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+
+from fastapi import Body, Response
 from pydantic import BaseModel
+
+from pdf_registry import get_pdf_form
+from oky_docky_single import (
+    introspect_pdf_form_for_api,
+    fill_pdf_form_bytes
+)
 
 from oky_docky_single import introspect_template_path, render_pdf_from_template_path
 
 
 app = FastAPI()
+FORMS_DIR = Path(__file__).parent / "forms"
+
+
+@app.get("/api/pdf/forms/{form_id}/debug", response_class=Response)
+def get_pdf_form_debug(form_id: str):
+    """
+    Вернуть PDF, в котором все поля подписаны их ID.
+    Используется только для дебага маппинга полей.
+    """
+    try:
+        pdf_bytes = build_debug_pdf_for_form(form_id, FORMS_DIR)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        # на проде лучше логировать, а не палить детальки
+        raise HTTPException(status_code=500, detail="Failed to build debug PDF")
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'inline; filename="{form_id}_debug.pdf"'
+        },
+    )
 
 app.add_middleware(
     CORSMiddleware,
@@ -124,6 +159,122 @@ def render_form(form_id: str, req: RenderFormRequest):
     )
 
 
+
+# -----------------------------
+# PDF: получить список полей
+# -----------------------------
+@app.get("/api/pdf/forms/{form_id}/fields")
+def get_pdf_fields(form_id: str):
+    try:
+        form = get_pdf_form(form_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Form not found")
+
+    try:
+        schema = introspect_pdf_form_for_api(form["path"])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return {
+        "form_id": form_id,
+        "title": form.get("title"),
+        **schema
+    }
+
+# -----------------------------
+# PDF: получить схему формы (с нормализацией)
+# -----------------------------
+
+from schema_normalize import normalize_schema_rects
+
+@app.get("/api/pdf/forms/{form_id}/schema")
+def get_pdf_schema(form_id: str, normalized: bool = True):
+    try:
+        form = get_pdf_form(form_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Form not found")
+
+    schema = introspect_pdf_form_for_api(form["path"])
+
+    # добавим form_id/title чтобы удобно сохранять
+    schema_full = {"form_id": form_id, "title": form.get("title"), **schema}
+
+    if normalized:
+        schema_full = normalize_schema_rects(schema_full)
+
+    return schema_full
+
+#------------------------------
+# Dev panel
+#------------------------------
+from fastapi.responses import HTMLResponse
+
+@app.get("/dev", response_class=HTMLResponse)
+def dev_panel():
+    path = Path("static/test.html")
+    if not path.exists():
+        return HTMLResponse("<h3>static/test.html not found</h3>", status_code=404)
+    return HTMLResponse(path.read_text(encoding="utf-8"))
+
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+from pathlib import Path
+
+app = FastAPI()
+
+STATIC_DIR = Path(__file__).parent / "static"
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+@app.get("/dev/test", response_class=HTMLResponse)
+def dev_test():
+    return (STATIC_DIR / "dev" / "test.html").read_text(encoding="utf-8")
+
+
+
+
+# -----------------------------
+# PDF: заполнить форму
+# -----------------------------
+@app.post("/api/pdf/forms/{form_id}/fill")
+def fill_pdf_form(
+    form_id: str,
+    payload: Dict[str, Any] = Body(...)
+):
+    """
+    payload = {
+      "values": { field_id: value }
+    }
+    """
+    try:
+        form = get_pdf_form(form_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Form not found")
+
+    values = payload.get("values")
+    if not isinstance(values, dict):
+        raise HTTPException(status_code=400, detail="values must be dict")
+
+    try:
+        pdf_bytes = fill_pdf_form_bytes(
+            form["path"],
+            values
+        )
+    except ValueError as e:
+        # например: PDF не fillable
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'inline; filename="{form_id}_filled.pdf"'
+        }
+    )
+
 # --- Frontend ---
-FRONT_DIR = "/workspaces/oky-docky/oky-docky/front/resources"
-app.mount("/", StaticFiles(directory=FRONT_DIR, html=True), name="front")
+FRONT_DIR = "/workspaces/oky-docky/oky-docky/frontend/"
+
+app.mount("/static", StaticFiles(directory="static"), name="static")

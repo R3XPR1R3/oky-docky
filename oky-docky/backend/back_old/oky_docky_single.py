@@ -972,6 +972,510 @@ def introspect_template_path(template_path: str) -> Dict[str, Any]:
     }
 
 
+#=======================================
+
+#stop! here is the pdf processor module
+
+
+#=======================================
+
+
+# ============================================================
+# PDF (AcroForm) parsing + filling (ADD-ON, ничего не вырезаем)
+# ============================================================
+#
+# Что это даёт:
+# 1) introspect_pdf_form_path(pdf_path) -> вернёт список полей с ID
+# 2) fill_pdf_form_to_path(pdf_path, out_path, values) -> заполнит поля и сохранит PDF
+# 3) wrappers для API: introspect_pdf_form_path / fill_pdf_form_bytes
+#
+# Поддержка:
+# - Text fields (/Tx)
+# - Button fields (/Btn) including checkbox / radio groups
+#
+# IMPORTANT:
+# - В реальных PDF "on" значение может быть НЕ /Yes (часто /1, /2, /3 как в W-4).
+#   Поэтому мы вытаскиваем on_values из /AP /N.
+#
+# ============================================================
+
+from typing import Iterable, Union
+
+try:
+    from pypdf import PdfReader, PdfWriter
+    _HAS_PYPDF = True
+except Exception:
+    _HAS_PYPDF = False
+
+
+def _ensure_pypdf():
+    if not _HAS_PYPDF:
+        raise ImportError("pypdf is required. Install: pip install pypdf")
+
+
+def _pdf_name_to_str(x: Any) -> str:
+    """
+    pypdf может вернуть NameObject вида '/Yes' или просто 'Yes'.
+    Мы приводим к строке, желательно с '/' если оно так хранится.
+    """
+    if x is None:
+        return ""
+    s = str(x)
+    return s
+
+
+def _extract_on_states_from_field_dict(field_dict: dict) -> List[str]:
+    """
+    Достаём возможные appearance states для кнопок (/Btn).
+    Обычно лежит в /AP -> /N (normal appearance) как dict ключей:
+        {'/Off': ..., '/Yes': ...}
+    В W-4 часто {'/Off':..., '/1':...} и т.д.
+    """
+    on_values: List[str] = []
+    ap = field_dict.get("/AP")
+    if isinstance(ap, dict):
+        n = ap.get("/N")
+        if isinstance(n, dict):
+            for k in n.keys():
+                ks = _pdf_name_to_str(k)
+                if ks and ks != "/Off" and ks != "Off":
+                    on_values.append(ks)
+    # иногда /Opt встречается у некоторых кнопок/радио
+    opt = field_dict.get("/Opt")
+    if isinstance(opt, list):
+        for v in opt:
+            vs = _pdf_name_to_str(v)
+            if vs and vs not in on_values:
+                on_values.append(vs)
+
+    # Уникализация
+    seen = set()
+    out = []
+    for v in on_values:
+        if v in seen:
+            continue
+        seen.add(v)
+        out.append(v)
+    return out
+
+
+def _walk_widgets_for_rects(field_obj: dict) -> List[Tuple[int, List[float]]]:
+    """
+    В PDF прямоугольник (/Rect) может лежать:
+    - либо в самом поле
+    - либо в /Kids (виджеты), каждый прикреплён к странице
+    Мы возвращаем список (page_index, rect).
+    page_index — 0-based
+    """
+    rects: List[Tuple[int, List[float]]] = []
+
+    # helper: попытаться вытащить страницу из виджета через /P
+    def _page_index_from_widget(widget: dict, reader: PdfReader) -> Optional[int]:
+        p = widget.get("/P")
+        if p is None:
+            return None
+        # p — ссылка на page object; попробуем найти индекс
+        try:
+            for i, pg in enumerate(reader.pages):
+                if pg.indirect_reference == p:
+                    return i
+        except Exception:
+            pass
+        # fallback: иногда сравнение объекта
+        try:
+            for i, pg in enumerate(reader.pages):
+                if pg == p:
+                    return i
+        except Exception:
+            pass
+        return None
+
+    # основной rect
+    if "/Rect" in field_obj and isinstance(field_obj.get("/Rect"), (list, tuple)) and len(field_obj["/Rect"]) == 4:
+        try:
+            rect = [float(x) for x in field_obj["/Rect"]]
+            rects.append((-1, rect))  # -1 = неизвестная страница, если не нашли
+        except Exception:
+            pass
+
+    kids = field_obj.get("/Kids")
+    if isinstance(kids, list):
+        # reader нужен чтобы сопоставить страницу
+        # (передадим позже, если нужно)
+        pass
+
+    return rects
+
+
+def introspect_pdf_form_path(pdf_path: str) -> Dict[str, Any]:
+    """
+    Главная функция: парсит PDF форму и возвращает структуру
+    пригодную для фронта/бекенда.
+
+    Возвращает:
+    {
+      "fillable": bool,
+      "fields": [
+        {
+          "id": "<field_name>",
+          "type": "text" | "button" | "choice" | "signature" | "unknown",
+          "ft": "/Tx" | "/Btn" | "/Ch" | ...,
+          "on_values": ["/1", "/Yes", ...],   # только для button
+          "off_value": "/Off",
+          "value": "<current>",
+          "labels": {"T": "...", "TU": "..."},
+          "rects": [{"page_index": 0, "rect":[x1,y1,x2,y2]} , ...]
+        }
+      ],
+      "meta": {"pages": N}
+    }
+    """
+    _ensure_pypdf()
+    reader = PdfReader(pdf_path)
+
+    root = reader.trailer.get("/Root", {})
+    acro = root.get("/AcroForm")
+    if not acro:
+        return {"fillable": False, "fields": [], "meta": {"pages": len(reader.pages)}}
+
+    fields_map = reader.get_fields() or {}
+    if not fields_map:
+        return {"fillable": False, "fields": [], "meta": {"pages": len(reader.pages)}}
+
+    out_fields: List[Dict[str, Any]] = []
+
+    # В pypdf get_fields возвращает dict: name -> dict field props
+    for name, f in fields_map.items():
+        ft = _pdf_name_to_str(f.get("/FT"))
+        t = _pdf_name_to_str(f.get("/T"))
+        tu = _pdf_name_to_str(f.get("/TU"))
+        v = f.get("/V")
+
+        kind = "unknown"
+        if ft == "/Tx":
+            kind = "text"
+        elif ft == "/Btn":
+            kind = "button"
+        elif ft == "/Ch":
+            kind = "choice"
+
+        # on-values для кнопок
+        on_values: List[str] = []
+        if ft == "/Btn":
+            on_values = _extract_on_states_from_field_dict(f)
+
+        # rects: попробуем собрать из /Kids виджетов и /Rect
+        rects: List[Dict[str, Any]] = []
+
+        # 1) если есть /Kids: каждый kid может иметь /Rect и /P (страницу)
+        kids = f.get("/Kids")
+        if isinstance(kids, list):
+            for kid_ref in kids:
+                try:
+                    kid = kid_ref.get_object()
+                except Exception:
+                    kid = kid_ref
+                if not isinstance(kid, dict):
+                    continue
+
+                rect = kid.get("/Rect")
+                if isinstance(rect, (list, tuple)) and len(rect) == 4:
+                    try:
+                        rect_f = [float(x) for x in rect]
+                    except Exception:
+                        rect_f = None
+                else:
+                    rect_f = None
+
+                # определяем страницу
+                page_index = None
+                p = kid.get("/P")
+                if p is not None:
+                    try:
+                        for i, pg in enumerate(reader.pages):
+                            # сопоставление через indirect reference
+                            if getattr(pg, "indirect_reference", None) == p:
+                                page_index = i
+                                break
+                    except Exception:
+                        pass
+
+                if rect_f is not None:
+                    rects.append({"page_index": page_index, "rect": rect_f})
+
+        # 2) если на поле есть /Rect (редко, но бывает)
+        rect = f.get("/Rect")
+        if isinstance(rect, (list, tuple)) and len(rect) == 4:
+            try:
+                rect_f = [float(x) for x in rect]
+                rects.append({"page_index": None, "rect": rect_f})
+            except Exception:
+                pass
+
+        out_fields.append({
+            "id": name,                      # <-- твой ID поля
+            "type": kind,
+            "ft": ft,
+            "on_values": on_values,
+            "off_value": "/Off",
+            "value": _pdf_name_to_str(v) if v is not None else None,
+            "labels": {"T": t, "TU": tu},
+            "rects": rects
+        })
+
+    # Чуть-чуть стабильности сортировки (чтобы фронт не прыгал)
+    out_fields.sort(key=lambda x: x["id"])
+
+    return {
+        "fillable": True,
+        "fields": out_fields,
+        "meta": {"pages": len(reader.pages)}
+    }
+
+
+def _normalize_pdf_values_for_buttons(schema: Dict[str, Any], values: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Пользователь/фронт может прислать:
+      - True/False
+      - "on"/"off"
+      - конкретное "/1" "/Yes"
+    Мы превращаем это в то, что PDF реально понимает.
+
+    Логика:
+      - если поле /Btn:
+          * True  -> первый on_values (если есть) иначе "/Yes"
+          * False -> "/Off"
+          * str   -> оставляем как есть, но если "YES"/"ON" -> первый on
+    """
+    if not schema or not isinstance(schema, dict):
+        return dict(values or {})
+
+    fields = schema.get("fields") or []
+    btn_map = {f["id"]: f for f in fields if f.get("ft") == "/Btn"}
+
+    out = dict(values or {})
+    for fid, meta in btn_map.items():
+        if fid not in out:
+            continue
+        raw = out[fid]
+
+        on_vals = meta.get("on_values") or []
+        default_on = on_vals[0] if on_vals else "/Yes"
+
+        if isinstance(raw, bool):
+            out[fid] = default_on if raw else "/Off"
+            continue
+
+        if raw is None:
+            out[fid] = "/Off"
+            continue
+
+        s = str(raw).strip()
+        up = s.upper()
+
+        if up in ("TRUE", "YES", "ON", "1"):
+            out[fid] = default_on
+        elif up in ("FALSE", "NO", "OFF", "0"):
+            out[fid] = "/Off"
+        else:
+            # если уже прислали "/1" "/2" "/Yes" — оставляем как есть
+            # но если прислали "2" (без слэша) а on_values хранит "/2" — подправим
+            if on_vals and (s in [v.lstrip("/") for v in on_vals]):
+                # найдем соответствие
+                for v in on_vals:
+                    if v.lstrip("/") == s:
+                        out[fid] = v
+                        break
+            else:
+                out[fid] = s
+
+    return out
+
+
+def fill_pdf_form_to_path(src_pdf_path: str, out_pdf_path: str, values: Dict[str, Any],
+                          force_need_appearances: bool = True) -> str:
+    """
+    Заполняет AcroForm поля и пишет PDF на диск.
+    values: dict[field_id] = value
+
+    - Для текста (/Tx): строка
+    - Для кнопок (/Btn): лучше передавать bool или конкретный state "/1", "/Yes"
+    """
+    _ensure_pypdf()
+
+    # 1) Снимаем схему, чтобы корректно нормализовать чекбоксы/радио
+    schema = introspect_pdf_form_path(src_pdf_path)
+    if not schema.get("fillable"):
+        raise ValueError("PDF is not fillable (no AcroForm). Use overlay mapping instead.")
+
+    norm_values = _normalize_pdf_values_for_buttons(schema, values or {})
+
+    reader = PdfReader(src_pdf_path)
+    writer = PdfWriter()
+    writer.clone_document_from_reader(reader)
+
+    # 2) NeedAppearances — чтобы Acrobat/Preview рисовали значения
+    try:
+        if force_need_appearances:
+            acro = writer._root_object.get("/AcroForm")
+            if acro is not None:
+                acro.update({"/NeedAppearances": True})
+    except Exception:
+        pass
+
+    # 3) Заполняем каждую страницу
+    for page in writer.pages:
+        try:
+            writer.update_page_form_field_values(page, norm_values)
+        except Exception as e:
+            # Не падаем сразу — иногда одна страница без форм, но другая с формами
+            print("[fill_pdf] update_page_form_field_values error:", e)
+
+    # 4) Запись результата
+    with open(out_pdf_path, "wb") as f:
+        writer.write(f)
+
+    return out_pdf_path
+
+
+def fill_pdf_form_bytes(src_pdf_path: str, values: Dict[str, Any],
+                        force_need_appearances: bool = True) -> bytes:
+    """
+    То же самое, но возвращает bytes (удобно для FastAPI Response).
+    """
+    _ensure_pypdf()
+    tmp_dir = tempfile.mkdtemp(prefix="okydocky_pdf_fill_")
+    out_path = os.path.join(tmp_dir, "filled.pdf")
+    fill_pdf_form_to_path(src_pdf_path, out_path, values, force_need_appearances=force_need_appearances)
+    with open(out_path, "rb") as f:
+        return f.read()
+
+
+def pdf_schema_to_front_fields(pdf_schema: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Переводит "сырой" introspection в более UI-friendly формат.
+
+    Идея:
+    - text: {kind:"text", id:"...", label:"...", rects:[...]}
+    - checkbox/radio: {kind:"button", id:"...", on_values:["/1","/2"], exclusive: ???}
+
+    Важно:
+    - У IRS формы часто radio-группы реализованы как разные поля (c1_1[0], c1_1[1]..),
+      то есть "exclusive" можно вычислить руками потом (или по префиксу).
+    """
+    if not pdf_schema.get("fillable"):
+        return {"fillable": False, "fields": [], "meta": pdf_schema.get("meta", {})}
+
+    out: List[Dict[str, Any]] = []
+    for f in pdf_schema.get("fields", []):
+        fid = f.get("id")
+        ft = f.get("ft")
+        labels = f.get("labels") or {}
+        label = labels.get("TU") or labels.get("T") or fid
+
+        if ft == "/Tx":
+            out.append({
+                "kind": "text",
+                "id": fid,
+                "label": label,
+                "rects": f.get("rects", []),
+            })
+        elif ft == "/Btn":
+            out.append({
+                "kind": "button",
+                "id": fid,
+                "label": label,
+                "on_values": f.get("on_values") or [],
+                "off_value": f.get("off_value") or "/Off",
+                "rects": f.get("rects", []),
+            })
+        else:
+            out.append({
+                "kind": "unknown",
+                "id": fid,
+                "label": label,
+                "ft": ft,
+                "rects": f.get("rects", []),
+            })
+
+    return {"fillable": True, "fields": out, "meta": pdf_schema.get("meta", {})}
+
+
+# ============================================================
+# OPTIONAL: Quick test helpers for your exact W-4 sample
+# (Ничего не мешает, просто пример как использовать)
+# ============================================================
+
+def _example_fill_w4_2026_like(src_pdf_path: str, out_pdf_path: str) -> str:
+    """
+    Пример: заполнить самые базовые поля W-4.
+    ВАЖНО: ID должны совпадать с тем, что вернёт introspect_pdf_form_path().
+    """
+    values = {
+        # Step 1(a)
+        "topmostSubform[0].Page1[0].Step1a[0].f1_01[0]": "John D",
+        "topmostSubform[0].Page1[0].Step1a[0].f1_02[0]": "Doe",
+        "topmostSubform[0].Page1[0].Step1a[0].f1_03[0]": "123 Main St",
+        "topmostSubform[0].Page1[0].Step1a[0].f1_04[0]": "Wellington, FL 33414",
+        "topmostSubform[0].Page1[0].Step1a[0].f1_05[0]": "123-45-6789",
+
+        # Filing status (choose one) — можно bool, но лучше конкретный state:
+        # Single = /1, Married = /2, HoH = /3 (у W-4 2026 так)
+        "topmostSubform[0].Page1[0].c1_1[0]": "/1",
+
+        # Step 2(c) checkbox "two jobs" (ON обычно /1)
+        "topmostSubform[0].Page1[0].c1_2[0]": True,
+
+        # Step 4(c) Extra withholding
+        "topmostSubform[0].Page1[0].f1_11[0]": "25",
+
+        # Step 5 signature/date
+        "topmostSubform[0].Page1[0].f1_12[0]": "John Doe",
+        "topmostSubform[0].Page1[0].f1_13[0]": "12/27/2025",
+    }
+    return fill_pdf_form_to_path(src_pdf_path, out_pdf_path, values)
+
+
+# ============================================================
+# API-friendly wrappers (под твой стиль)
+# ============================================================
+
+def introspect_pdf_form_for_api(pdf_path: str) -> Dict[str, Any]:
+    """
+    Возвращает сразу UI-friendly schema (fields list),
+    чтобы фронт/клиент мог строить формы.
+    """
+    schema = introspect_pdf_form_path(pdf_path)
+    return pdf_schema_to_front_fields(schema)
+
+
+def fill_pdf_form_from_template_path(
+    template_pdf_path: str,
+    values: Dict[str, Any],
+    out_dir: Optional[str] = None,
+    out_name: Optional[str] = None,
+) -> str:
+    """
+    Как твой render_pdf_from_template_path, только для PDF AcroForm.
+    """
+    if out_dir is None:
+        out_dir = tempfile.mkdtemp(prefix="okydocky_fillpdf_")
+    if out_name is None:
+        base = os.path.splitext(os.path.basename(template_pdf_path))[0]
+        out_name = f"{base}_filled.pdf"
+    out_path = os.path.join(out_dir, out_name)
+    return fill_pdf_form_to_path(template_pdf_path, out_path, values)
+
+
+
+
+
+
+
+
+
+
+
 
 # =========================
 # CLI guard
