@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Inspect PDF fields",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/actual/back/quickskripts/inspect_pdf_fields.py",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}

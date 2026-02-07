@@ -1,0 +1,18 @@
+{
+  "fields": [
+    { "key": "legal_name", "type": "text", "required": true, "label": "Name (as shown on your income tax return)" },
+    { "key": "business_name", "type": "text", "required": false, "label": "Business name/disregarded entity name" },
+
+    { "key": "tax_class_individual", "type": "checkbox", "label": "Individual/sole proprietor or single-member LLC" },
+
+    { "key": "exempt_payee_code", "type": "text", "label": "Exempt payee code (if any)" },
+    { "key": "exempt_fatca_code", "type": "text", "label": "Exemption from FATCA reporting code (if any)" },
+
+    { "key": "address_1", "type": "text", "label": "Address (number, street, and apt. or suite no.)" },
+    { "key": "address_2", "type": "text", "label": "City, state, and ZIP" },
+
+    { "key": "requester_name", "type": "text", "label": "Requester’s name and address" },
+
+    { "key": "tin", "type": "text", "label": "Taxpayer Identification Number (TIN)" }
+  ]
+}

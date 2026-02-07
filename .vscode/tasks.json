@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Install backend deps",
+      "type": "shell",
+      "command": "python3 -m venv .venv && . .venv/bin/activate && python -m pip install -U pip && python -m pip install -r actual/back/requirements.txt",
+      "problemMatcher": []
+    },
+    {
+      "label": "Inspect PDF fields (W9)",
+      "type": "shell",
+      "dependsOn": "Install backend deps",
+      "command": ". .venv/bin/activate && python actual/back/quickskripts/inspect_pdf_fields.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run API (FastAPI)",
+      "type": "shell",
+      "dependsOn": "Install backend deps",
+      "command": ". .venv/bin/activate && uvicorn actual.back.app.main:app --reload --host 0.0.0.0 --port 8000",
+      "problemMatcher": []
+    }
+  ]
+}
