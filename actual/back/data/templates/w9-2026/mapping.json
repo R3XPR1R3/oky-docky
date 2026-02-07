@@ -1,21 +1,23 @@
 {
-  "legal_name": "topmostSubform[0].Page1[0].f1_01[0]",
-  "business_name": "topmostSubform[0].Page1[0].f1_02[0]",
+  "legal_name": "f1_01[0]",
+  "business_name": "f1_02[0]",
 
-  "exempt_payee_code": "topmostSubform[0].Page1[0].f1_05[0]",
-  "exempt_fatca_code": "topmostSubform[0].Page1[0].f1_06[0]",
+  "exempt_payee_code": "f1_05[0]",
+  "exempt_fatca_code": "f1_06[0]",
 
-  "address_1": "topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_07[0]",
-  "address_2": "topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_08[0]",
+  "address_1": "f1_07[0]",
+  "address_2": "f1_08[0]",
 
-  "requester_name": "topmostSubform[0].Page1[0].f1_09[0]",
+  "requester_name": "f1_09[0]",
 
-  "tin": "topmostSubform[0].Page1[0].f1_18[0]",
-
+  "tin": ["f1_16[0]", "f1_17[0]", "f1_18[0]"],
   "tax_class_individual": {
-    "type": "checkbox",
-    "field": "topmostSubform[0].Page1[0].Boxes3a-b_ReadOrder[0].c1_1[0]",
-    "checked_value": "/Yes",
-    "unchecked_value": "/Off"
+  "type": "checkbox",
+  "field": "topmostSubform[0].Page1[0].Boxes3a-b_ReadOrder[0].c1_1[0]",
+  "checked_value": "/1",
+  "unchecked_value": "/Off"
   }
+
+
+
 }

@@ -22,6 +22,12 @@ def build_pdf_field_values(form_data: Dict[str, Any], mapping: Dict[str, Any]) -
         if isinstance(rule, str):
             out[rule] = "" if value is None else str(value)
             continue
+        # allow list[str] -> write same value into multiple PDF fields
+        if isinstance(rule, list):
+            v = "" if value is None else str(value)
+            for field_name in rule:
+                out[field_name] = v
+            continue
 
         if not isinstance(rule, dict):
             continue
