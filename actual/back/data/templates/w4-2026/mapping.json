@@ -1,10 +1,19 @@
 {
-  "legal_name": "f1_01[0]",
-  "business_name": "f1_02[0]",
-  "taxpayer_classification": "f1_03[0]",
-  "other_taxpayer_classification": "f1_04[0]",
-  "exempt_payee_code": "f1_05[0]",
-  "fatca_exemption": "f1_06[0]",
+  "first_middle_names": "f1_01[0]",
+  "last_name": "f1_02[0]",
+  "address": "f1_03[0]",
+  "town_city_state_zip": "f1_04[0]",
+  "ssn": "f1_05[0]",
+  "tax_status": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "sngl_mfs",  "field": "c1_1[0]", "export_on": "/1" },
+      { "value": "mfj_qss",      "field": "c1_1[1]", "export_on": "/2" },
+      { "value": "hh",      "field": "c1_1[2]", "export_on": "/3" }
+    ]
+  }
+  "two_jobs_only": "f1_02[0]",
   "foreign_partners": {
     "type": "radio_group",
     "off_value": "/Off",
