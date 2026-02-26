@@ -1,18 +1,29 @@
 {
   "fields": [
-    { "key": "legal_name", "type": "text", "required": true, "label": "Name (as shown on your income tax return)" },
-    { "key": "business_name", "type": "text", "required": false, "label": "Business name/disregarded entity name" },
+    { "key": "first_middle_names", "type": "text", "required": true, "label": "First name and middle initial" },
+    { "key": "last_name", "type": "text", "required": true, "label": "Last name" },
+    { "key": "ssn", "type": "text", "required": true, "label": "Social security number" },
+    { "key": "address", "type": "text", "required": true, "label": "Address (number, street, and apt. no.)" },
+    { "key": "city_state_zip", "type": "text", "required": true, "label": "City or town, state, and ZIP code" },
 
-    { "key": "tax_class_individual", "type": "checkbox", "label": "Individual/sole proprietor or single-member LLC" },
+    { "key": "filing_status", "type": "radio", "required": true, "label": "Filing status", "options": [
+      { "value": "single_mfs", "label": "Single or Married filing separately" },
+      { "value": "mfj_qss", "label": "Married filing jointly or Qualifying surviving spouse" },
+      { "value": "hoh", "label": "Head of household" }
+    ]},
 
-    { "key": "exempt_payee_code", "type": "text", "label": "Exempt payee code (if any)" },
-    { "key": "exempt_fatca_code", "type": "text", "label": "Exemption from FATCA reporting code (if any)" },
+    { "key": "two_jobs_checkbox", "type": "checkbox", "label": "Step 2(c): Check here if there are only two jobs total" },
 
-    { "key": "address_1", "type": "text", "label": "Address (number, street, and apt. or suite no.)" },
-    { "key": "address_2", "type": "text", "label": "City, state, and ZIP" },
+    { "key": "qualifying_children_amount", "type": "text", "label": "Step 3: Qualifying children under 17 (number of children × $2,000)" },
+    { "key": "other_dependents_amount", "type": "text", "label": "Step 3: Other dependents (number of dependents × $500)" },
+    { "key": "total_dependents_amount", "type": "text", "label": "Step 3: Total amount from lines above" },
 
-    { "key": "requester_name", "type": "text", "label": "Requester’s name and address" },
+    { "key": "other_income", "type": "text", "label": "Step 4(a): Other income (not from jobs)" },
+    { "key": "deductions", "type": "text", "label": "Step 4(b): Deductions other than the standard deduction" },
+    { "key": "extra_withholding", "type": "text", "label": "Step 4(c): Extra withholding per pay period" },
 
-    { "key": "tin", "type": "text", "label": "Taxpayer Identification Number (TIN)" }
+    { "key": "employer_name_address", "type": "text", "label": "Employer's name and address (Employers Only)" },
+    { "key": "first_date_employment", "type": "text", "label": "First date of employment (Employers Only)" },
+    { "key": "ein", "type": "text", "label": "Employer identification number (EIN) (Employers Only)" }
   ]
 }
