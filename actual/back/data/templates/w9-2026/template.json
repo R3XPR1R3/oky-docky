@@ -4,5 +4,11 @@
   "pdf": "w9-2026.pdf",
   "schema": "schema.json",
   "mapping": "mapping.json",
-  "title": "IRS Form W-9 (2026)"
+  "title": "Form W-9",
+  "description": "Request for Taxpayer Identification Number and Certification",
+  "category": "tax",
+  "tags": ["tax", "irs", "personal", "business", "tin", "ssn", "ein"],
+  "country": "US",
+  "popular": true,
+  "estimated_time": "5 min"
 }

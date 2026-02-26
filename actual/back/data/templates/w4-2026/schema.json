@@ -1,18 +1,109 @@
 {
   "fields": [
-    { "key": "legal_name", "type": "text", "required": true, "label": "Name (as shown on your income tax return)" },
-    { "key": "business_name", "type": "text", "required": false, "label": "Business name/disregarded entity name" },
-
-    { "key": "tax_class_individual", "type": "checkbox", "label": "Individual/sole proprietor or single-member LLC" },
-
-    { "key": "exempt_payee_code", "type": "text", "label": "Exempt payee code (if any)" },
-    { "key": "exempt_fatca_code", "type": "text", "label": "Exemption from FATCA reporting code (if any)" },
-
-    { "key": "address_1", "type": "text", "label": "Address (number, street, and apt. or suite no.)" },
-    { "key": "address_2", "type": "text", "label": "City, state, and ZIP" },
-
-    { "key": "requester_name", "type": "text", "label": "Requester’s name and address" },
-
-    { "key": "tin", "type": "text", "label": "Taxpayer Identification Number (TIN)" }
+    {
+      "key": "first_middle_names",
+      "type": "text",
+      "required": true,
+      "label": "First name and middle initial",
+      "placeholder": "e.g., John A",
+      "helpText": "Your first name and middle initial as shown on your tax return"
+    },
+    {
+      "key": "last_name",
+      "type": "text",
+      "required": true,
+      "label": "Last name",
+      "placeholder": "e.g., Smith"
+    },
+    {
+      "key": "ssn",
+      "type": "text",
+      "required": true,
+      "label": "Social security number",
+      "placeholder": "123-45-6789",
+      "helpText": "Your SSN will be kept secure and private"
+    },
+    {
+      "key": "address",
+      "type": "text",
+      "required": true,
+      "label": "Home address",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Number, street, and apartment or suite number"
+    },
+    {
+      "key": "city_state_zip",
+      "type": "text",
+      "required": true,
+      "label": "City, state, and ZIP code",
+      "placeholder": "New York, NY 10001"
+    },
+    {
+      "key": "filing_status",
+      "type": "radio",
+      "required": true,
+      "label": "Filing status",
+      "helpText": "Choose your filing status for tax withholding",
+      "options": [
+        { "value": "single_mfs", "label": "Single or Married filing separately" },
+        { "value": "mfj_qss", "label": "Married filing jointly or Qualifying surviving spouse" },
+        { "value": "hoh", "label": "Head of household" }
+      ]
+    },
+    {
+      "key": "two_jobs_checkbox",
+      "type": "checkbox",
+      "required": false,
+      "label": "Two jobs total",
+      "helpText": "Check if you and your spouse have only two jobs total (Step 2c)"
+    },
+    {
+      "key": "qualifying_children_amount",
+      "type": "text",
+      "required": false,
+      "label": "Qualifying children amount",
+      "placeholder": "e.g., 4000",
+      "helpText": "Number of qualifying children under 17 × $2,000"
+    },
+    {
+      "key": "other_dependents_amount",
+      "type": "text",
+      "required": false,
+      "label": "Other dependents amount",
+      "placeholder": "e.g., 500",
+      "helpText": "Number of other dependents × $500"
+    },
+    {
+      "key": "total_dependents_amount",
+      "type": "text",
+      "required": false,
+      "label": "Total dependents claim",
+      "placeholder": "e.g., 4500",
+      "helpText": "Add the amounts for qualifying children and other dependents"
+    },
+    {
+      "key": "other_income",
+      "type": "text",
+      "required": false,
+      "label": "Other income",
+      "placeholder": "e.g., 1000",
+      "helpText": "Step 4(a): Income not from jobs (interest, dividends, retirement)"
+    },
+    {
+      "key": "deductions",
+      "type": "text",
+      "required": false,
+      "label": "Deductions",
+      "placeholder": "e.g., 0",
+      "helpText": "Step 4(b): Deductions other than the standard deduction"
+    },
+    {
+      "key": "extra_withholding",
+      "type": "text",
+      "required": false,
+      "label": "Extra withholding",
+      "placeholder": "e.g., 50",
+      "helpText": "Step 4(c): Additional amount to withhold each pay period"
+    }
   ]
 }

@@ -4,6 +4,11 @@
   "pdf": "w4-2026.pdf",
   "schema": "schema.json",
   "mapping": "mapping.json",
-  "title": "IRS Form W-4"
+  "title": "Form W-4",
+  "description": "Employee's Withholding Certificate",
+  "category": "tax",
+  "tags": ["tax", "irs", "personal", "employment", "withholding"],
+  "country": "US",
+  "popular": true,
+  "estimated_time": "5 min"
 }
-

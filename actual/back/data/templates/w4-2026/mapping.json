@@ -1,64 +1,54 @@
 {
   "first_middle_names": "f1_01[0]",
   "last_name": "f1_02[0]",
-  "address": "f1_03[0]",
-  "town_city_state_zip": "f1_04[0]",
   "ssn": "f1_05[0]",
-  "tax_status": {
+  "address": "f1_03[0]",
+  "city_state_zip": "f1_04[0]",
+
+  "filing_status": {
     "type": "radio_group",
     "off_value": "/Off",
     "choices": [
-      { "value": "sngl_mfs",  "field": "c1_1[0]", "export_on": "/1" },
-      { "value": "mfj_qss",      "field": "c1_1[1]", "export_on": "/2" },
-      { "value": "hh",      "field": "c1_1[2]", "export_on": "/3" }
-    ]
-  }
-  "two_jobs_only": "f1_02[0]",
-  "foreign_partners": {
-    "type": "radio_group",
-    "off_value": "/Off",
-    "choices": [
-      { "value": "yes", "field": "c1_2[0]", "on": "/1" }
+      { "value": "single_mfs",  "field": "c1_1[0]", "export_on": "/1" },
+      { "value": "mfj_qss",     "field": "c1_1[1]", "export_on": "/2" },
+      { "value": "hoh",          "field": "c1_1[2]", "export_on": "/3" }
     ]
   },
-  "broker_exempt": {
-  "type": "radio_group",
-  "off_value": "/Off",
-  "choices": [
-      { "value": "yes", "field": "c1_3[0]", "on": "/1" }
-    ]
-  }
-  ,
 
-
-  "address": "f1_07[0]",
-  "citystatezip": "f1_08[0]",
-  "requester_name": "f1_09[0]",
-  "account_number": "f1_10[0]",
-
-   "mm" : "f1_16[0]",
-   "dd" : "f1_17[0]",
-   "yyyy" : "f1_18[0]",
-
-  "tin": {
-    "type": "tin_split",
-    "prefer": "auto",
-    "ssn": ["f1_11[0]", "f1_12[0]", "f1_13[0]"],
-    "ein": ["f1_14[0]", "f1_15[0]"]
+  "two_jobs_checkbox": {
+    "type": "checkbox",
+    "field": "c1_2[0]",
+    "checked_value": "/1"
   },
 
-  "tax_class": {
-    "type": "radio_group",
-    "off_value": "/Off",
-    "choices": [
-      { "value": "individual",  "field": "c1_1[0]", "export_on": "/1" },
-      { "value": "c_corp",      "field": "c1_1[1]", "export_on": "/2" },
-      { "value": "s_corp",      "field": "c1_1[2]", "export_on": "/3" },
-      { "value": "partnership", "field": "c1_1[3]", "export_on": "/4" },
-      { "value": "trust",       "field": "c1_1[4]", "export_on": "/5" },
-      { "value": "llc",         "field": "c1_1[5]", "export_on": "/6" },
-      { "value": "other",       "field": "c1_1[6]", "export_on": "/7" }
-    ]
-  }
-  
+  "qualifying_children_amount": "f1_06[0]",
+  "other_dependents_amount": "f1_07[0]",
+  "total_dependents_amount": "f1_08[0]",
+
+  "other_income": "f1_09[0]",
+  "deductions": "f1_10[0]",
+  "extra_withholding": "f1_11[0]",
+
+  "exempt_checkbox": {
+    "type": "checkbox",
+    "field": "c1_3[0]",
+    "checked_value": "/1"
+  },
+
+  "employer_name_address": "f1_12[0]",
+  "first_date_employment": "f1_13[0]",
+  "ein": "f1_14[0]",
+
+  "ws_mj_1": "f3_01[0]",
+  "ws_mj_2a": "f3_02[0]",
+  "ws_mj_2b": "f3_03[0]",
+  "ws_mj_2c": "f3_04[0]",
+  "ws_mj_3": "f3_05[0]",
+  "ws_mj_4": "f3_06[0]",
+
+  "ws_ded_1": "f4_01[0]",
+  "ws_ded_2": "f4_02[0]",
+  "ws_ded_3": "f4_03[0]",
+  "ws_ded_4": "f4_04[0]",
+  "ws_ded_5": "f4_05[0]"
 }
