@@ -1,18 +1,91 @@
 {
   "fields": [
-    { "key": "legal_name", "type": "text", "required": true, "label": "Name (as shown on your income tax return)" },
-    { "key": "business_name", "type": "text", "required": false, "label": "Business name/disregarded entity name" },
-
-    { "key": "tax_class_individual", "type": "checkbox", "label": "Individual/sole proprietor or single-member LLC" },
-
-    { "key": "exempt_payee_code", "type": "text", "label": "Exempt payee code (if any)" },
-    { "key": "exempt_fatca_code", "type": "text", "label": "Exemption from FATCA reporting code (if any)" },
-
-    { "key": "address_1", "type": "text", "label": "Address (number, street, and apt. or suite no.)" },
-    { "key": "address_2", "type": "text", "label": "City, state, and ZIP" },
-
-    { "key": "requester_name", "type": "text", "label": "Requester’s name and address" },
-
-    { "key": "tin", "type": "text", "label": "Taxpayer Identification Number (TIN)" }
+    {
+      "key": "legal_name",
+      "type": "text",
+      "required": true,
+      "label": "Full legal name",
+      "placeholder": "e.g., John Smith",
+      "helpText": "As shown on your income tax return"
+    },
+    {
+      "key": "business_name",
+      "type": "text",
+      "required": false,
+      "label": "Business name",
+      "placeholder": "e.g., Smith Consulting LLC",
+      "helpText": "Business name or disregarded entity name, if different from above"
+    },
+    {
+      "key": "tax_class",
+      "type": "radio",
+      "required": true,
+      "label": "Federal tax classification",
+      "helpText": "Choose the option that best describes your tax classification",
+      "options": [
+        { "value": "individual", "label": "Individual / Sole proprietor" },
+        { "value": "c_corp", "label": "C Corporation" },
+        { "value": "s_corp", "label": "S Corporation" },
+        { "value": "partnership", "label": "Partnership" },
+        { "value": "trust", "label": "Trust / Estate" },
+        { "value": "llc", "label": "Limited Liability Company (LLC)" },
+        { "value": "other", "label": "Other" }
+      ]
+    },
+    {
+      "key": "exempt_payee_code",
+      "type": "text",
+      "required": false,
+      "label": "Exempt payee code",
+      "placeholder": "e.g., 1",
+      "helpText": "If applicable, enter the code (see W-9 instructions)"
+    },
+    {
+      "key": "fatca_exemption",
+      "type": "text",
+      "required": false,
+      "label": "FATCA exemption code",
+      "placeholder": "e.g., A",
+      "helpText": "Exemption from FATCA reporting code, if any"
+    },
+    {
+      "key": "address",
+      "type": "text",
+      "required": true,
+      "label": "Street address",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Number, street, and apartment or suite number"
+    },
+    {
+      "key": "citystatezip",
+      "type": "text",
+      "required": true,
+      "label": "City, state, and ZIP code",
+      "placeholder": "New York, NY 10001"
+    },
+    {
+      "key": "requester_name",
+      "type": "text",
+      "required": false,
+      "label": "Requester's name and address",
+      "placeholder": "Company name, address",
+      "helpText": "Name and address of the person requesting this form"
+    },
+    {
+      "key": "account_number",
+      "type": "text",
+      "required": false,
+      "label": "Account number(s)",
+      "placeholder": "e.g., 12345678",
+      "helpText": "Optional account number(s)"
+    },
+    {
+      "key": "tin",
+      "type": "text",
+      "required": true,
+      "label": "Taxpayer Identification Number",
+      "placeholder": "123-45-6789 or 12-3456789",
+      "helpText": "Social Security Number (SSN) or Employer Identification Number (EIN)"
+    }
   ]
 }

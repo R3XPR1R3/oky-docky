@@ -57,6 +57,15 @@ def load_template(templates_root: str | Path, template_id: str) -> TemplateBundl
     )
 
 
+def load_template_meta(templates_root: str | Path, template_id: str) -> Dict[str, Any]:
+    """Load just the template.json metadata (without reading schema/mapping/pdf)."""
+    base = Path(templates_root) / template_id
+    meta_path = base / "template.json"
+    if not meta_path.exists():
+        raise FileNotFoundError(f"template.json not found in {base}")
+    return json.loads(meta_path.read_text(encoding="utf-8"))
+
+
 def list_templates(templates_root: str | Path) -> List[str]:
     root = Path(templates_root)
     if not root.exists():

@@ -1,29 +1,109 @@
 {
   "fields": [
-    { "key": "first_middle_names", "type": "text", "required": true, "label": "First name and middle initial" },
-    { "key": "last_name", "type": "text", "required": true, "label": "Last name" },
-    { "key": "ssn", "type": "text", "required": true, "label": "Social security number" },
-    { "key": "address", "type": "text", "required": true, "label": "Address (number, street, and apt. no.)" },
-    { "key": "city_state_zip", "type": "text", "required": true, "label": "City or town, state, and ZIP code" },
-
-    { "key": "filing_status", "type": "radio", "required": true, "label": "Filing status", "options": [
-      { "value": "single_mfs", "label": "Single or Married filing separately" },
-      { "value": "mfj_qss", "label": "Married filing jointly or Qualifying surviving spouse" },
-      { "value": "hoh", "label": "Head of household" }
-    ]},
-
-    { "key": "two_jobs_checkbox", "type": "checkbox", "label": "Step 2(c): Check here if there are only two jobs total" },
-
-    { "key": "qualifying_children_amount", "type": "text", "label": "Step 3: Qualifying children under 17 (number of children × $2,000)" },
-    { "key": "other_dependents_amount", "type": "text", "label": "Step 3: Other dependents (number of dependents × $500)" },
-    { "key": "total_dependents_amount", "type": "text", "label": "Step 3: Total amount from lines above" },
-
-    { "key": "other_income", "type": "text", "label": "Step 4(a): Other income (not from jobs)" },
-    { "key": "deductions", "type": "text", "label": "Step 4(b): Deductions other than the standard deduction" },
-    { "key": "extra_withholding", "type": "text", "label": "Step 4(c): Extra withholding per pay period" },
-
-    { "key": "employer_name_address", "type": "text", "label": "Employer's name and address (Employers Only)" },
-    { "key": "first_date_employment", "type": "text", "label": "First date of employment (Employers Only)" },
-    { "key": "ein", "type": "text", "label": "Employer identification number (EIN) (Employers Only)" }
+    {
+      "key": "first_middle_names",
+      "type": "text",
+      "required": true,
+      "label": "First name and middle initial",
+      "placeholder": "e.g., John A",
+      "helpText": "Your first name and middle initial as shown on your tax return"
+    },
+    {
+      "key": "last_name",
+      "type": "text",
+      "required": true,
+      "label": "Last name",
+      "placeholder": "e.g., Smith"
+    },
+    {
+      "key": "ssn",
+      "type": "text",
+      "required": true,
+      "label": "Social security number",
+      "placeholder": "123-45-6789",
+      "helpText": "Your SSN will be kept secure and private"
+    },
+    {
+      "key": "address",
+      "type": "text",
+      "required": true,
+      "label": "Home address",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Number, street, and apartment or suite number"
+    },
+    {
+      "key": "city_state_zip",
+      "type": "text",
+      "required": true,
+      "label": "City, state, and ZIP code",
+      "placeholder": "New York, NY 10001"
+    },
+    {
+      "key": "filing_status",
+      "type": "radio",
+      "required": true,
+      "label": "Filing status",
+      "helpText": "Choose your filing status for tax withholding",
+      "options": [
+        { "value": "single_mfs", "label": "Single or Married filing separately" },
+        { "value": "mfj_qss", "label": "Married filing jointly or Qualifying surviving spouse" },
+        { "value": "hoh", "label": "Head of household" }
+      ]
+    },
+    {
+      "key": "two_jobs_checkbox",
+      "type": "checkbox",
+      "required": false,
+      "label": "Two jobs total",
+      "helpText": "Check if you and your spouse have only two jobs total (Step 2c)"
+    },
+    {
+      "key": "qualifying_children_amount",
+      "type": "text",
+      "required": false,
+      "label": "Qualifying children amount",
+      "placeholder": "e.g., 4000",
+      "helpText": "Number of qualifying children under 17 × $2,000"
+    },
+    {
+      "key": "other_dependents_amount",
+      "type": "text",
+      "required": false,
+      "label": "Other dependents amount",
+      "placeholder": "e.g., 500",
+      "helpText": "Number of other dependents × $500"
+    },
+    {
+      "key": "total_dependents_amount",
+      "type": "text",
+      "required": false,
+      "label": "Total dependents claim",
+      "placeholder": "e.g., 4500",
+      "helpText": "Add the amounts for qualifying children and other dependents"
+    },
+    {
+      "key": "other_income",
+      "type": "text",
+      "required": false,
+      "label": "Other income",
+      "placeholder": "e.g., 1000",
+      "helpText": "Step 4(a): Income not from jobs (interest, dividends, retirement)"
+    },
+    {
+      "key": "deductions",
+      "type": "text",
+      "required": false,
+      "label": "Deductions",
+      "placeholder": "e.g., 0",
+      "helpText": "Step 4(b): Deductions other than the standard deduction"
+    },
+    {
+      "key": "extra_withholding",
+      "type": "text",
+      "required": false,
+      "label": "Extra withholding",
+      "placeholder": "e.g., 50",
+      "helpText": "Step 4(c): Additional amount to withhold each pay period"
+    }
   ]
 }
