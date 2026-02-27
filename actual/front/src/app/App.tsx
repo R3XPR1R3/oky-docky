@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Toaster, toast } from 'sonner';
 import { LandingPage } from './components/LandingPage';
@@ -7,8 +7,12 @@ import { QuestionFlow } from './components/QuestionFlow';
 import { ReviewPage } from './components/ReviewPage';
 import { SuccessPage } from './components/SuccessPage';
 import { ErrorDialog } from './components/ErrorDialog';
+import { FormBuilder } from './components/FormBuilder';
+import { HowItWorks } from './components/HowItWorks';
+import { PricingPage } from './components/PricingPage';
+import { DisclaimerPage } from './components/DisclaimerPage';
 
-type Step = 'landing' | 'selection' | 'questions' | 'review' | 'success';
+type Step = 'landing' | 'selection' | 'questions' | 'review' | 'success' | 'builder' | 'how-it-works' | 'pricing' | 'disclaimer';
 
 const API_URL = '';
 
@@ -25,8 +29,9 @@ export interface TemplateMeta {
 
 export interface SchemaField {
   key: string;
-  type: 'text' | 'radio' | 'checkbox';
+  type: 'text' | 'radio' | 'checkbox' | 'signature';
   required?: boolean;
+  routing?: boolean;
   label: string;
   placeholder?: string;
   helpText?: string;
@@ -46,6 +51,20 @@ export default function App() {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Hidden builder: only accessible via URL hash #builder
+  useEffect(() => {
+    if (window.location.hash === '#builder') {
+      setCurrentStep('builder');
+    }
+    const onHashChange = () => {
+      if (window.location.hash === '#builder') {
+        setCurrentStep('builder');
+      }
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
 
   const handleGetStarted = () => {
     setCurrentStep('selection');
@@ -119,6 +138,7 @@ export default function App() {
     setFormData({});
     setPdfUrl(null);
     setError(null);
+    window.location.hash = '';
   };
 
   const handleCloseError = () => {
@@ -138,7 +158,48 @@ export default function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <LandingPage onGetStarted={handleGetStarted} />
+              <LandingPage
+                onGetStarted={handleGetStarted}
+                onHowItWorks={() => setCurrentStep('how-it-works')}
+                onPricing={() => setCurrentStep('pricing')}
+                onDisclaimer={() => setCurrentStep('disclaimer')}
+              />
+            </motion.div>
+          )}
+
+          {currentStep === 'how-it-works' && (
+            <motion.div
+              key="how-it-works"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <HowItWorks onBack={() => setCurrentStep('landing')} onGetStarted={handleGetStarted} />
+            </motion.div>
+          )}
+
+          {currentStep === 'pricing' && (
+            <motion.div
+              key="pricing"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <PricingPage onBack={() => setCurrentStep('landing')} onGetStarted={handleGetStarted} />
+            </motion.div>
+          )}
+
+          {currentStep === 'disclaimer' && (
+            <motion.div
+              key="disclaimer"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <DisclaimerPage onBack={() => setCurrentStep('landing')} />
             </motion.div>
           )}
 
@@ -208,6 +269,18 @@ export default function App() {
                 templateTitle={selectedTemplate.title}
                 onStartOver={handleStartOver}
               />
+            </motion.div>
+          )}
+
+          {currentStep === 'builder' && (
+            <motion.div
+              key="builder"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <FormBuilder onBack={handleStartOver} />
             </motion.div>
           )}
         </AnimatePresence>

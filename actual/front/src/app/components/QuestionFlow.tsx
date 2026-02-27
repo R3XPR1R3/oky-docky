@@ -7,6 +7,7 @@ import { Label } from './ui/label';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Checkbox } from './ui/checkbox';
 import { Progress } from './ui/progress';
+import { SignaturePad } from './SignaturePad';
 import type { Schema, SchemaField } from '../App';
 
 interface QuestionFlowProps {
@@ -101,6 +102,9 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
     if (!currentQuestion.required) return true;
     const answer = answers[currentQuestion.key];
     if (currentQuestion.type === 'checkbox') return true;
+    if (currentQuestion.type === 'signature') {
+      return typeof answer === 'string' && answer.trim() !== '';
+    }
     return answer !== undefined && answer !== null && answer.toString().trim() !== '';
   };
 
@@ -253,6 +257,13 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
                       {currentQuestion.helpText || 'Yes'}
                     </Label>
                   </div>
+                )}
+
+                {currentQuestion.type === 'signature' && (
+                  <SignaturePad
+                    value={answers[currentQuestion.key] || ''}
+                    onChange={handleAnswerChange}
+                  />
                 )}
               </div>
             </div>

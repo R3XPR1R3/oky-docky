@@ -4,6 +4,7 @@
       "key": "entity_type",
       "type": "radio",
       "required": true,
+      "routing": true,
       "label": "Who is this W-9 for?",
       "helpText": "This determines which fields you'll need to fill out",
       "options": [
@@ -66,6 +67,7 @@
       "key": "has_exemptions",
       "type": "radio",
       "required": true,
+      "routing": true,
       "label": "Do you have any exemption codes?",
       "helpText": "Exemption codes apply only to certain entities, not individuals. See W-9 instructions for details.",
       "options": [
@@ -117,6 +119,7 @@
       "key": "tin_type",
       "type": "radio",
       "required": true,
+      "routing": true,
       "label": "Which identification number will you provide?",
       "helpText": "SSN for individuals, EIN for businesses. Choose the one that applies to you.",
       "options": [

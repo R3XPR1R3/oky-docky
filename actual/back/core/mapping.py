@@ -1,22 +1,26 @@
 from __future__ import annotations
-from typing import Dict, Any
+from typing import Dict, Any, List, Tuple
 
 
-def build_pdf_field_values(form_data: Dict[str, Any], mapping: Dict[str, Any]) -> Dict[str, Any]:
+def build_pdf_field_values(form_data: Dict[str, Any], mapping: Dict[str, Any]) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
     """
+    Returns (field_values, signature_overlays).
+
+    signature_overlays is a list of dicts:
+      {"value": str_or_dataurl, "page": int, "rect": [x1,y1,x2,y2], "field": str}
+
     Mapping types supported:
       - "key": "PdfFieldName"  (text)
       - "key": ["FieldA","FieldB"] (write same text to many)
-      - checkbox:
-          {"type":"checkbox","field":"PdfCheck","checked_value":"/Yes","unchecked_value":"/Off"}
-      - radio (single field):
-          {"type":"radio","field":"PdfRadio","value_map":{"A":"/A","B":"/B"}}
-      - radio_group (multi widgets like c1_1[0..6]):
-          {"type":"radio_group","choices":[{"value":"individual","field":"c1_1[0]","export_on":"/1"}, ...], "off_value":"/Off"}
-      - tin_split:
-          {"type":"tin_split","ssn":[...3 fields...],"ein":[...2 fields...],"prefer":"auto|ssn|ein"}
+      - checkbox
+      - radio / radio_group
+      - split / tin_split
+      - spread: split a delimited string across multiple fields
+      - value_to_checkboxes: map one answer to multiple checkbox states
+      - signature: text field + optional image overlay
     """
     out: Dict[str, Any] = {}
+    sig_overlays: List[Dict[str, Any]] = []
 
     for key, rule in mapping.items():
         if key not in form_data:
@@ -83,6 +87,50 @@ def build_pdf_field_values(form_data: Dict[str, Any], mapping: Dict[str, Any]) -
                     out[field_name] = digits[pos:pos + length]
                     pos += length
 
+        elif rtype == "spread":
+            raw = "" if value is None else str(value)
+            separator = rule.get("separator", ",")
+            fields = rule.get("fields") or []
+            parts = [p.strip() for p in raw.split(separator) if p.strip()]
+            for i, field_name in enumerate(fields):
+                if i < len(parts):
+                    out[field_name] = parts[i]
+
+        elif rtype == "value_to_checkboxes":
+            all_fields = rule.get("all_fields") or []
+            off_value = rule.get("off_value", "/Off")
+            value_mapping = rule.get("mapping") or {}
+
+            # turn all off first
+            for fld in all_fields:
+                out[fld] = off_value
+
+            selected = "" if value is None else str(value)
+            field_states = value_mapping.get(selected, {})
+            for fld, val in field_states.items():
+                out[fld] = val
+
+        elif rtype == "signature":
+            field = rule.get("field")
+            raw = "" if value is None else str(value)
+
+            is_image = raw.startswith("data:image")
+
+            if is_image:
+                # image signature: fill text field with empty, add overlay
+                if field:
+                    out[field] = ""
+                sig_overlays.append({
+                    "value": raw,
+                    "page": rule.get("page", 0),
+                    "rect": rule.get("rect", [0, 0, 200, 50]),
+                    "field": field or "",
+                })
+            else:
+                # typed signature: just fill the text field
+                if field:
+                    out[field] = raw
+
         elif rtype == "tin_split":
             raw = "" if value is None else str(value)
             digits = "".join(ch for ch in raw if ch.isdigit())
@@ -114,4 +162,4 @@ def build_pdf_field_values(form_data: Dict[str, Any], mapping: Dict[str, Any]) -
             if field:
                 out[field] = value
 
-    return out
+    return out, sig_overlays
