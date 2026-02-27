@@ -273,7 +273,7 @@ export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaime
       <footer className="border-t border-slate-200 bg-white/60 backdrop-blur-sm py-8">
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-600">
-            <p>&copy; 2026 Oky-Docky. All rights reserved.</p>
+            <p>&copy; 2026 Barckhat LLC. All rights reserved.</p>
             <div className="flex items-center gap-6">
               <button onClick={onHowItWorks} className="hover:text-indigo-600 transition-colors">How It Works</button>
               <button onClick={onPricing} className="hover:text-indigo-600 transition-colors">Pricing</button>
