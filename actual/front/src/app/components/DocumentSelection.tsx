@@ -8,9 +8,10 @@ import type { TemplateMeta } from '../App';
 interface DocumentSelectionProps {
   apiUrl: string;
   onSelectDocument: (template: TemplateMeta) => void;
+  onBack: () => void;
 }
 
-export function DocumentSelection({ apiUrl, onSelectDocument }: DocumentSelectionProps) {
+export function DocumentSelection({ apiUrl, onSelectDocument, onBack }: DocumentSelectionProps) {
   const [templates, setTemplates] = useState<TemplateMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,7 +55,7 @@ export function DocumentSelection({ apiUrl, onSelectDocument }: DocumentSelectio
       >
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="rounded-full">
+            <Button variant="ghost" size="icon" className="rounded-full" onClick={onBack}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex items-center gap-2">
