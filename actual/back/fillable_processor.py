@@ -112,10 +112,10 @@ def api_render(template_id: str, payload: dict):
     if bundle.engine != "acroform":
         raise HTTPException(400, f"Unsupported engine for now: {bundle.engine}")
 
-    pdf_field_values = build_pdf_field_values(data, bundle.mapping)
+    pdf_field_values, sig_overlays = build_pdf_field_values(data, bundle.mapping)
 
     out_path = OUTPUT_DIR / f"{template_id}_filled.pdf"
-    fill_acroform_pdf(bundle.pdf_path, pdf_field_values, out_path)
+    fill_acroform_pdf(bundle.pdf_path, pdf_field_values, out_path, sig_overlays)
 
     return FileResponse(
         path=str(out_path),

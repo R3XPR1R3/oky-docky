@@ -1,0 +1,14 @@
+{
+  "id": "f14039-2026",
+  "engine": "acroform",
+  "pdf": "f14039.pdf",
+  "schema": "schema.json",
+  "mapping": "mapping.json",
+  "title": "Form 14039",
+  "description": "Identity Theft Affidavit — Report tax-related identity theft to the IRS",
+  "category": "tax",
+  "tags": ["tax", "irs", "identity-theft", "affidavit", "14039"],
+  "country": "US",
+  "popular": false,
+  "estimated_time": "10 min"
+}

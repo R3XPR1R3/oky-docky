@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
-import { FileText, Download, CheckCircle, ArrowRight, Sparkles, Mail, Share2 } from 'lucide-react';
+import { FileText, Download, CheckCircle, Sparkles, RotateCcw } from 'lucide-react';
 import { Button } from './ui/button';
+import { toast } from 'sonner';
 
 interface SuccessPageProps {
   pdfUrl: string;
@@ -16,6 +17,7 @@ export function SuccessPage({ pdfUrl, templateTitle, onStartOver }: SuccessPageP
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    toast.success('Download started!');
   };
 
   return (
@@ -144,12 +146,12 @@ export function SuccessPage({ pdfUrl, templateTitle, onStartOver }: SuccessPageP
 
           <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200 text-center hover:shadow-xl transition-shadow">
             <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="w-6 h-6 text-green-600" />
+              <RotateCcw className="w-6 h-6 text-green-600" />
             </div>
-            <h3 className="font-semibold mb-2">Save to Dashboard</h3>
-            <p className="text-sm text-slate-600 mb-4">Access anytime you need</p>
-            <Button variant="outline" size="sm" className="w-full">
-              Save
+            <h3 className="font-semibold mb-2">Download Again</h3>
+            <p className="text-sm text-slate-600 mb-4">Need another copy?</p>
+            <Button variant="outline" size="sm" className="w-full" onClick={handleDownload}>
+              Download
             </Button>
           </div>
         </motion.div>

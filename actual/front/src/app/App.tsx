@@ -29,8 +29,9 @@ export interface TemplateMeta {
 
 export interface SchemaField {
   key: string;
-  type: 'text' | 'radio' | 'checkbox';
+  type: 'text' | 'radio' | 'checkbox' | 'signature';
   required?: boolean;
+  routing?: boolean;
   label: string;
   placeholder?: string;
   helpText?: string;

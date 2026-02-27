@@ -1,0 +1,158 @@
+{
+  "first_name": "form1[0].Page1[0].section_c[0].first_name[0]",
+  "last_name": "form1[0].Page1[0].section_c[0].last_name[0]",
+  "middle_initial": "form1[0].Page1[0].section_c[0].middle_initial[0]",
+  "tin": "form1[0].Page1[0].section_c[0].TIN[0]",
+  "current_mailing_address": "form1[0].Page1[0].section_c[0].current_mailing_address[0]",
+  "city": "form1[0].Page1[0].section_c[0].city[0]",
+  "state": "form1[0].Page1[0].section_c[0].state[0]",
+  "zip_first5": "form1[0].Page1[0].section_c[0].zip_code[0].first_5[0]",
+  "zip_last4": "form1[0].Page1[0].section_c[0].zip_code[0].last_4[0]",
+
+  "prev_address": "form1[0].Page1[0].section_c[0].address[0].address[0]",
+  "prev_city": "form1[0].Page1[0].section_c[0].address[0].city[0]",
+  "prev_state": "form1[0].Page1[0].section_c[0].address[0].state[0]",
+  "prev_zip_first5": "form1[0].Page1[0].section_c[0].address[0].zip_code[0].first_5[0]",
+  "prev_zip_last4": "form1[0].Page1[0].section_c[0].address[0].zip_code[0].last_4[0]",
+
+  "phone_home": "form1[0].Page1[0].section_c[0].telephone_number[0].home[0]",
+  "phone_cell": "form1[0].Page1[0].section_c[0].telephone_number[0].cell[0]",
+  "best_time": "form1[0].Page1[0].section_c[0].best_time[0]",
+
+  "language": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "english", "field": "form1[0].Page1[0].section_c[0].language[0].english[0]", "export_on": "/1" },
+      { "value": "spanish", "field": "form1[0].Page1[0].section_c[0].language[0].spanish[0]", "export_on": "/1" },
+      { "value": "other",   "field": "form1[0].Page1[0].section_c[0].language[0].other[0]",   "export_on": "/1" }
+    ]
+  },
+  "language_other": "form1[0].Page1[0].section_c[0].language[0].if_other[0]",
+
+  "reason_notice": {
+    "type": "checkbox",
+    "field": "form1[0].Page1[0].section_a[0].q1[0]",
+    "checked_value": "/1",
+    "unchecked_value": "/Off"
+  },
+  "notice_letter": "form1[0].Page1[0].section_a[0].list_a[0].item1[0].notice_letter[0]",
+  "reason_rejected": {
+    "type": "checkbox",
+    "field": "form1[0].Page1[0].section_a[0].q2[0]",
+    "checked_value": "/1",
+    "unchecked_value": "/Off"
+  },
+  "reason_other_agency": {
+    "type": "checkbox",
+    "field": "form1[0].Page1[0].section_a[0].q3[0]",
+    "checked_value": "/1",
+    "unchecked_value": "/Off"
+  },
+  "reason_other": {
+    "type": "checkbox",
+    "field": "form1[0].Page1[0].section_a[0].q4[0]",
+    "checked_value": "/1",
+    "unchecked_value": "/Off"
+  },
+
+  "theft_tax_return": {
+    "type": "checkbox",
+    "field": "form1[0].Page1[0].section_b[0].someone_used[0]",
+    "checked_value": "/1",
+    "unchecked_value": "/Off"
+  },
+  "theft_ssn_work": {
+    "type": "checkbox",
+    "field": "form1[0].Page1[0].section_b[0].ssn_itin[0]",
+    "checked_value": "/1",
+    "unchecked_value": "/Off"
+  },
+  "theft_dependent": {
+    "type": "checkbox",
+    "field": "form1[0].Page1[0].section_b[0].dependent_was_fraudulently[0]",
+    "checked_value": "/1",
+    "unchecked_value": "/Off"
+  },
+  "theft_details": "form1[0].Page1[0].section_b[0].provide[0].provide[0]",
+
+  "last_tax_year": "form1[0].Page1[0].section_d[0].last_tax_year[0]",
+  "additional_years": {
+    "type": "spread",
+    "fields": [
+      "form1[0].Page1[0].section_d[0].tax_years[0].tax_year_1[0]",
+      "form1[0].Page1[0].section_d[0].tax_years[0].tax_year_2[0]",
+      "form1[0].Page1[0].section_d[0].tax_years[0].tax_year_3[0]",
+      "form1[0].Page1[0].section_d[0].tax_years[0].tax_year_4[0]",
+      "form1[0].Page1[0].section_d[0].tax_years[0].tax_year_5[0]",
+      "form1[0].Page1[0].section_d[0].tax_years[0].tax_year_6[0]",
+      "form1[0].Page1[0].section_d[0].tax_years[0].tax_year_7[0]",
+      "form1[0].Page1[0].section_d[0].tax_years[0].tax_year_8[0]"
+    ],
+    "separator": ","
+  },
+  "had_no_filing": {
+    "type": "checkbox",
+    "field": "form1[0].Page1[0].section_d[0].had_no_filing[0]",
+    "checked_value": "/1",
+    "unchecked_value": "/Off"
+  },
+  "name_on_return": "form1[0].Page1[0].section_d[0].name[0]",
+
+  "signature": {
+    "type": "signature",
+    "field": "form1[0].Page2[0].section_e[0].signature[0]",
+    "page": 1,
+    "rect": [28.8, 694.8, 496.8, 710.64]
+  },
+  "date_signed": "form1[0].Page2[0].section_e[0].date_signed[0]",
+
+  "rep_first_name": "form1[0].Page2[0].section_f[0].representative_name[0].first_name[0]",
+  "rep_last_name": "form1[0].Page2[0].section_f[0].representative_name[0].last_name[0]",
+  "rep_middle_initial": "form1[0].Page2[0].section_f[0].representative_name[0].middle_initial[0]",
+  "rep_address": "form1[0].Page2[0].section_f[0].representative_address[0]",
+  "rep_phone": "form1[0].Page2[0].section_f[0].representative_telephone[0]",
+  "rep_caf": "form1[0].Page2[0].section_f[0].list_4[0].item2[0].CAF[0]",
+
+  "rep_relationship": {
+    "type": "value_to_checkboxes",
+    "all_fields": [
+      "form1[0].Page2[0].section_f[0].q1[0]",
+      "form1[0].Page2[0].section_f[0].q3[0]",
+      "form1[0].Page2[0].section_f[0].q5[0]",
+      "form1[0].Page2[0].section_f[0].list_5[0].item1[0].q5_parent_legal_guardian[0]",
+      "form1[0].Page2[0].section_f[0].list_5[0].item1[0].q5_fiduciary[0]",
+      "form1[0].Page2[0].section_f[0].list_5[0].item1[0].q5_power[0]",
+      "form1[0].Page2[0].section_f[0].list_5[0].item1[0].q5_other[0]"
+    ],
+    "off_value": "/Off",
+    "mapping": {
+      "parent_guardian": {
+        "form1[0].Page2[0].section_f[0].q1[0]": "/1",
+        "form1[0].Page2[0].section_f[0].q5[0]": "/1",
+        "form1[0].Page2[0].section_f[0].list_5[0].item1[0].q5_parent_legal_guardian[0]": "/1"
+      },
+      "fiduciary": {
+        "form1[0].Page2[0].section_f[0].q1[0]": "/1",
+        "form1[0].Page2[0].section_f[0].q5[0]": "/1",
+        "form1[0].Page2[0].section_f[0].list_5[0].item1[0].q5_fiduciary[0]": "/1"
+      },
+      "power_of_attorney": {
+        "form1[0].Page2[0].section_f[0].q1[0]": "/1",
+        "form1[0].Page2[0].section_f[0].q2[0]": "/1",
+        "form1[0].Page2[0].section_f[0].q5[0]": "/1",
+        "form1[0].Page2[0].section_f[0].list_5[0].item1[0].q5_power[0]": "/1"
+      },
+      "court_appointed": {
+        "form1[0].Page2[0].section_f[0].q1[0]": "/1",
+        "form1[0].Page2[0].section_f[0].q3[0]": "/1"
+      },
+      "other": {
+        "form1[0].Page2[0].section_f[0].q1[0]": "/1",
+        "form1[0].Page2[0].section_f[0].q5[0]": "/1",
+        "form1[0].Page2[0].section_f[0].list_5[0].item1[0].q5_other[0]": "/1"
+      }
+    }
+  },
+  "rep_relationship_other": "form1[0].Page2[0].section_f[0].list_5[0].item1[0].q5_other_explain[0]"
+}

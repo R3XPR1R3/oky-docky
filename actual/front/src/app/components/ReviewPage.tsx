@@ -1,5 +1,6 @@
+import { useMemo } from 'react';
 import { motion } from 'motion/react';
-import { FileText, Edit2, CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { FileText, Edit2, CheckCircle, ArrowRight, Loader2, Pen } from 'lucide-react';
 import { Button } from './ui/button';
 import type { Schema, SchemaField } from '../App';
 
@@ -19,8 +20,16 @@ export function ReviewPage({ formData, schema, templateTitle, onEdit, onSubmit, 
     fieldMap.set(f.key, f);
   }
 
-  // Routing-only keys that shouldn't appear in review (they control flow, not PDF data)
-  const routingKeys = new Set(['entity_type', 'tin_type', 'has_exemptions']);
+  // Routing-only keys: auto-detect from schema fields with routing: true
+  const routingKeys = useMemo(() => {
+    const keys = new Set<string>();
+    for (const f of schema.fields) {
+      if ((f as any).routing) keys.add(f.key);
+    }
+    // W-9 backwards compatibility — these were hardcoded before the routing flag existed
+    for (const k of ['entity_type', 'tin_type', 'has_exemptions']) keys.add(k);
+    return keys;
+  }, [schema.fields]);
 
   const formatValue = (key: string, value: any): string => {
     if (value === undefined || value === null || value === '') return 'Not provided';
@@ -36,6 +45,14 @@ export function ReviewPage({ formData, schema, templateTitle, onEdit, onSubmit, 
     // For checkbox, show Yes/No
     if (field?.type === 'checkbox') {
       return value ? 'Yes' : 'No';
+    }
+
+    // Signature fields
+    if (field?.type === 'signature') {
+      if (typeof value === 'string' && value.startsWith('data:image')) {
+        return '__SIGNATURE_IMAGE__';
+      }
+      return value ? `Signed: ${value}` : 'Not signed';
     }
 
     // Mask SSN/TIN/EIN-like fields for display
@@ -139,9 +156,23 @@ export function ReviewPage({ formData, schema, templateTitle, onEdit, onSubmit, 
                     <div className="text-sm font-medium text-slate-500 mb-1">
                       {getLabel(field.key)}
                     </div>
-                    <div className="text-lg text-slate-800 font-medium">
-                      {formatValue(field.key, formData[field.key])}
-                    </div>
+                    {formatValue(field.key, formData[field.key]) === '__SIGNATURE_IMAGE__' ? (
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={formData[field.key]}
+                          alt="Signature"
+                          className="h-12 border border-slate-200 rounded-lg bg-white px-2"
+                        />
+                        <div className="flex items-center gap-1 text-sm text-green-600">
+                          <Pen className="w-3.5 h-3.5" />
+                          Signed
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-lg text-slate-800 font-medium">
+                        {formatValue(field.key, formData[field.key])}
+                      </div>
+                    )}
                   </div>
                   <div className="flex-shrink-0">
                     <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">

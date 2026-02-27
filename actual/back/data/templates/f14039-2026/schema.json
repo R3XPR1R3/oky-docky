@@ -1,0 +1,358 @@
+{
+  "fields": [
+    {
+      "key": "first_name",
+      "type": "text",
+      "required": true,
+      "label": "First name",
+      "placeholder": "Jane",
+      "helpText": "Your legal first name as shown on your tax return"
+    },
+    {
+      "key": "last_name",
+      "type": "text",
+      "required": true,
+      "label": "Last name",
+      "placeholder": "Doe",
+      "helpText": "Your legal last name"
+    },
+    {
+      "key": "middle_initial",
+      "type": "text",
+      "required": false,
+      "label": "Middle initial",
+      "placeholder": "M",
+      "helpText": "Your middle initial (optional)"
+    },
+    {
+      "key": "tin",
+      "type": "text",
+      "required": true,
+      "label": "Social Security Number (SSN) or ITIN",
+      "placeholder": "123-45-6789",
+      "helpText": "Enter the SSN or ITIN that was misused"
+    },
+    {
+      "key": "current_mailing_address",
+      "type": "text",
+      "required": true,
+      "label": "Current mailing address",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Your current street address"
+    },
+    {
+      "key": "city",
+      "type": "text",
+      "required": true,
+      "label": "City",
+      "placeholder": "New York"
+    },
+    {
+      "key": "state",
+      "type": "text",
+      "required": true,
+      "label": "State (2-letter code)",
+      "placeholder": "NY",
+      "helpText": "Enter your 2-letter state abbreviation"
+    },
+    {
+      "key": "zip_first5",
+      "type": "text",
+      "required": true,
+      "label": "ZIP code",
+      "placeholder": "10001",
+      "helpText": "5-digit ZIP code"
+    },
+    {
+      "key": "zip_last4",
+      "type": "text",
+      "required": false,
+      "label": "ZIP+4 (optional)",
+      "placeholder": "0002",
+      "helpText": "Last 4 digits of your ZIP+4 code"
+    },
+    {
+      "key": "has_previous_address",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Is your previous address different from your current address?",
+      "helpText": "If you recently moved, provide your previous address",
+      "options": [
+        { "value": "no", "label": "No, same address" },
+        { "value": "yes", "label": "Yes, different address" }
+      ]
+    },
+    {
+      "key": "prev_address",
+      "type": "text",
+      "required": true,
+      "label": "Previous street address",
+      "placeholder": "456 Old Street",
+      "visible_when": { "has_previous_address": ["yes"] }
+    },
+    {
+      "key": "prev_city",
+      "type": "text",
+      "required": true,
+      "label": "Previous city",
+      "placeholder": "Chicago",
+      "visible_when": { "has_previous_address": ["yes"] }
+    },
+    {
+      "key": "prev_state",
+      "type": "text",
+      "required": true,
+      "label": "Previous state (2-letter code)",
+      "placeholder": "IL",
+      "visible_when": { "has_previous_address": ["yes"] }
+    },
+    {
+      "key": "prev_zip_first5",
+      "type": "text",
+      "required": true,
+      "label": "Previous ZIP code",
+      "placeholder": "60601",
+      "visible_when": { "has_previous_address": ["yes"] }
+    },
+    {
+      "key": "prev_zip_last4",
+      "type": "text",
+      "required": false,
+      "label": "Previous ZIP+4 (optional)",
+      "placeholder": "0003",
+      "visible_when": { "has_previous_address": ["yes"] }
+    },
+    {
+      "key": "phone_home",
+      "type": "text",
+      "required": false,
+      "label": "Home phone number",
+      "placeholder": "(212) 555-1234"
+    },
+    {
+      "key": "phone_cell",
+      "type": "text",
+      "required": false,
+      "label": "Cell phone number",
+      "placeholder": "(212) 555-5678"
+    },
+    {
+      "key": "best_time",
+      "type": "text",
+      "required": false,
+      "label": "Best time to call",
+      "placeholder": "9 AM – 5 PM EST",
+      "helpText": "When should the IRS contact you?"
+    },
+    {
+      "key": "language",
+      "type": "radio",
+      "required": true,
+      "label": "Preferred language for communication",
+      "options": [
+        { "value": "english", "label": "English" },
+        { "value": "spanish", "label": "Spanish" },
+        { "value": "other", "label": "Other" }
+      ]
+    },
+    {
+      "key": "language_other",
+      "type": "text",
+      "required": true,
+      "label": "Specify your preferred language",
+      "placeholder": "e.g., Mandarin",
+      "visible_when": { "language": ["other"] }
+    },
+    {
+      "key": "reason_notice",
+      "type": "checkbox",
+      "required": false,
+      "label": "I received an IRS notice or letter indicating someone else used my information",
+      "helpText": "Section A — Check all reasons that apply"
+    },
+    {
+      "key": "notice_letter",
+      "type": "text",
+      "required": false,
+      "label": "IRS notice or letter number",
+      "placeholder": "e.g., CP01A",
+      "helpText": "Enter the notice/letter number shown on the IRS correspondence",
+      "visible_when": { "reason_notice": ["true"] }
+    },
+    {
+      "key": "reason_rejected",
+      "type": "checkbox",
+      "required": false,
+      "label": "My e-filed tax return was rejected because a return using my SSN/ITIN was already filed"
+    },
+    {
+      "key": "reason_other_agency",
+      "type": "checkbox",
+      "required": false,
+      "label": "I received a notice from another agency (SSA, state agency, etc.) about possible identity theft"
+    },
+    {
+      "key": "reason_other",
+      "type": "checkbox",
+      "required": false,
+      "label": "Other reason for filing this affidavit"
+    },
+    {
+      "key": "theft_tax_return",
+      "type": "checkbox",
+      "required": false,
+      "label": "Someone used my information to file a tax return",
+      "helpText": "Section B — Check all types of identity theft that apply"
+    },
+    {
+      "key": "theft_ssn_work",
+      "type": "checkbox",
+      "required": false,
+      "label": "Someone used my SSN or ITIN to get a job (work-related fraud)"
+    },
+    {
+      "key": "theft_dependent",
+      "type": "checkbox",
+      "required": false,
+      "label": "My information was used to fraudulently claim a dependent"
+    },
+    {
+      "key": "theft_details",
+      "type": "text",
+      "required": false,
+      "label": "Additional details about the identity theft (optional)",
+      "placeholder": "Describe what happened...",
+      "helpText": "Provide any additional information that may help the IRS investigate"
+    },
+    {
+      "key": "last_tax_year",
+      "type": "text",
+      "required": true,
+      "label": "Most recent tax year affected",
+      "placeholder": "2025",
+      "helpText": "Section D — Enter the most recent year affected by identity theft"
+    },
+    {
+      "key": "additional_years",
+      "type": "text",
+      "required": false,
+      "label": "Other tax years affected (comma-separated)",
+      "placeholder": "2024, 2023, 2022",
+      "helpText": "List up to 8 additional tax years affected, separated by commas"
+    },
+    {
+      "key": "had_no_filing",
+      "type": "checkbox",
+      "required": false,
+      "label": "I had no filing requirement for the affected tax year(s)",
+      "helpText": "Check if you were not required to file a tax return for the year(s) listed above"
+    },
+    {
+      "key": "name_on_return",
+      "type": "text",
+      "required": false,
+      "label": "Name used on the fraudulent return (if different from yours)",
+      "placeholder": "e.g., Jon Doe",
+      "helpText": "If you know a different name was used on the fraudulent return, enter it here"
+    },
+    {
+      "key": "signature",
+      "type": "signature",
+      "required": true,
+      "label": "Your signature",
+      "helpText": "Section E — Sign under penalty of perjury. Type your name or draw your signature."
+    },
+    {
+      "key": "date_signed",
+      "type": "text",
+      "required": true,
+      "label": "Date signed",
+      "placeholder": "02/27/2026",
+      "helpText": "Enter today's date (MM/DD/YYYY)"
+    },
+    {
+      "key": "filing_for",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Who is filing this form?",
+      "helpText": "Section F — If someone else is submitting this on your behalf, select 'A representative'",
+      "options": [
+        { "value": "myself", "label": "I am filing for myself" },
+        { "value": "representative", "label": "A representative is filing on my behalf" }
+      ]
+    },
+    {
+      "key": "rep_first_name",
+      "type": "text",
+      "required": true,
+      "label": "Representative's first name",
+      "placeholder": "John",
+      "visible_when": { "filing_for": ["representative"] }
+    },
+    {
+      "key": "rep_last_name",
+      "type": "text",
+      "required": true,
+      "label": "Representative's last name",
+      "placeholder": "Smith",
+      "visible_when": { "filing_for": ["representative"] }
+    },
+    {
+      "key": "rep_middle_initial",
+      "type": "text",
+      "required": false,
+      "label": "Representative's middle initial",
+      "placeholder": "A",
+      "visible_when": { "filing_for": ["representative"] }
+    },
+    {
+      "key": "rep_address",
+      "type": "text",
+      "required": true,
+      "label": "Representative's address",
+      "placeholder": "789 Attorney Ave, Suite 100, Chicago, IL 60601",
+      "visible_when": { "filing_for": ["representative"] }
+    },
+    {
+      "key": "rep_phone",
+      "type": "text",
+      "required": true,
+      "label": "Representative's phone number",
+      "placeholder": "(312) 555-9999",
+      "visible_when": { "filing_for": ["representative"] }
+    },
+    {
+      "key": "rep_caf",
+      "type": "text",
+      "required": false,
+      "label": "CAF number (if applicable)",
+      "placeholder": "e.g., 1234567890",
+      "helpText": "Centralized Authorization File number, if you have one",
+      "visible_when": { "filing_for": ["representative"] }
+    },
+    {
+      "key": "rep_relationship",
+      "type": "radio",
+      "required": true,
+      "label": "Representative's relationship to the taxpayer",
+      "visible_when": { "filing_for": ["representative"] },
+      "options": [
+        { "value": "parent_guardian", "label": "Parent / Legal guardian" },
+        { "value": "fiduciary", "label": "Fiduciary" },
+        { "value": "power_of_attorney", "label": "Power of Attorney" },
+        { "value": "court_appointed", "label": "Court-appointed representative" },
+        { "value": "other", "label": "Other" }
+      ]
+    },
+    {
+      "key": "rep_relationship_other",
+      "type": "text",
+      "required": true,
+      "label": "Describe the representative's relationship",
+      "placeholder": "e.g., Enrolled Agent",
+      "visible_when": { "filing_for": ["representative"], "rep_relationship": ["other"] }
+    }
+  ]
+}
