@@ -71,6 +71,18 @@ def build_pdf_field_values(form_data: Dict[str, Any], mapping: Dict[str, Any]) -
                         out[fld] = onv
                     break
 
+        elif rtype == "split":
+            raw = "" if value is None else str(value)
+            digits = "".join(ch for ch in raw if ch.isdigit())
+            fields = rule.get("fields") or []
+            pattern = rule.get("pattern") or []
+
+            if fields and pattern and len(fields) == len(pattern):
+                pos = 0
+                for field_name, length in zip(fields, pattern):
+                    out[field_name] = digits[pos:pos + length]
+                    pos += length
+
         elif rtype == "tin_split":
             raw = "" if value is None else str(value)
             digits = "".join(ch for ch in raw if ch.isdigit())

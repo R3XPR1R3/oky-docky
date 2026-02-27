@@ -31,6 +31,7 @@ export interface SchemaField {
   placeholder?: string;
   helpText?: string;
   options?: { value: string; label: string }[];
+  visible_when?: Record<string, string[]>;
 }
 
 export interface Schema {

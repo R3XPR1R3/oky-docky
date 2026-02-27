@@ -1,6 +1,17 @@
 {
   "fields": [
     {
+      "key": "entity_type",
+      "type": "radio",
+      "required": true,
+      "label": "Who is this W-9 for?",
+      "helpText": "This determines which fields you'll need to fill out",
+      "options": [
+        { "value": "individual", "label": "Individual / Sole proprietor" },
+        { "value": "business", "label": "Business or organization" }
+      ]
+    },
+    {
       "key": "legal_name",
       "type": "text",
       "required": true,
@@ -11,17 +22,18 @@
     {
       "key": "business_name",
       "type": "text",
-      "required": false,
-      "label": "Business name",
+      "required": true,
+      "label": "Business name or disregarded entity name",
       "placeholder": "e.g., Smith Consulting LLC",
-      "helpText": "Business name or disregarded entity name, if different from above"
+      "helpText": "Your official business or DBA name",
+      "visible_when": { "entity_type": ["business"] }
     },
     {
       "key": "tax_class",
       "type": "radio",
       "required": true,
       "label": "Federal tax classification",
-      "helpText": "Choose the option that best describes your tax classification",
+      "helpText": "Check the appropriate box for your federal tax classification",
       "options": [
         { "value": "individual", "label": "Individual / Sole proprietor" },
         { "value": "c_corp", "label": "C Corporation" },
@@ -29,7 +41,36 @@
         { "value": "partnership", "label": "Partnership" },
         { "value": "trust", "label": "Trust / Estate" },
         { "value": "llc", "label": "Limited Liability Company (LLC)" },
-        { "value": "other", "label": "Other" }
+        { "value": "other", "label": "Other (see instructions)" }
+      ]
+    },
+    {
+      "key": "taxpayer_classification",
+      "type": "text",
+      "required": true,
+      "label": "LLC tax classification letter",
+      "placeholder": "C, S, or P",
+      "helpText": "Enter the tax classification: C = C corporation, S = S corporation, P = Partnership",
+      "visible_when": { "tax_class": ["llc"] }
+    },
+    {
+      "key": "other_taxpayer_classification",
+      "type": "text",
+      "required": true,
+      "label": "Other federal tax classification",
+      "placeholder": "e.g., Non-profit organization",
+      "helpText": "Describe your tax classification",
+      "visible_when": { "tax_class": ["other"] }
+    },
+    {
+      "key": "has_exemptions",
+      "type": "radio",
+      "required": true,
+      "label": "Do you have any exemption codes?",
+      "helpText": "Exemption codes apply only to certain entities, not individuals. See W-9 instructions for details.",
+      "options": [
+        { "value": "no", "label": "No, I don't have exemptions" },
+        { "value": "yes", "label": "Yes, I have exemption codes" }
       ]
     },
     {
@@ -38,15 +79,24 @@
       "required": false,
       "label": "Exempt payee code",
       "placeholder": "e.g., 1",
-      "helpText": "If applicable, enter the code (see W-9 instructions)"
+      "helpText": "Enter the applicable exempt payee code (1–13). See W-9 instructions.",
+      "visible_when": { "has_exemptions": ["yes"] }
     },
     {
       "key": "fatca_exemption",
       "type": "text",
       "required": false,
-      "label": "FATCA exemption code",
+      "label": "Exemption from FATCA reporting code",
       "placeholder": "e.g., A",
-      "helpText": "Exemption from FATCA reporting code, if any"
+      "helpText": "Enter the applicable FATCA exemption code (A–M). See W-9 instructions.",
+      "visible_when": { "has_exemptions": ["yes"] }
+    },
+    {
+      "key": "broker_exempt",
+      "type": "checkbox",
+      "required": false,
+      "label": "Exempt broker transaction",
+      "helpText": "Check if you are a broker that only processes transactions and is not required to report income from those transactions"
     },
     {
       "key": "address",
@@ -64,12 +114,41 @@
       "placeholder": "New York, NY 10001"
     },
     {
+      "key": "tin_type",
+      "type": "radio",
+      "required": true,
+      "label": "Which identification number will you provide?",
+      "helpText": "SSN for individuals, EIN for businesses. Choose the one that applies to you.",
+      "options": [
+        { "value": "ssn", "label": "Social Security Number (SSN)" },
+        { "value": "ein", "label": "Employer Identification Number (EIN)" }
+      ]
+    },
+    {
+      "key": "ssn",
+      "type": "text",
+      "required": true,
+      "label": "Social Security Number (SSN)",
+      "placeholder": "123-45-6789",
+      "helpText": "Enter your 9-digit Social Security Number",
+      "visible_when": { "tin_type": ["ssn"] }
+    },
+    {
+      "key": "ein",
+      "type": "text",
+      "required": true,
+      "label": "Employer Identification Number (EIN)",
+      "placeholder": "12-3456789",
+      "helpText": "Enter your 9-digit Employer Identification Number",
+      "visible_when": { "tin_type": ["ein"] }
+    },
+    {
       "key": "requester_name",
       "type": "text",
       "required": false,
       "label": "Requester's name and address",
       "placeholder": "Company name, address",
-      "helpText": "Name and address of the person requesting this form"
+      "helpText": "Name and address of the person or company requesting this form (optional)"
     },
     {
       "key": "account_number",
@@ -78,14 +157,6 @@
       "label": "Account number(s)",
       "placeholder": "e.g., 12345678",
       "helpText": "Optional account number(s)"
-    },
-    {
-      "key": "tin",
-      "type": "text",
-      "required": true,
-      "label": "Taxpayer Identification Number",
-      "placeholder": "123-45-6789 or 12-3456789",
-      "helpText": "Social Security Number (SSN) or Employer Identification Number (EIN)"
     }
   ]
 }

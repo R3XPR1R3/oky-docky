@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FileText, ArrowLeft, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Button } from './ui/button';
@@ -17,19 +17,49 @@ interface QuestionFlowProps {
   onBack: () => void;
 }
 
+/**
+ * Evaluate whether a field should be visible based on current answers.
+ * visible_when is a Record<string, string[]> — ALL conditions must match (AND logic).
+ * Each condition: answers[fieldKey] must be one of the allowed values.
+ */
+function isFieldVisible(field: SchemaField, answers: Record<string, any>): boolean {
+  if (!field.visible_when) return true;
+
+  for (const [depKey, allowedValues] of Object.entries(field.visible_when)) {
+    const currentValue = answers[depKey];
+    if (currentValue === undefined || currentValue === null || currentValue === '') return false;
+    if (!allowedValues.includes(String(currentValue))) return false;
+  }
+  return true;
+}
+
 export function QuestionFlow({ templateTitle, schema, initialData, onComplete, onBack }: QuestionFlowProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>(initialData);
 
-  const questions = schema.fields;
-  const currentQuestion = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+  // Filter to only visible questions based on current answers
+  const visibleQuestions = useMemo(() => {
+    return schema.fields.filter((field) => isFieldVisible(field, answers));
+  }, [schema.fields, answers]);
+
+  const currentQuestion = visibleQuestions[currentQuestionIndex];
+  const progress = visibleQuestions.length > 0
+    ? ((currentQuestionIndex + 1) / visibleQuestions.length) * 100
+    : 0;
 
   const handleNext = () => {
-    if (currentQuestionIndex < questions.length - 1) {
+    if (currentQuestionIndex < visibleQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      onComplete(answers);
+      // Strip out answers for fields that are no longer visible
+      const visibleKeys = new Set(visibleQuestions.map((q) => q.key));
+      const cleanData: Record<string, any> = {};
+      for (const [key, value] of Object.entries(answers)) {
+        if (visibleKeys.has(key)) {
+          cleanData[key] = value;
+        }
+      }
+      onComplete(cleanData);
     }
   };
 
@@ -42,17 +72,41 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
   };
 
   const handleAnswerChange = (value: any) => {
-    setAnswers({ ...answers, [currentQuestion.key]: value });
+    const newAnswers = { ...answers, [currentQuestion.key]: value };
+
+    // When a routing question changes, clear dependent answers that are no longer visible
+    const newVisible = schema.fields.filter((f) => isFieldVisible(f, newAnswers));
+    const newVisibleKeys = new Set(newVisible.map((f) => f.key));
+    for (const key of Object.keys(newAnswers)) {
+      if (!newVisibleKeys.has(key)) {
+        // Check if this field has a visible_when — only clear conditional fields
+        const field = schema.fields.find((f) => f.key === key);
+        if (field?.visible_when) {
+          delete newAnswers[key];
+        }
+      }
+    }
+
+    setAnswers(newAnswers);
+
+    // If the current question index goes out of bounds due to visibility changes, clamp it
+    const updatedVisible = schema.fields.filter((f) => isFieldVisible(f, newAnswers));
+    if (currentQuestionIndex >= updatedVisible.length) {
+      setCurrentQuestionIndex(Math.max(0, updatedVisible.length - 1));
+    }
   };
 
   const isCurrentAnswerValid = () => {
+    if (!currentQuestion) return false;
     if (!currentQuestion.required) return true;
     const answer = answers[currentQuestion.key];
-    if (currentQuestion.type === 'checkbox') return true; // checkboxes are always valid
-    return answer && answer.toString().trim() !== '';
+    if (currentQuestion.type === 'checkbox') return true;
+    return answer !== undefined && answer !== null && answer.toString().trim() !== '';
   };
 
   const canProceed = isCurrentAnswerValid();
+
+  if (!currentQuestion) return null;
 
   return (
     <div className="min-h-screen">
@@ -83,7 +137,7 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
               </div>
             </div>
             <div className="text-sm text-slate-600">
-              Question {currentQuestionIndex + 1} of {questions.length}
+              Question {currentQuestionIndex + 1} of {visibleQuestions.length}
             </div>
           </div>
           <Progress value={progress} className="h-2" />
@@ -93,7 +147,7 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
       <div className="container mx-auto px-4 py-12 max-w-3xl">
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentQuestionIndex}
+            key={currentQuestion.key}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
@@ -227,16 +281,16 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
                   }
                 `}
               >
-                {currentQuestionIndex === questions.length - 1 ? 'Review' : 'Continue'}
+                {currentQuestionIndex === visibleQuestions.length - 1 ? 'Review' : 'Continue'}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
 
             {/* Progress Indicators */}
             <div className="flex items-center justify-center gap-2">
-              {questions.map((_, index) => (
+              {visibleQuestions.map((q, index) => (
                 <motion.div
-                  key={index}
+                  key={q.key}
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: index * 0.05 }}
