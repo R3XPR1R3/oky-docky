@@ -10,7 +10,7 @@ import { ErrorDialog } from './components/ErrorDialog';
 
 type Step = 'landing' | 'selection' | 'questions' | 'review' | 'success';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = '';
 
 export interface TemplateMeta {
   id: string;
@@ -100,7 +100,7 @@ export default function App() {
     } catch (err) {
       let errorMessage = 'Failed to generate PDF. ';
       if (err instanceof TypeError && err.message.includes('fetch')) {
-        errorMessage += 'Cannot connect to the backend server. Please ensure the FastAPI server is running on http://localhost:8000.';
+        errorMessage += 'Cannot connect to the backend server. Please ensure the FastAPI server is running.';
       } else if (err instanceof Error) {
         errorMessage += err.message;
       }
@@ -152,6 +152,7 @@ export default function App() {
               <DocumentSelection
                 apiUrl={API_URL}
                 onSelectDocument={handleSelectDocument}
+                onBack={() => setCurrentStep('landing')}
               />
             </motion.div>
           )}
