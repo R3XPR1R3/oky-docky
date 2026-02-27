@@ -1,13 +1,15 @@
 import { motion } from 'motion/react';
-import { FileText, Sparkles, Shield, Clock, CheckCircle, ArrowRight, Zap, Settings2 } from 'lucide-react';
+import { FileText, Sparkles, Shield, Clock, CheckCircle, ArrowRight, Zap } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface LandingPageProps {
   onGetStarted: () => void;
-  onOpenBuilder?: () => void;
+  onHowItWorks: () => void;
+  onPricing: () => void;
+  onDisclaimer: () => void;
 }
 
-export function LandingPage({ onGetStarted, onOpenBuilder }: LandingPageProps) {
+export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaimer }: LandingPageProps) {
   const features = [
     {
       icon: Sparkles,
@@ -57,14 +59,14 @@ export function LandingPage({ onGetStarted, onOpenBuilder }: LandingPageProps) {
             </span>
           </div>
           <div className="flex items-center gap-4">
-            {onOpenBuilder && (
-              <Button variant="ghost" className="text-sm gap-1.5" onClick={onOpenBuilder}>
-                <Settings2 className="w-4 h-4" />
-                Form Builder
-              </Button>
-            )}
+            <Button variant="ghost" className="text-sm" onClick={onHowItWorks}>
+              How It Works
+            </Button>
+            <Button variant="ghost" className="text-sm" onClick={onPricing}>
+              Pricing
+            </Button>
             <Button variant="outline" className="text-sm" onClick={onGetStarted}>
-              Fill a Form
+              Get Started
             </Button>
           </div>
         </div>
@@ -109,21 +111,18 @@ export function LandingPage({ onGetStarted, onOpenBuilder }: LandingPageProps) {
               Get Started Free
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            {onOpenBuilder && (
-              <Button
-                size="lg"
-                variant="outline"
-                className="px-8 py-6 text-lg rounded-xl border-2 gap-2"
-                onClick={onOpenBuilder}
-              >
-                <Settings2 className="w-5 h-5" />
-                Build a Form
-              </Button>
-            )}
+            <Button
+              size="lg"
+              variant="outline"
+              className="px-8 py-6 text-lg rounded-xl border-2"
+              onClick={onHowItWorks}
+            >
+              See How It Works
+            </Button>
           </div>
 
           <p className="text-sm text-slate-500 mt-4">
-            No credit card required • Free for personal use
+            No credit card required &bull; Free for personal use
           </p>
         </motion.div>
 
@@ -272,8 +271,15 @@ export function LandingPage({ onGetStarted, onOpenBuilder }: LandingPageProps) {
 
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-white/60 backdrop-blur-sm py-8">
-        <div className="container mx-auto px-4 text-center text-slate-600 text-sm">
-          <p>© 2026 Oky-Docky. All rights reserved.</p>
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-600">
+            <p>&copy; 2026 Oky-Docky. All rights reserved.</p>
+            <div className="flex items-center gap-6">
+              <button onClick={onHowItWorks} className="hover:text-indigo-600 transition-colors">How It Works</button>
+              <button onClick={onPricing} className="hover:text-indigo-600 transition-colors">Pricing</button>
+              <button onClick={onDisclaimer} className="hover:text-indigo-600 transition-colors">Terms & Disclaimer</button>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
