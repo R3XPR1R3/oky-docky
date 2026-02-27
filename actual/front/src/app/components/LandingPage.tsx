@@ -1,12 +1,13 @@
 import { motion } from 'motion/react';
-import { FileText, Sparkles, Shield, Clock, CheckCircle, ArrowRight, Zap } from 'lucide-react';
+import { FileText, Sparkles, Shield, Clock, CheckCircle, ArrowRight, Zap, Settings2 } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface LandingPageProps {
   onGetStarted: () => void;
+  onOpenBuilder?: () => void;
 }
 
-export function LandingPage({ onGetStarted }: LandingPageProps) {
+export function LandingPage({ onGetStarted, onOpenBuilder }: LandingPageProps) {
   const features = [
     {
       icon: Sparkles,
@@ -56,14 +57,14 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" className="text-sm">
-              How It Works
-            </Button>
-            <Button variant="ghost" className="text-sm">
-              Pricing
-            </Button>
-            <Button variant="outline" className="text-sm">
-              Sign In
+            {onOpenBuilder && (
+              <Button variant="ghost" className="text-sm gap-1.5" onClick={onOpenBuilder}>
+                <Settings2 className="w-4 h-4" />
+                Form Builder
+              </Button>
+            )}
+            <Button variant="outline" className="text-sm" onClick={onGetStarted}>
+              Fill a Form
             </Button>
           </div>
         </div>
@@ -108,13 +109,17 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               Get Started Free
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="px-8 py-6 text-lg rounded-xl border-2"
-            >
-              Watch Demo
-            </Button>
+            {onOpenBuilder && (
+              <Button
+                size="lg"
+                variant="outline"
+                className="px-8 py-6 text-lg rounded-xl border-2 gap-2"
+                onClick={onOpenBuilder}
+              >
+                <Settings2 className="w-5 h-5" />
+                Build a Form
+              </Button>
+            )}
           </div>
 
           <p className="text-sm text-slate-500 mt-4">

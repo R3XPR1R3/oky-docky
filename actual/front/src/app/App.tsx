@@ -7,8 +7,9 @@ import { QuestionFlow } from './components/QuestionFlow';
 import { ReviewPage } from './components/ReviewPage';
 import { SuccessPage } from './components/SuccessPage';
 import { ErrorDialog } from './components/ErrorDialog';
+import { FormBuilder } from './components/FormBuilder';
 
-type Step = 'landing' | 'selection' | 'questions' | 'review' | 'success';
+type Step = 'landing' | 'selection' | 'questions' | 'review' | 'success' | 'builder';
 
 const API_URL = '';
 
@@ -138,7 +139,7 @@ export default function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <LandingPage onGetStarted={handleGetStarted} />
+              <LandingPage onGetStarted={handleGetStarted} onOpenBuilder={() => setCurrentStep('builder')} />
             </motion.div>
           )}
 
@@ -208,6 +209,17 @@ export default function App() {
                 templateTitle={selectedTemplate.title}
                 onStartOver={handleStartOver}
               />
+            </motion.div>
+          )}
+          {currentStep === 'builder' && (
+            <motion.div
+              key="builder"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <FormBuilder onBack={() => setCurrentStep('landing')} />
             </motion.div>
           )}
         </AnimatePresence>
