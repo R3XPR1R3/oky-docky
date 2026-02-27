@@ -5,38 +5,34 @@
   "other_taxpayer_classification": "f1_04[0]",
   "exempt_payee_code": "f1_05[0]",
   "fatca_exemption": "f1_06[0]",
-  "foreign_partners": {
-    "type": "radio_group",
-    "off_value": "/Off",
-    "choices": [
-      { "value": "yes", "field": "c1_2[0]", "on": "/1" }
-    ]
-  },
-  "broker_exempt": {
-  "type": "radio_group",
-  "off_value": "/Off",
-  "choices": [
-      { "value": "yes", "field": "c1_3[0]", "on": "/1" }
-    ]
-  }
-  ,
 
+  "broker_exempt": {
+    "type": "checkbox",
+    "field": "c1_3[0]",
+    "checked_value": "/1",
+    "unchecked_value": "/Off"
+  },
 
   "address": "f1_07[0]",
   "citystatezip": "f1_08[0]",
   "requester_name": "f1_09[0]",
   "account_number": "f1_10[0]",
 
-   "mm" : "f1_16[0]",
-   "dd" : "f1_17[0]",
-   "yyyy" : "f1_18[0]",
-
-  "tin": {
-    "type": "tin_split",
-    "prefer": "auto",
-    "ssn": ["f1_11[0]", "f1_12[0]", "f1_13[0]"],
-    "ein": ["f1_14[0]", "f1_15[0]"]
+  "ssn": {
+    "type": "split",
+    "fields": ["f1_11[0]", "f1_12[0]", "f1_13[0]"],
+    "pattern": [3, 2, 4]
   },
+
+  "ein": {
+    "type": "split",
+    "fields": ["f1_14[0]", "f1_15[0]"],
+    "pattern": [2, 7]
+  },
+
+  "mm": "f1_16[0]",
+  "dd": "f1_17[0]",
+  "yyyy": "f1_18[0]",
 
   "tax_class": {
     "type": "radio_group",
@@ -51,5 +47,4 @@
       { "value": "other",       "field": "c1_1[6]", "export_on": "/7" }
     ]
   }
-  
 }

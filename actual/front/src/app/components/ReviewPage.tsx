@@ -19,6 +19,9 @@ export function ReviewPage({ formData, schema, templateTitle, onEdit, onSubmit, 
     fieldMap.set(f.key, f);
   }
 
+  // Routing-only keys that shouldn't appear in review (they control flow, not PDF data)
+  const routingKeys = new Set(['entity_type', 'tin_type', 'has_exemptions']);
+
   const formatValue = (key: string, value: any): string => {
     if (value === undefined || value === null || value === '') return 'Not provided';
 
@@ -35,10 +38,15 @@ export function ReviewPage({ formData, schema, templateTitle, onEdit, onSubmit, 
       return value ? 'Yes' : 'No';
     }
 
-    // Mask SSN/TIN-like fields for display
+    // Mask SSN/TIN/EIN-like fields for display
     if (key === 'ssn' || key === 'tin') {
-      const str = value.toString();
+      const str = value.toString().replace(/\D/g, '');
       if (str.length >= 4) return '\u2022\u2022\u2022-\u2022\u2022-' + str.slice(-4);
+      return '\u2022\u2022\u2022\u2022';
+    }
+    if (key === 'ein') {
+      const str = value.toString().replace(/\D/g, '');
+      if (str.length >= 4) return '\u2022\u2022-\u2022\u2022\u2022' + str.slice(-4);
       return '\u2022\u2022\u2022\u2022';
     }
 
@@ -50,8 +58,10 @@ export function ReviewPage({ formData, schema, templateTitle, onEdit, onSubmit, 
     return field?.label || key;
   };
 
-  // Only show fields that exist in the schema (in schema order)
-  const displayFields = schema.fields.filter((f) => f.key in formData);
+  // Only show fields that: exist in formData, are in the schema, are not routing-only keys
+  const displayFields = schema.fields.filter(
+    (f) => f.key in formData && !routingKeys.has(f.key)
+  );
 
   return (
     <div className="min-h-screen">
