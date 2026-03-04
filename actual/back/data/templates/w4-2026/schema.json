@@ -58,28 +58,20 @@
       "helpText": "Check if you and your spouse have only two jobs total (Step 2c)"
     },
     {
-      "key": "qualifying_children_amount",
+      "key": "qualifying_children_count",
       "type": "text",
       "required": false,
-      "label": "Qualifying children amount",
-      "placeholder": "e.g., 4000",
-      "helpText": "Number of qualifying children under 17 × $2,000"
+      "label": "How many qualifying children under 17 do you have?",
+      "placeholder": "e.g., 2",
+      "helpText": "We calculate Step 3 automatically: children × $2,000"
     },
     {
-      "key": "other_dependents_amount",
+      "key": "other_dependents_count",
       "type": "text",
       "required": false,
-      "label": "Other dependents amount",
-      "placeholder": "e.g., 500",
-      "helpText": "Number of other dependents × $500"
-    },
-    {
-      "key": "total_dependents_amount",
-      "type": "text",
-      "required": false,
-      "label": "Total dependents claim",
-      "placeholder": "e.g., 4500",
-      "helpText": "Add the amounts for qualifying children and other dependents"
+      "label": "How many other dependents do you have?",
+      "placeholder": "e.g., 1",
+      "helpText": "We calculate Step 3 automatically: other dependents × $500"
     },
     {
       "key": "other_income",

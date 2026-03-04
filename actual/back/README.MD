@@ -1,43 +1,79 @@
-Сохрани как actual/back/README.md:
-
 # Oky-Docky Backend (Fillable PDF Processor)
 
-Backend-сервис для заполнения **fillable PDF (AcroForm)** по шаблонам.
-Каждый документ — это папка с PDF + schema + mapping.
+Backend-сервис для заполнения PDF (AcroForm) по шаблонам.
 
-## Требования
-- Python 3.12+
-- pip
+## Запуск
 
-## Установка зависимостей
 Из корня репозитория:
 
 ```bash
 pip install -r actual/requirements.txt
-
-Запуск сервера
 uvicorn actual.back.fillable_processor:app --reload --host 0.0.0.0 --port 8000
+```
 
+Или одной командой вместе с фронтом:
 
-После запуска:
+```bash
+./start-dev.sh
+```
 
-API будет доступен на http://localhost:8000
+## Основные endpoint'ы
 
-Документация Swagger: http://localhost:8000/docs
+- `GET /api/templates`
+- `GET /api/templates/{template_id}`
+- `GET /api/templates/{template_id}/schema`
+- `GET /api/templates/{template_id}/pdf-fields`
+- `POST /api/render/{template_id}`
+- `POST /api/feedback`
 
-Структура шаблонов документов
+## Где лежат сценарии форм
 
-Шаблоны лежат в:
+Формы лежат в `actual/back/data/templates/<template_id>/`.
 
-actual/back/data/templates/<template_id>/
+Каждая форма содержит:
+- `template.json` — мета и ссылки на файлы,
+- `schema.json` — UX-сценарий вопросов,
+- `mapping.json` — маппинг ответов в PDF-поля,
+- PDF-файл шаблона.
 
+Текущие формы:
+- `w9-2026`
+- `w4-2026`
+- `f14039-2026`
 
-Минимальный набор файлов в папке шаблона:
+## W-4: автоматический расчёт Step 3
 
-template.json — мета (engine/pdf/schema/mapping)
+Backend получает клиентские поля:
+- `qualifying_children_count`
+- `other_dependents_count`
 
-schema.json — список “человеческих” полей (ключи формы)
+И автоматически вычисляет суммы для PDF:
+- `qualifying_children_amount`
+- `other_dependents_amount`
+- `total_dependents_amount`
 
-mapping.json — привязка ключей формы к PDF-полям
+## Обратная связь (email / sms)
 
-<pdf> — сам PDF (путь указан в template.json)
+`POST /api/feedback` принимает:
+
+```json
+{
+  "channel": "email",
+  "name": "John",
+  "contact": "john@example.com",
+  "message": "Need help"
+}
+```
+
+### Email config
+
+- `FEEDBACK_SMTP_HOST`
+- `FEEDBACK_SMTP_PORT`
+- `FEEDBACK_SMTP_USERNAME`
+- `FEEDBACK_SMTP_PASSWORD`
+- `FEEDBACK_TO_EMAIL`
+- `FEEDBACK_FROM_EMAIL` (optional)
+
+### SMS config
+
+- `FEEDBACK_SMS_WEBHOOK_URL`
