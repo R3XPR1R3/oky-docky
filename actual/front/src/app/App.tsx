@@ -228,6 +228,8 @@ export default function App() {
               transition={{ duration: 0.3 }}
             >
               <QuestionFlow
+                apiUrl={API_URL}
+                templateId={selectedTemplate.id}
                 templateTitle={selectedTemplate.title}
                 schema={schema}
                 initialData={formData}
