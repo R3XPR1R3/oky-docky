@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FileText, ArrowLeft, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Button } from './ui/button';
@@ -9,8 +9,11 @@ import { Checkbox } from './ui/checkbox';
 import { Progress } from './ui/progress';
 import { SignaturePad } from './SignaturePad';
 import type { Schema, SchemaField } from '../App';
+import { formatInputValueByKey } from '../lib/inputFormatting';
 
 interface QuestionFlowProps {
+  apiUrl: string;
+  templateId: string;
   templateTitle: string;
   schema: Schema;
   initialData: Record<string, any>;
@@ -18,30 +21,36 @@ interface QuestionFlowProps {
   onBack: () => void;
 }
 
-/**
- * Evaluate whether a field should be visible based on current answers.
- * visible_when is a Record<string, string[]> — ALL conditions must match (AND logic).
- * Each condition: answers[fieldKey] must be one of the allowed values.
- */
-function isFieldVisible(field: SchemaField, answers: Record<string, any>): boolean {
-  if (!field.visible_when) return true;
-
-  for (const [depKey, allowedValues] of Object.entries(field.visible_when)) {
-    const currentValue = answers[depKey];
-    if (currentValue === undefined || currentValue === null || currentValue === '') return false;
-    if (!allowedValues.includes(String(currentValue))) return false;
-  }
-  return true;
-}
-
-export function QuestionFlow({ templateTitle, schema, initialData, onComplete, onBack }: QuestionFlowProps) {
+export function QuestionFlow({ apiUrl, templateId, templateTitle, schema, initialData, onComplete, onBack }: QuestionFlowProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>(initialData);
+  const [visibleQuestions, setVisibleQuestions] = useState<SchemaField[]>(schema.fields);
 
-  // Filter to only visible questions based on current answers
-  const visibleQuestions = useMemo(() => {
-    return schema.fields.filter((field) => isFieldVisible(field, answers));
-  }, [schema.fields, answers]);
+  useEffect(() => {
+    const resolveQuestions = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/api/templates/${templateId}/resolve-questions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answers }),
+        });
+
+        if (!response.ok) throw new Error('Failed to resolve questions');
+        const data = await response.json();
+        const fields: SchemaField[] = Array.isArray(data.fields) ? data.fields : schema.fields;
+        setVisibleQuestions(fields);
+
+        if (currentQuestionIndex >= fields.length) {
+          setCurrentQuestionIndex(Math.max(0, fields.length - 1));
+        }
+      } catch {
+        // Fallback: keep frontend usable if resolver endpoint is unavailable
+        setVisibleQuestions(schema.fields);
+      }
+    };
+
+    resolveQuestions();
+  }, [apiUrl, templateId, answers, schema.fields, currentQuestionIndex]);
 
   const currentQuestion = visibleQuestions[currentQuestionIndex];
   const progress = visibleQuestions.length > 0
@@ -52,13 +61,10 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
     if (currentQuestionIndex < visibleQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      // Strip out answers for fields that are no longer visible
       const visibleKeys = new Set(visibleQuestions.map((q) => q.key));
       const cleanData: Record<string, any> = {};
       for (const [key, value] of Object.entries(answers)) {
-        if (visibleKeys.has(key)) {
-          cleanData[key] = value;
-        }
+        if (visibleKeys.has(key)) cleanData[key] = value;
       }
       onComplete(cleanData);
     }
@@ -73,28 +79,13 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
   };
 
   const handleAnswerChange = (value: any) => {
-    const newAnswers = { ...answers, [currentQuestion.key]: value };
+    if (!currentQuestion) return;
 
-    // When a routing question changes, clear dependent answers that are no longer visible
-    const newVisible = schema.fields.filter((f) => isFieldVisible(f, newAnswers));
-    const newVisibleKeys = new Set(newVisible.map((f) => f.key));
-    for (const key of Object.keys(newAnswers)) {
-      if (!newVisibleKeys.has(key)) {
-        // Check if this field has a visible_when — only clear conditional fields
-        const field = schema.fields.find((f) => f.key === key);
-        if (field?.visible_when) {
-          delete newAnswers[key];
-        }
-      }
-    }
+    const nextValue = currentQuestion.type === 'text' && typeof value === 'string'
+      ? formatInputValueByKey(currentQuestion.key, value)
+      : value;
 
-    setAnswers(newAnswers);
-
-    // If the current question index goes out of bounds due to visibility changes, clamp it
-    const updatedVisible = schema.fields.filter((f) => isFieldVisible(f, newAnswers));
-    if (currentQuestionIndex >= updatedVisible.length) {
-      setCurrentQuestionIndex(Math.max(0, updatedVisible.length - 1));
-    }
+    setAnswers((prev) => ({ ...prev, [currentQuestion.key]: nextValue }));
   };
 
   const isCurrentAnswerValid = () => {
@@ -114,7 +105,6 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
       <motion.header
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -123,12 +113,7 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full"
-                onClick={handlePrevious}
-              >
+              <Button variant="ghost" size="icon" className="rounded-full" onClick={handlePrevious}>
                 <ArrowLeft className="w-5 h-5" />
               </Button>
               <div className="flex items-center gap-2">
@@ -158,9 +143,7 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
             transition={{ duration: 0.3 }}
             className="space-y-8"
           >
-            {/* Question Card */}
             <div className="bg-white rounded-3xl shadow-2xl border-2 border-slate-200 overflow-hidden">
-              {/* Bot Avatar Section */}
               <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-8 border-b border-slate-200">
                 <div className="flex items-start gap-4">
                   <motion.div
@@ -194,7 +177,6 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
                 </div>
               </div>
 
-              {/* Answer Section */}
               <div className="p-8">
                 {currentQuestion.type === 'text' && (
                   <div className="space-y-2">
@@ -260,22 +242,13 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
                 )}
 
                 {currentQuestion.type === 'signature' && (
-                  <SignaturePad
-                    value={answers[currentQuestion.key] || ''}
-                    onChange={handleAnswerChange}
-                  />
+                  <SignaturePad value={answers[currentQuestion.key] || ''} onChange={handleAnswerChange} />
                 )}
               </div>
             </div>
 
-            {/* Navigation Buttons */}
             <div className="flex items-center justify-between gap-4">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={handlePrevious}
-                className="px-8 py-6 rounded-xl text-base"
-              >
+              <Button variant="outline" size="lg" onClick={handlePrevious} className="px-8 py-6 rounded-xl text-base">
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Back
               </Button>
@@ -297,7 +270,6 @@ export function QuestionFlow({ templateTitle, schema, initialData, onComplete, o
               </Button>
             </div>
 
-            {/* Progress Indicators */}
             <div className="flex items-center justify-center gap-2">
               {visibleQuestions.map((q, index) => (
                 <motion.div

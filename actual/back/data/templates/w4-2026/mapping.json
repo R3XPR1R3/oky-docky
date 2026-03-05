@@ -4,48 +4,89 @@
   "ssn": "f1_05[0]",
   "address": "f1_03[0]",
   "city_state_zip": "f1_04[0]",
-
   "filing_status": {
     "type": "radio_group",
     "off_value": "/Off",
     "choices": [
-      { "value": "single_mfs",  "field": "c1_1[0]", "export_on": "/1" },
-      { "value": "mfj_qss",     "field": "c1_1[1]", "export_on": "/2" },
-      { "value": "hoh",          "field": "c1_1[2]", "export_on": "/3" }
+      {
+        "value": "single_mfs",
+        "field": "c1_1[0]",
+        "export_on": "/1"
+      },
+      {
+        "value": "mfj_qss",
+        "field": "c1_1[1]",
+        "export_on": "/2"
+      },
+      {
+        "value": "hoh",
+        "field": "c1_1[2]",
+        "export_on": "/3"
+      }
     ]
   },
-
   "two_jobs_checkbox": {
     "type": "checkbox",
     "field": "c1_2[0]",
     "checked_value": "/1"
   },
-
+  "save_children_count": {
+    "type": "set_var",
+    "name": "children_count",
+    "from": "qualifying_children_count"
+  },
+  "save_other_dep_count": {
+    "type": "set_var",
+    "name": "other_dep_count",
+    "from": "other_dependents_count"
+  },
+  "calc_qualifying_children_amount": {
+    "type": "math",
+    "operation": "multiply",
+    "inputs": [
+      "var:children_count"
+    ],
+    "factor": 2000,
+    "output_key": "qualifying_children_amount"
+  },
+  "calc_other_dependents_amount": {
+    "type": "math",
+    "operation": "multiply",
+    "inputs": [
+      "var:other_dep_count"
+    ],
+    "factor": 500,
+    "output_key": "other_dependents_amount"
+  },
+  "calc_total_dependents_amount": {
+    "type": "math",
+    "operation": "sum",
+    "inputs": [
+      "qualifying_children_amount",
+      "other_dependents_amount"
+    ],
+    "output_key": "total_dependents_amount"
+  },
   "qualifying_children_amount": "f1_06[0]",
   "other_dependents_amount": "f1_07[0]",
   "total_dependents_amount": "f1_08[0]",
-
   "other_income": "f1_09[0]",
   "deductions": "f1_10[0]",
   "extra_withholding": "f1_11[0]",
-
   "exempt_checkbox": {
     "type": "checkbox",
     "field": "c1_3[0]",
     "checked_value": "/1"
   },
-
   "employer_name_address": "f1_12[0]",
   "first_date_employment": "f1_13[0]",
   "ein": "f1_14[0]",
-
   "ws_mj_1": "f3_01[0]",
   "ws_mj_2a": "f3_02[0]",
   "ws_mj_2b": "f3_03[0]",
   "ws_mj_2c": "f3_04[0]",
   "ws_mj_3": "f3_05[0]",
   "ws_mj_4": "f3_06[0]",
-
   "ws_ded_1": "f4_01[0]",
   "ws_ded_2": "f4_02[0]",
   "ws_ded_3": "f4_03[0]",

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oky-Docky Scenario Builder</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:0;background:#f5f7fb;color:#111827}
+    .wrap{max-width:1200px;margin:0 auto;padding:20px}
+    h1{margin:0 0 12px}
+    .grid{display:grid;grid-template-columns:280px 1fr;gap:16px}
+    .card{background:white;border:1px solid #e5e7eb;border-radius:12px;padding:12px}
+    select,button,textarea{font:inherit}
+    textarea{width:100%;min-height:220px;border:1px solid #d1d5db;border-radius:8px;padding:8px}
+    .row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+    .tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+    .hidden{display:none}
+    .ok{color:#065f46}.err{color:#991b1b}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Scenario Builder (Admin)</h1>
+    <p>Редактирование template/schema/mapping без нейросети. Поддерживает сценарный язык в mapping: <code>math</code>, <code>set_var</code>, <code>if</code>.</p>
+    <div class="grid">
+      <div class="card">
+        <div class="row">
+          <label for="templateSelect">Template:</label>
+          <select id="templateSelect"></select>
+        </div>
+        <div class="row">
+          <button id="loadBtn">Load</button>
+          <button id="saveBtn">Save</button>
+        </div>
+        <div id="status"></div>
+      </div>
+      <div class="card">
+        <div class="tabs">
+          <button data-tab="template">template.json</button>
+          <button data-tab="schema">schema.json</button>
+          <button data-tab="mapping">mapping.json</button>
+        </div>
+        <textarea id="template" class="editor"></textarea>
+        <textarea id="schema" class="editor hidden"></textarea>
+        <textarea id="mapping" class="editor hidden"></textarea>
+      </div>
+    </div>
+  </div>
+<script>
+const select = document.getElementById('templateSelect');
+const statusEl = document.getElementById('status');
+const editors = {
+  template: document.getElementById('template'),
+  schema: document.getElementById('schema'),
+  mapping: document.getElementById('mapping')
+};
+
+function setStatus(msg, ok=true){
+  statusEl.textContent = msg;
+  statusEl.className = ok ? 'ok' : 'err';
+}
+
+async function loadTemplates(){
+  const res = await fetch('/api/admin/templates');
+  const data = await res.json();
+  select.innerHTML = '';
+  (data.templates || []).forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = `${t.id} — ${t.title || ''}`;
+    select.appendChild(opt);
+  });
+}
+
+async function loadBundle(){
+  const id = select.value;
+  const res = await fetch(`/api/admin/templates/${id}/bundle`);
+  if(!res.ok){ setStatus('Failed to load bundle', false); return; }
+  const data = await res.json();
+  editors.template.value = JSON.stringify(data.template, null, 2);
+  editors.schema.value = JSON.stringify(data.schema, null, 2);
+  editors.mapping.value = JSON.stringify(data.mapping, null, 2);
+  setStatus(`Loaded ${id}`);
+}
+
+async function saveBundle(){
+  const id = select.value;
+  let payload;
+  try{
+    payload = {
+      template: JSON.parse(editors.template.value),
+      schema: JSON.parse(editors.schema.value),
+      mapping: JSON.parse(editors.mapping.value)
+    };
+  }catch(e){
+    setStatus('JSON parse error: '+e.message, false); return;
+  }
+
+  const res = await fetch(`/api/admin/templates/${id}/bundle`, {
+    method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+  });
+  if(!res.ok){
+    const txt = await res.text();
+    setStatus('Save failed: '+txt, false); return;
+  }
+  setStatus(`Saved ${id}`);
+}
+
+document.querySelectorAll('[data-tab]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.editor').forEach(el => el.classList.add('hidden'));
+    editors[tab].classList.remove('hidden');
+  });
+});
+
+document.getElementById('loadBtn').addEventListener('click', loadBundle);
+document.getElementById('saveBtn').addEventListener('click', saveBundle);
+
+loadTemplates().then(loadBundle).catch(e => setStatus(e.message, false));
+</script>
+</body>
+</html>
