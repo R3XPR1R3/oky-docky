@@ -1,0 +1,109 @@
+{
+  "fields": {
+    "entity_type": {
+      "label": "Pou ki moun fòm W-9 sa a ye?",
+      "helpText": "Sa a ap detèmine ki chan ou bezwen ranpli",
+      "options": {
+        "individual": "Moun endividyèl / Pwopriyetè sèl",
+        "business": "Konpayi oswa òganizasyon"
+      }
+    },
+    "legal_name": {
+      "label": "Non legal konplè",
+      "placeholder": "egz., John Smith",
+      "helpText": "Jan li parèt sou deklarasyon taks ou"
+    },
+    "business_name": {
+      "label": "Non konpayi oswa antite",
+      "placeholder": "egz., Smith Consulting LLC",
+      "helpText": "Non ofisyèl konpayi a oswa DBA"
+    },
+    "tax_class": {
+      "label": "Klasifikasyon taks federal",
+      "helpText": "Chwazi klasifikasyon taks ki apwopriye a",
+      "options": {
+        "individual": "Moun endividyèl / Pwopriyetè sèl",
+        "c_corp": "Kòporasyon C",
+        "s_corp": "Kòporasyon S",
+        "partnership": "Patenarya",
+        "trust": "Fidisi / Eritaj",
+        "llc": "Sosyete a responsablite limite (LLC)",
+        "other": "Lòt (gade enstriksyon yo)"
+      }
+    },
+    "taxpayer_classification": {
+      "label": "Lèt klasifikasyon taks LLC",
+      "placeholder": "C, S oswa P",
+      "helpText": "Antre klasifikasyon an: C = kòporasyon C, S = kòporasyon S, P = patenarya"
+    },
+    "other_taxpayer_classification": {
+      "label": "Lòt klasifikasyon taks",
+      "placeholder": "egz., Òganizasyon san bi likratif",
+      "helpText": "Dekri klasifikasyon taks ou"
+    },
+    "has_exemptions": {
+      "label": "Èske ou gen kòd egzanpsyon?",
+      "helpText": "Kòd egzanpsyon yo aplike sèlman pou sèten antite, pa pou moun endividyèl. Gade enstriksyon W-9 yo pou plis detay.",
+      "options": {
+        "no": "Non, mwen pa gen egzanpsyon",
+        "yes": "Wi, mwen gen kòd egzanpsyon"
+      }
+    },
+    "exempt_payee_code": {
+      "label": "Kòd benefisyè egzante",
+      "placeholder": "egz., 1",
+      "helpText": "Antre kòd ki aplikab la (1–13). Gade enstriksyon W-9 yo."
+    },
+    "fatca_exemption": {
+      "label": "Kòd egzanpsyon rapò FATCA",
+      "placeholder": "egz., A",
+      "helpText": "Antre kòd ki aplikab la (A–M). Gade enstriksyon W-9 yo."
+    },
+    "broker_exempt": {
+      "label": "Tranzaksyon koutye egzante",
+      "helpText": "Make si ou se yon koutye ki sèlman trete tranzaksyon yo"
+    },
+    "address": {
+      "label": "Adrès",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Nimewo, ri ak apatman"
+    },
+    "citystatezip": {
+      "label": "Vil, eta ak kòd ZIP",
+      "placeholder": "New York, NY 10001"
+    },
+    "tin_type": {
+      "label": "Ki nimewo idantifikasyon ou pral bay?",
+      "helpText": "SSN pou moun endividyèl, EIN pou konpayi. Chwazi sa ki apwopriye a.",
+      "options": {
+        "ssn": "Nimewo Sekirite Sosyal (SSN)",
+        "ein": "Nimewo Idantifikasyon Anplwayè (EIN)"
+      }
+    },
+    "ssn": {
+      "label": "Nimewo Sekirite Sosyal (SSN)",
+      "placeholder": "123-45-6789",
+      "helpText": "Antre SSN 9 chif ou a"
+    },
+    "ein": {
+      "label": "Nimewo Idantifikasyon Anplwayè (EIN)",
+      "placeholder": "12-3456789",
+      "helpText": "Antre EIN 9 chif ou a"
+    },
+    "requester_name": {
+      "label": "Non ak adrès moun ki mande a",
+      "placeholder": "Non konpayi, adrès",
+      "helpText": "Non ak adrès moun oswa konpayi ki mande fòm sa a (opsyonèl)"
+    },
+    "account_number": {
+      "label": "Nimewo kont yo",
+      "placeholder": "egz., 12345678",
+      "helpText": "Nimewo kont opsyonèl"
+    },
+    "sign_date": {
+      "label": "Dat (dat siyati)",
+      "placeholder": "03/06/2026",
+      "helpText": "Antre dat jodi a nan fòma MM/JJ/AAAA"
+    }
+  }
+}

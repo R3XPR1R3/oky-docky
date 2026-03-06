@@ -1,0 +1,74 @@
+{
+  "fields": {
+    "first_middle_names": {
+      "label": "Nombre e inicial del segundo nombre",
+      "placeholder": "ej., John A",
+      "helpText": "Su nombre e inicial del segundo nombre tal como aparece en su declaración de impuestos"
+    },
+    "last_name": {
+      "label": "Apellido",
+      "placeholder": "ej., Smith"
+    },
+    "ssn": {
+      "label": "Número de Seguro Social",
+      "placeholder": "123-45-6789",
+      "helpText": "Su SSN se mantendrá protegido de forma segura"
+    },
+    "address": {
+      "label": "Dirección del domicilio",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Número, calle, apartamento"
+    },
+    "city_state_zip": {
+      "label": "Ciudad, estado y código ZIP",
+      "placeholder": "New York, NY 10001"
+    },
+    "filing_status": {
+      "label": "Estado civil para la declaración",
+      "helpText": "Seleccione su estado civil para la retención de impuestos",
+      "options": {
+        "single_mfs": "Soltero/a o casado/a con declaración separada",
+        "mfj_qss": "Casado/a con declaración conjunta o viudo/a calificado/a",
+        "hoh": "Cabeza de familia"
+      }
+    },
+    "two_jobs_checkbox": {
+      "label": "Solo dos empleos en total",
+      "helpText": "Marque si usted y su cónyuge tienen solo dos empleos en total (paso 2c)"
+    },
+    "qualifying_children_amount": {
+      "label": "Monto por hijos calificados",
+      "placeholder": "ej., 4000",
+      "helpText": "Número de hijos menores de 17 años × $2,000"
+    },
+    "other_dependents_amount": {
+      "label": "Monto por otros dependientes",
+      "placeholder": "ej., 500",
+      "helpText": "Número de otros dependientes × $500"
+    },
+    "total_dependents_amount": {
+      "label": "Monto total de dependientes",
+      "placeholder": "ej., 4500",
+      "helpText": "Sume los montos por hijos y otros dependientes"
+    },
+    "other_income": {
+      "label": "Otros ingresos",
+      "placeholder": "ej., 1000",
+      "helpText": "Paso 4(a): Ingresos no laborales (intereses, dividendos, pensión)"
+    },
+    "deductions": {
+      "label": "Deducciones",
+      "placeholder": "ej., 0",
+      "helpText": "Paso 4(b): Deducciones adicionales a la deducción estándar"
+    },
+    "extra_withholding": {
+      "label": "Retención adicional",
+      "placeholder": "ej., 50",
+      "helpText": "Paso 4(c): Monto adicional a retener en cada período de pago"
+    },
+    "exempt_checkbox": {
+      "label": "Reclamar exención de retención",
+      "helpText": "Marque si el año pasado no tuvo obligación de impuesto federal sobre la renta Y no espera tenerla este año."
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "fields": {
+    "first_middle_names": {
+      "label": "Nome e iniziale del secondo nome",
+      "placeholder": "es., John A",
+      "helpText": "Il tuo nome e iniziale del secondo nome come indicato nella dichiarazione dei redditi"
+    },
+    "last_name": {
+      "label": "Cognome",
+      "placeholder": "es., Smith"
+    },
+    "ssn": {
+      "label": "Numero di previdenza sociale",
+      "placeholder": "123-45-6789",
+      "helpText": "Il tuo SSN sarà conservato in modo sicuro"
+    },
+    "address": {
+      "label": "Indirizzo di residenza",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Numero civico, via, appartamento"
+    },
+    "city_state_zip": {
+      "label": "Città, stato e codice ZIP",
+      "placeholder": "New York, NY 10001"
+    },
+    "filing_status": {
+      "label": "Stato di dichiarazione",
+      "helpText": "Seleziona il tuo stato di dichiarazione per la ritenuta fiscale",
+      "options": {
+        "single_mfs": "Singolo/a o coniugato/a con dichiarazione separata",
+        "mfj_qss": "Coniugato/a con dichiarazione congiunta o vedovo/a qualificato/a",
+        "hoh": "Capofamiglia"
+      }
+    },
+    "two_jobs_checkbox": {
+      "label": "Solo due impieghi in totale",
+      "helpText": "Seleziona se tu e il tuo coniuge avete solo due impieghi in totale (passaggio 2c)"
+    },
+    "qualifying_children_amount": {
+      "label": "Importo per figli idonei",
+      "placeholder": "es., 4000",
+      "helpText": "Numero di figli sotto i 17 anni × $2.000"
+    },
+    "other_dependents_amount": {
+      "label": "Importo per altri familiari a carico",
+      "placeholder": "es., 500",
+      "helpText": "Numero di altri familiari a carico × $500"
+    },
+    "total_dependents_amount": {
+      "label": "Importo totale familiari a carico",
+      "placeholder": "es., 4500",
+      "helpText": "Somma gli importi per figli e altri familiari a carico"
+    },
+    "other_income": {
+      "label": "Altri redditi",
+      "placeholder": "es., 1000",
+      "helpText": "Passaggio 4(a): Redditi non da lavoro (interessi, dividendi, pensione)"
+    },
+    "deductions": {
+      "label": "Detrazioni",
+      "placeholder": "es., 0",
+      "helpText": "Passaggio 4(b): Detrazioni oltre la detrazione standard"
+    },
+    "extra_withholding": {
+      "label": "Ritenuta aggiuntiva",
+      "placeholder": "es., 50",
+      "helpText": "Passaggio 4(c): Importo aggiuntivo da trattenere per ogni periodo di paga"
+    },
+    "exempt_checkbox": {
+      "label": "Richiedere l'esenzione dalla ritenuta",
+      "helpText": "Seleziona se l'anno scorso non avevi obblighi di imposta federale sul reddito E non prevedi di averne quest'anno."
+    }
+  }
+}

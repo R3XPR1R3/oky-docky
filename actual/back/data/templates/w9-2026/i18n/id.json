@@ -1,0 +1,109 @@
+{
+  "fields": {
+    "entity_type": {
+      "label": "Untuk siapa formulir W-9 ini?",
+      "helpText": "Ini akan menentukan kolom mana yang perlu Anda isi",
+      "options": {
+        "individual": "Perorangan / Pemilik tunggal",
+        "business": "Perusahaan atau organisasi"
+      }
+    },
+    "legal_name": {
+      "label": "Nama lengkap resmi",
+      "placeholder": "cth., John Smith",
+      "helpText": "Sesuai dengan yang tertera pada SPT pajak Anda"
+    },
+    "business_name": {
+      "label": "Nama perusahaan atau entitas",
+      "placeholder": "cth., Smith Consulting LLC",
+      "helpText": "Nama resmi perusahaan atau DBA"
+    },
+    "tax_class": {
+      "label": "Klasifikasi pajak federal",
+      "helpText": "Pilih klasifikasi pajak yang sesuai",
+      "options": {
+        "individual": "Perorangan / Pemilik tunggal",
+        "c_corp": "Korporasi C",
+        "s_corp": "Korporasi S",
+        "partnership": "Persekutuan",
+        "trust": "Perwalian / Warisan",
+        "llc": "Perseroan terbatas (LLC)",
+        "other": "Lainnya (lihat instruksi)"
+      }
+    },
+    "taxpayer_classification": {
+      "label": "Huruf klasifikasi pajak LLC",
+      "placeholder": "C, S atau P",
+      "helpText": "Masukkan klasifikasi: C = korporasi C, S = korporasi S, P = persekutuan"
+    },
+    "other_taxpayer_classification": {
+      "label": "Klasifikasi pajak lainnya",
+      "placeholder": "cth., Organisasi nirlaba",
+      "helpText": "Jelaskan klasifikasi pajak Anda"
+    },
+    "has_exemptions": {
+      "label": "Apakah Anda memiliki kode pengecualian?",
+      "helpText": "Kode pengecualian hanya berlaku untuk entitas tertentu, bukan perorangan. Lihat instruksi W-9 untuk detailnya.",
+      "options": {
+        "no": "Tidak, saya tidak memiliki pengecualian",
+        "yes": "Ya, saya memiliki kode pengecualian"
+      }
+    },
+    "exempt_payee_code": {
+      "label": "Kode penerima yang dikecualikan",
+      "placeholder": "cth., 1",
+      "helpText": "Masukkan kode yang berlaku (1–13). Lihat instruksi W-9."
+    },
+    "fatca_exemption": {
+      "label": "Kode pengecualian pelaporan FATCA",
+      "placeholder": "cth., A",
+      "helpText": "Masukkan kode yang berlaku (A–M). Lihat instruksi W-9."
+    },
+    "broker_exempt": {
+      "label": "Transaksi pialang yang dikecualikan",
+      "helpText": "Centang jika Anda adalah pialang yang hanya memproses transaksi"
+    },
+    "address": {
+      "label": "Alamat",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Nomor rumah, jalan, dan apartemen"
+    },
+    "citystatezip": {
+      "label": "Kota, negara bagian, dan kode ZIP",
+      "placeholder": "New York, NY 10001"
+    },
+    "tin_type": {
+      "label": "Nomor identifikasi apa yang akan Anda berikan?",
+      "helpText": "SSN untuk perorangan, EIN untuk perusahaan. Pilih yang sesuai.",
+      "options": {
+        "ssn": "Nomor Jaminan Sosial (SSN)",
+        "ein": "Nomor Identifikasi Pemberi Kerja (EIN)"
+      }
+    },
+    "ssn": {
+      "label": "Nomor Jaminan Sosial (SSN)",
+      "placeholder": "123-45-6789",
+      "helpText": "Masukkan SSN 9 digit Anda"
+    },
+    "ein": {
+      "label": "Nomor Identifikasi Pemberi Kerja (EIN)",
+      "placeholder": "12-3456789",
+      "helpText": "Masukkan EIN 9 digit Anda"
+    },
+    "requester_name": {
+      "label": "Nama dan alamat pemohon",
+      "placeholder": "Nama perusahaan, alamat",
+      "helpText": "Nama dan alamat orang atau perusahaan yang meminta formulir ini (opsional)"
+    },
+    "account_number": {
+      "label": "Nomor rekening",
+      "placeholder": "cth., 12345678",
+      "helpText": "Nomor rekening opsional"
+    },
+    "sign_date": {
+      "label": "Tanggal (tanggal tanda tangan)",
+      "placeholder": "03/06/2026",
+      "helpText": "Masukkan tanggal hari ini dalam format BB/HH/TTTT"
+    }
+  }
+}

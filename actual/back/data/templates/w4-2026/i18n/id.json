@@ -1,0 +1,74 @@
+{
+  "fields": {
+    "first_middle_names": {
+      "label": "Nama depan dan inisial nama tengah",
+      "placeholder": "cth., John A",
+      "helpText": "Nama depan dan inisial nama tengah Anda seperti yang tertera di SPT pajak Anda"
+    },
+    "last_name": {
+      "label": "Nama belakang",
+      "placeholder": "cth., Smith"
+    },
+    "ssn": {
+      "label": "Nomor Jaminan Sosial",
+      "placeholder": "123-45-6789",
+      "helpText": "SSN Anda akan disimpan dengan aman"
+    },
+    "address": {
+      "label": "Alamat rumah",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Nomor rumah, jalan, apartemen"
+    },
+    "city_state_zip": {
+      "label": "Kota, negara bagian, dan kode ZIP",
+      "placeholder": "New York, NY 10001"
+    },
+    "filing_status": {
+      "label": "Status pelaporan",
+      "helpText": "Pilih status pelaporan Anda untuk pemotongan pajak",
+      "options": {
+        "single_mfs": "Lajang atau menikah dengan pelaporan terpisah",
+        "mfj_qss": "Menikah dengan pelaporan bersama atau janda/duda yang memenuhi syarat",
+        "hoh": "Kepala rumah tangga"
+      }
+    },
+    "two_jobs_checkbox": {
+      "label": "Hanya dua pekerjaan secara total",
+      "helpText": "Centang jika Anda dan pasangan hanya memiliki dua pekerjaan secara total (langkah 2c)"
+    },
+    "qualifying_children_amount": {
+      "label": "Jumlah untuk anak yang memenuhi syarat",
+      "placeholder": "cth., 4000",
+      "helpText": "Jumlah anak di bawah 17 tahun × $2.000"
+    },
+    "other_dependents_amount": {
+      "label": "Jumlah untuk tanggungan lainnya",
+      "placeholder": "cth., 500",
+      "helpText": "Jumlah tanggungan lainnya × $500"
+    },
+    "total_dependents_amount": {
+      "label": "Total jumlah tanggungan",
+      "placeholder": "cth., 4500",
+      "helpText": "Jumlahkan nilai untuk anak dan tanggungan lainnya"
+    },
+    "other_income": {
+      "label": "Penghasilan lainnya",
+      "placeholder": "cth., 1000",
+      "helpText": "Langkah 4(a): Penghasilan bukan dari pekerjaan (bunga, dividen, pensiun)"
+    },
+    "deductions": {
+      "label": "Pengurangan",
+      "placeholder": "cth., 0",
+      "helpText": "Langkah 4(b): Pengurangan selain pengurangan standar"
+    },
+    "extra_withholding": {
+      "label": "Pemotongan tambahan",
+      "placeholder": "cth., 50",
+      "helpText": "Langkah 4(c): Jumlah tambahan yang dipotong setiap periode pembayaran"
+    },
+    "exempt_checkbox": {
+      "label": "Klaim pembebasan dari pemotongan",
+      "helpText": "Centang jika tahun lalu Anda tidak memiliki kewajiban pajak penghasilan federal DAN Anda tidak mengharapkannya tahun ini."
+    }
+  }
+}

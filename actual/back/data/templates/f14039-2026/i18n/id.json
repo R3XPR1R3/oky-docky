@@ -1,0 +1,209 @@
+{
+  "fields": {
+    "first_name": {
+      "label": "Nama depan",
+      "placeholder": "Jane",
+      "helpText": "Nama depan resmi Anda seperti yang tertera pada surat pemberitahuan pajak"
+    },
+    "last_name": {
+      "label": "Nama belakang",
+      "placeholder": "Doe",
+      "helpText": "Nama belakang resmi Anda"
+    },
+    "middle_initial": {
+      "label": "Inisial nama tengah",
+      "placeholder": "M",
+      "helpText": "Inisial nama tengah Anda (opsional)"
+    },
+    "tin": {
+      "label": "Nomor SSN atau ITIN",
+      "placeholder": "123-45-6789",
+      "helpText": "Masukkan SSN atau ITIN yang digunakan secara curang"
+    },
+    "current_mailing_address": {
+      "label": "Alamat surat saat ini",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Alamat Anda saat ini"
+    },
+    "city": {
+      "label": "Kota",
+      "placeholder": "New York"
+    },
+    "state": {
+      "label": "Negara bagian (kode 2 huruf)",
+      "placeholder": "NY",
+      "helpText": "Masukkan singkatan 2 huruf negara bagian"
+    },
+    "zip_first5": {
+      "label": "Kode ZIP",
+      "placeholder": "10001",
+      "helpText": "Kode ZIP 5 digit"
+    },
+    "zip_last4": {
+      "label": "ZIP+4 (opsional)",
+      "placeholder": "0002",
+      "helpText": "4 digit terakhir ZIP+4"
+    },
+    "has_previous_address": {
+      "label": "Apakah alamat Anda sebelumnya berbeda dari alamat saat ini?",
+      "helpText": "Jika Anda baru pindah, berikan alamat sebelumnya",
+      "options": {
+        "no": "Tidak, alamat sama",
+        "yes": "Ya, alamat berbeda"
+      }
+    },
+    "prev_address": {
+      "label": "Alamat sebelumnya",
+      "placeholder": "456 Old Street"
+    },
+    "prev_city": {
+      "label": "Kota sebelumnya",
+      "placeholder": "Chicago"
+    },
+    "prev_state": {
+      "label": "Negara bagian sebelumnya (kode 2 huruf)",
+      "placeholder": "IL"
+    },
+    "prev_zip_first5": {
+      "label": "Kode ZIP sebelumnya",
+      "placeholder": "60601"
+    },
+    "prev_zip_last4": {
+      "label": "ZIP+4 sebelumnya (opsional)",
+      "placeholder": "0003"
+    },
+    "phone_home": {
+      "label": "Telepon rumah",
+      "placeholder": "(212) 555-1234"
+    },
+    "phone_cell": {
+      "label": "Telepon seluler",
+      "placeholder": "(212) 555-5678"
+    },
+    "best_time": {
+      "label": "Waktu terbaik untuk menelepon",
+      "placeholder": "9:00 – 17:00 EST",
+      "helpText": "Kapan IRS dapat menghubungi Anda?"
+    },
+    "language": {
+      "label": "Bahasa yang disukai untuk komunikasi",
+      "options": {
+        "english": "Inggris",
+        "spanish": "Spanyol",
+        "other": "Lainnya"
+      }
+    },
+    "language_other": {
+      "label": "Sebutkan bahasa yang disukai",
+      "placeholder": "mis., Bahasa Indonesia"
+    },
+    "reason_notice": {
+      "label": "Saya menerima pemberitahuan dari IRS bahwa seseorang menggunakan informasi saya",
+      "helpText": "Bagian A — Centang semua alasan yang berlaku"
+    },
+    "notice_letter": {
+      "label": "Nomor pemberitahuan IRS",
+      "placeholder": "mis., CP01A",
+      "helpText": "Masukkan nomor pemberitahuan/surat dari korespondensi IRS"
+    },
+    "reason_rejected": {
+      "label": "Surat pemberitahuan pajak elektronik saya ditolak karena surat pemberitahuan dengan SSN/ITIN saya sudah diajukan"
+    },
+    "reason_other_agency": {
+      "label": "Saya menerima pemberitahuan dari lembaga lain (SSA, lembaga pemerintah, dll.) tentang kemungkinan pencurian identitas"
+    },
+    "reason_other": {
+      "label": "Alasan lain untuk mengajukan surat pernyataan ini"
+    },
+    "theft_tax_return": {
+      "label": "Seseorang menggunakan informasi saya untuk mengajukan surat pemberitahuan pajak",
+      "helpText": "Bagian B — Centang semua jenis pencurian identitas"
+    },
+    "theft_ssn_work": {
+      "label": "Seseorang menggunakan SSN atau ITIN saya untuk mendapatkan pekerjaan"
+    },
+    "theft_dependent": {
+      "label": "Informasi saya digunakan untuk mengklaim tanggungan secara curang"
+    },
+    "theft_details": {
+      "label": "Detail tambahan tentang pencurian identitas (opsional)",
+      "placeholder": "Jelaskan apa yang terjadi...",
+      "helpText": "Berikan informasi tambahan untuk penyelidikan IRS"
+    },
+    "last_tax_year": {
+      "label": "Tahun pajak terakhir yang terdampak",
+      "placeholder": "2025",
+      "helpText": "Bagian D — Masukkan tahun terakhir yang terdampak pencurian"
+    },
+    "additional_years": {
+      "label": "Tahun pajak lain yang terdampak (dipisahkan koma)",
+      "placeholder": "2024, 2023, 2022",
+      "helpText": "Daftarkan hingga 8 tahun tambahan dipisahkan koma"
+    },
+    "had_no_filing": {
+      "label": "Saya tidak diwajibkan mengajukan surat pemberitahuan untuk tahun yang terdampak",
+      "helpText": "Centang jika Anda tidak diwajibkan mengajukan surat pemberitahuan untuk tahun-tahun yang disebutkan"
+    },
+    "name_on_return": {
+      "label": "Nama pada surat pemberitahuan palsu (jika berbeda dari nama Anda)",
+      "placeholder": "mis., Jon Doe",
+      "helpText": "Jika nama berbeda digunakan pada surat pemberitahuan palsu, sebutkan"
+    },
+    "signature": {
+      "label": "Tanda tangan Anda",
+      "helpText": "Bagian E — Tanda tangani di bawah sumpah. Ketik nama Anda atau gambar tanda tangan Anda."
+    },
+    "date_signed": {
+      "label": "Tanggal penandatanganan",
+      "placeholder": "27/02/2026",
+      "helpText": "Masukkan tanggal hari ini (BB/HH/TTTT)"
+    },
+    "filing_for": {
+      "label": "Siapa yang mengajukan formulir ini?",
+      "helpText": "Bagian F — Jika orang lain mengajukan atas nama Anda, pilih 'Perwakilan'",
+      "options": {
+        "myself": "Saya mengajukan untuk diri sendiri",
+        "representative": "Perwakilan mengajukan atas nama saya"
+      }
+    },
+    "rep_first_name": {
+      "label": "Nama depan perwakilan",
+      "placeholder": "John"
+    },
+    "rep_last_name": {
+      "label": "Nama belakang perwakilan",
+      "placeholder": "Smith"
+    },
+    "rep_middle_initial": {
+      "label": "Inisial nama tengah perwakilan",
+      "placeholder": "A"
+    },
+    "rep_address": {
+      "label": "Alamat perwakilan",
+      "placeholder": "789 Attorney Ave, Suite 100, Chicago, IL 60601"
+    },
+    "rep_phone": {
+      "label": "Telepon perwakilan",
+      "placeholder": "(312) 555-9999"
+    },
+    "rep_caf": {
+      "label": "Nomor CAF (jika ada)",
+      "placeholder": "mis., 1234567890",
+      "helpText": "Nomor berkas otorisasi terpusat"
+    },
+    "rep_relationship": {
+      "label": "Hubungan perwakilan dengan wajib pajak",
+      "options": {
+        "parent_guardian": "Orang tua / Wali sah",
+        "fiduciary": "Fidusia",
+        "power_of_attorney": "Surat kuasa",
+        "court_appointed": "Perwakilan yang ditunjuk pengadilan",
+        "other": "Lainnya"
+      }
+    },
+    "rep_relationship_other": {
+      "label": "Jelaskan hubungan perwakilan",
+      "placeholder": "mis., Agen terdaftar"
+    }
+  }
+}

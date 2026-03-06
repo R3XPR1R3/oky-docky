@@ -1,0 +1,286 @@
+{
+  "app": {
+    "name": "Oky-Docky"
+  },
+  "nav": {
+    "howItWorks": "Cara Kerja",
+    "pricing": "Harga",
+    "getStarted": "Mulai",
+    "back": "Kembali",
+    "termsDisclaimer": "Ketentuan & Penyangkalan"
+  },
+  "landing": {
+    "badge": "Formulir IRS jadi mudah",
+    "heroTitle": "Isi Formulir Seperti",
+    "heroTitleHighlight": "Mengobrol Dengan Teman",
+    "heroDescription": "Tidak ada lagi dokumen yang membingungkan. Jawab pertanyaan sederhana dan kami yang mengurus sisanya. Selesaikan formulir IRS Anda dalam hitungan menit.",
+    "getStartedFree": "Mulai Gratis",
+    "seeHowItWorks": "Lihat Cara Kerjanya",
+    "noCreditCard": "Tanpa kartu kredit \u2022 Gratis untuk penggunaan pribadi",
+    "chatQuestion": "Siapa nama lengkap Anda?",
+    "chatAnswer": "John Smith",
+    "chatFollowUp": "Bagus! Apa alamat Anda?",
+    "whyChoose": "Mengapa Memilih Oky-Docky?",
+    "whyChooseDescription": "Kami merancang ulang pengisian dokumen agar sesederhana percakapan",
+    "ctaTitle": "Siap menyederhanakan dokumen Anda?",
+    "ctaDescription": "Bergabunglah dengan ribuan pengguna yang menghemat waktu dan mengurangi stres dengan Oky-Docky",
+    "ctaButton": "Mulai Formulir Pertama Anda",
+    "copyright": "\u00a9 2026 Barckhat LLC. Semua hak dilindungi.",
+    "features": {
+      "simpleQuestions": {
+        "title": "Pertanyaan Sederhana",
+        "description": "Jawab pertanyaan sederhana seperti mengobrol dengan teman"
+      },
+      "saveTime": {
+        "title": "Hemat Waktu",
+        "description": "Selesaikan formulir dalam hitungan menit, bukan berjam-jam"
+      },
+      "secure": {
+        "title": "Aman & Akurat",
+        "description": "Data Anda terlindungi dan formulir bebas dari kesalahan"
+      },
+      "instant": {
+        "title": "Hasil Instan",
+        "description": "Unduh formulir Anda yang sudah selesai dengan segera"
+      }
+    }
+  },
+  "selection": {
+    "title": "Formulir mana yang Anda butuhkan?",
+    "description": "Pilih dokumen dan kami akan memandu Anda langkah demi langkah",
+    "searchPlaceholder": "Cari formulir berdasarkan nama, tag, atau deskripsi...",
+    "allForms": "Semua Formulir",
+    "noFormsFound": "Formulir tidak ditemukan",
+    "tryDifferent": "Coba kata pencarian yang berbeda",
+    "popular": "Populer"
+  },
+  "questionFlow": {
+    "questionOf": "Pertanyaan {current} dari {total}",
+    "back": "Kembali",
+    "continue": "Lanjutkan",
+    "review": "Tinjau",
+    "yes": "Ya"
+  },
+  "review": {
+    "almostDone": "Hampir selesai!",
+    "reviewInfo": "Tinjau informasi Anda sebelum kami membuat {template} Anda",
+    "yourInformation": "Informasi Anda",
+    "verifyDetails": "Harap verifikasi semua detail sudah benar",
+    "edit": "Ubah",
+    "makeChanges": "Lakukan Perubahan",
+    "generateDocument": "Buat Dokumen Saya",
+    "generating": "Membuat...",
+    "notProvided": "Tidak diisi",
+    "yes": "Ya",
+    "no": "Tidak",
+    "signed": "Ditandatangani",
+    "notSigned": "Belum ditandatangani",
+    "secureNote": "Informasi Anda aman dan terenkripsi"
+  },
+  "success": {
+    "allDone": "Selesai!",
+    "ready": "{template} Anda sudah siap! Unduh sekarang.",
+    "readyToDownload": "Siap diunduh dan digunakan",
+    "verified": "Terverifikasi",
+    "format": "Format",
+    "status": "Status",
+    "statusReady": "Siap",
+    "downloadPdf": "Unduh PDF",
+    "downloadStarted": "Pengunduhan dimulai!",
+    "fillAnother": "Isi Formulir Lain",
+    "needDifferent": "Butuh dokumen yang berbeda?",
+    "startNew": "Mulai Baru",
+    "downloadAgain": "Unduh Lagi",
+    "needCopy": "Butuh salinan lagi?",
+    "download": "Unduh",
+    "whatsNext": "Langkah Selanjutnya?",
+    "nextSteps": [
+      "Unduh dan cetak formulir Anda, atau kirim secara elektronik",
+      "Simpan salinan untuk arsip Anda",
+      "Konsultasikan dengan profesional pajak jika diperlukan"
+    ]
+  },
+  "howItWorks": {
+    "heroTitle": "Tiga Langkah.",
+    "heroTitleHighlight": "Tanpa Stres.",
+    "heroDescription": "Kami mengubah dokumen IRS yang membingungkan menjadi percakapan yang ramah. Begini cara kerjanya.",
+    "steps": [
+      {
+        "number": "01",
+        "title": "Pilih Formulir Anda",
+        "description": "Jelajahi koleksi formulir IRS kami \u2014 W-9, W-4, 1099-NEC, dan lainnya. Setiap formulir dioptimalkan dengan kolom pintar yang mengetahui informasi apa yang Anda butuhkan."
+      },
+      {
+        "number": "02",
+        "title": "Jawab Pertanyaan Sederhana",
+        "description": "Tanpa istilah pajak yang rumit, tanpa kebingungan. Kami mengajukan satu pertanyaan pada satu waktu dalam bahasa yang mudah dipahami. Logika pintar hanya menampilkan pertanyaan yang relevan dengan situasi Anda."
+      },
+      {
+        "number": "03",
+        "title": "Unduh & Ajukan",
+        "description": "Formulir Anda yang sudah selesai langsung dibuat sebagai PDF siap ajukan. Unduh, cetak, atau kirim secara elektronik \u2014 selesai!"
+      }
+    ],
+    "ctaTitle": "Siap mencobanya?",
+    "ctaDescription": "Isi formulir pertama Anda dalam waktu kurang dari 5 menit. Gratis.",
+    "ctaButton": "Mulai Gratis",
+    "chatQuestion": "Siapa nama lengkap Anda?",
+    "chatAnswer": "Jane Doe",
+    "chatFollowUp": "Apakah Anda mengajukan sebagai...?",
+    "formW9": "Form W-9"
+  },
+  "pricing": {
+    "title": "Harga",
+    "titleHighlight": "Sederhana",
+    "description": "Mulai gratis, tingkatkan saat Anda butuh lebih. Tanpa kejutan.",
+    "mostPopular": "Paling Populer",
+    "tiers": [
+      {
+        "name": "Gratis",
+        "price": "$0",
+        "period": "selamanya",
+        "description": "Sempurna untuk penggunaan pribadi",
+        "cta": "Mulai Gratis",
+        "features": [
+          "2 formulir per bulan",
+          "Template W-9, W-4",
+          "Unduh PDF instan",
+          "Tanya jawab langkah demi langkah",
+          "Data tidak pernah disimpan"
+        ]
+      },
+      {
+        "name": "Pro",
+        "price": "$9.99",
+        "period": "/bulan",
+        "description": "Untuk pekerja lepas & usaha kecil",
+        "cta": "Mulai Uji Coba Pro",
+        "features": [
+          "Formulir tanpa batas",
+          "Semua template IRS (W-9, W-4, 1099-NEC, ...)",
+          "Tanya jawab massal \u2014 isi beberapa formulir sekaligus",
+          "Impor CSV untuk pengisian massal",
+          "Instruksi pengajuan & daftar periksa",
+          "Dukungan prioritas"
+        ]
+      },
+      {
+        "name": "Enterprise",
+        "price": "Kustom",
+        "period": "",
+        "description": "Akses API & harga volume",
+        "cta": "Hubungi Sales",
+        "features": [
+          "REST API dengan autentikasi kunci",
+          "Pemrosesan formulir massal melalui API",
+          "Pembuatan template kustom",
+          "Manajer akun khusus",
+          "SLA & jaminan waktu aktif",
+          "Integrasi pengajuan otomatis (segera hadir)"
+        ]
+      }
+    ],
+    "apiTitle": "Isi formulir dalam skala besar",
+    "apiDescription": "Integrasikan Oky-Docky ke dalam alur kerja Anda dengan REST API kami. Kirim data, dapatkan PDF yang sudah diisi. Sempurna untuk perusahaan penggajian, firma akuntansi, dan perangkat lunak persiapan pajak.",
+    "apiBulk": "Pemrosesan massal",
+    "apiSpeed": "Respons di bawah satu detik",
+    "apiComment": "# Isi W-9 melalui API",
+    "contactTitle": "Hubungi Kami",
+    "contactDescription": "Tertarik dengan Pro, Enterprise, atau punya pertanyaan? Kirim pesan kepada kami.",
+    "contactName": "Nama *",
+    "contactEmail": "Email *",
+    "contactCompany": "Perusahaan",
+    "contactMessage": "Bagaimana kami bisa membantu?",
+    "contactMessagePlaceholder": "Ceritakan tentang kebutuhan Anda \u2014 volume, formulir yang dibutuhkan, integrasi...",
+    "contactSend": "Kirim Pesan",
+    "contactSending": "Mengirim...",
+    "contactSuccess": "Terima kasih! Kami akan segera menghubungi Anda.",
+    "contactError": "Harap isi nama dan email"
+  },
+  "disclaimer": {
+    "title": "Ketentuan Layanan & Penyangkalan",
+    "lastUpdated": "Terakhir diperbarui: Februari 2026",
+    "importantNotice": "Pemberitahuan Penting",
+    "importantNoticeText": "Oky-Docky adalah <strong>alat persiapan dokumen</strong> yang dioperasikan oleh <strong>Barckhat LLC</strong>, bukan layanan konsultasi pajak. Kami tidak memberikan nasihat pajak, hukum, keuangan, atau akuntansi. Informasi dan formulir yang dihasilkan oleh layanan ini semata-mata berdasarkan data yang Anda berikan. Selalu konsultasikan dengan profesional pajak yang berkualifikasi untuk nasihat yang spesifik sesuai situasi Anda.",
+    "sections": [
+      {
+        "title": "1. Deskripsi Layanan",
+        "paragraphs": [
+          "Oky-Docky adalah produk dari Barckhat LLC. Layanan ini menyediakan layanan persiapan dokumen otomatis yang membantu pengguna mengisi formulir pajak IRS (seperti W-9, W-4, Form 14039, dan lainnya) melalui antarmuka tanya jawab yang dipandu.",
+          "Layanan ini menghasilkan dokumen PDF yang sudah diisi berdasarkan informasi yang diberikan pengguna. Barckhat LLC tidak memverifikasi, memvalidasi, atau menjamin keakuratan, kelengkapan, atau kecukupan hukum dari formulir yang dihasilkan.",
+          "Barckhat LLC bukan firma persiapan pajak terdaftar. Kami tidak mengajukan formulir atas nama Anda kecuali secara eksplisit dinyatakan dalam perjanjian layanan berbayar terpisah."
+        ]
+      },
+      {
+        "title": "2. Tanggung Jawab Pengguna & Asumsi Risiko",
+        "paragraphs": [
+          "ANDA SEPENUHNYA DAN SECARA EKSKLUSIF BERTANGGUNG JAWAB atas keakuratan, kelengkapan, dan legalitas semua informasi yang Anda masukkan ke dalam layanan ini. Barckhat LLC hanya bertindak sebagai penyedia teknologi dan tidak bertanggung jawab atas isi pengajuan Anda.",
+          "ANDA SEPENUHNYA BERTANGGUNG JAWAB untuk meninjau, memverifikasi, menandatangani, mengajukan, dan mengirimkan semua dokumen yang dihasilkan. Segala kesalahan, kelalaian, atau ketidakakuratan dalam data yang Anda berikan sepenuhnya menjadi tanggung jawab Anda.",
+          "ANDA MENANGGUNG SEMUA RISIKO dan tanggung jawab atas segala denda pajak, sanksi, konsekuensi hukum, audit, atau hasil lainnya yang timbul dari penggunaan dokumen yang dihasilkan oleh layanan ini. Barckhat LLC tidak bertanggung jawab atas segala konsekuensi yang timbul dari penggunaan Anda atas formulir yang dihasilkan.",
+          "Anda mengakui bahwa hukum pajak bersifat kompleks dan dapat berubah. Merupakan tanggung jawab Anda untuk memastikan bahwa formulir yang Anda hasilkan sesuai dengan peraturan IRS terkini dan hukum negara bagian serta federal yang berlaku.",
+          "Anda setuju untuk tidak menggunakan layanan ini untuk tujuan penipuan, ilegal, atau menipu, termasuk namun tidak terbatas pada pencurian identitas, penggelapan pajak, atau pengajuan dokumen palsu."
+        ]
+      },
+      {
+        "title": "3. Batasan Tanggung Jawab",
+        "paragraphs": [
+          "SEJAUH DIIZINKAN OLEH HUKUM, BARCKHAT LLC, ANGGOTA, MANAJER, PEJABAT, KARYAWAN, DAN AGENNYA TIDAK BERTANGGUNG JAWAB ATAS SEGALA KERUGIAN LANGSUNG, TIDAK LANGSUNG, INSIDENTAL, KHUSUS, KONSEKUENSIAL, ATAU PUNITIF YANG TIMBUL DARI PENGGUNAAN ANDA ATAS LAYANAN INI.",
+          "Ini termasuk, tanpa batasan: kesalahan dalam formulir yang dihasilkan, denda atau sanksi yang dikenakan oleh IRS atau lembaga pemerintah mana pun, tenggat pengajuan yang terlewat, perhitungan pajak yang salah, pengembalian yang ditolak, konsekuensi pencurian identitas, atau kerugian finansial apa pun yang timbul dari ketergantungan pada formulir yang dihasilkan oleh layanan ini.",
+          "Barckhat LLC menyediakan layanan ini dengan basis \"APA ADANYA\" dan \"SEBAGAIMANA TERSEDIA\", tanpa jaminan apa pun, tersurat maupun tersirat, termasuk namun tidak terbatas pada jaminan kelayakan dagang, kesesuaian untuk tujuan tertentu, atau non-pelanggaran.",
+          "Total tanggung jawab Barckhat LLC untuk klaim apa pun yang timbul dari penggunaan layanan tidak akan melebihi jumlah yang Anda bayarkan untuk layanan dalam 12 bulan sebelum klaim, atau $100, mana yang lebih kecil.",
+          "Dengan menggunakan layanan ini, Anda setuju untuk memberikan ganti rugi dan membebaskan Barckhat LLC dari segala klaim, kerusakan, kerugian, atau biaya (termasuk biaya pengacara) yang timbul dari penggunaan Anda atas layanan atau formulir apa pun yang dihasilkan melaluinya."
+        ]
+      },
+      {
+        "title": "4. Privasi & Penanganan Data",
+        "paragraphs": [
+          "Kami menjaga privasi Anda dengan serius. Informasi sensitif (seperti SSN dan EIN) diproses hanya di memori dan tidak disimpan di server kami setelah PDF Anda dihasilkan.",
+          "Kami tidak menjual, membagikan, atau mendistribusikan informasi pribadi Anda kepada pihak ketiga.",
+          "File PDF yang dihasilkan dibuat sesuai permintaan dan dikirimkan langsung ke browser Anda. Kami tidak menyimpan salinan formulir yang sudah selesai.",
+          "Anda bertanggung jawab atas keamanan dokumen yang diunduh di perangkat Anda sendiri."
+        ]
+      },
+      {
+        "title": "5. Penyangkalan IRS & Regulasi",
+        "paragraphs": [
+          "Oky-Docky dan Barckhat LLC tidak berafiliasi dengan, didukung oleh, atau terhubung dengan Internal Revenue Service (IRS) atau lembaga pemerintah mana pun.",
+          "Template formulir IRS yang digunakan dalam layanan ini berdasarkan publikasi IRS yang tersedia untuk umum. Versi formulir dan struktur kolom dapat berubah; kami melakukan upaya wajar untuk menjaga template tetap terkini tetapi tidak menjamin bahwa template mencerminkan revisi terbaru.",
+          "Untuk formulir IRS resmi, instruksi, dan publikasi, kunjungi www.irs.gov."
+        ]
+      },
+      {
+        "title": "6. Penerimaan Ketentuan",
+        "paragraphs": [
+          "Dengan menggunakan Oky-Docky, Anda mengakui bahwa Anda telah membaca, memahami, dan setuju untuk terikat oleh Ketentuan Layanan dan Penyangkalan ini.",
+          "Kami berhak mengubah ketentuan ini kapan saja. Penggunaan layanan yang berkelanjutan setelah perubahan merupakan penerimaan atas ketentuan yang direvisi.",
+          "Jika Anda tidak setuju dengan ketentuan ini, harap jangan gunakan layanan ini."
+        ]
+      }
+    ],
+    "contactLine": "Pertanyaan tentang ketentuan kami? Hubungi kami di legal@barckhat.com",
+    "copyright": "\u00a9 2026 Barckhat LLC. Semua hak dilindungi. Oky-Docky adalah produk dari Barckhat LLC."
+  },
+  "error": {
+    "connectionError": "Kesalahan Koneksi",
+    "unableToConnect": "Tidak dapat terhubung ke backend",
+    "fixSteps": "Untuk memperbaiki masalah ini:",
+    "step1": "Pastikan backend FastAPI sedang berjalan:",
+    "step2": "Tambahkan dukungan CORS ke aplikasi FastAPI Anda (di fillable_processor.py):",
+    "close": "Tutup",
+    "retry": "Coba Lagi",
+    "failedToGenerate": "Gagal membuat PDF. ",
+    "cannotConnect": "Tidak dapat terhubung ke server backend. Pastikan server FastAPI sedang berjalan.",
+    "failedToGenerateToast": "Gagal membuat dokumen",
+    "generatingToast": "Membuat dokumen Anda...",
+    "generatedToast": "Dokumen berhasil dibuat!",
+    "failedSchemaLoad": "Gagal memuat skema formulir"
+  },
+  "signature": {
+    "type": "Ketik",
+    "draw": "Gambar",
+    "typeNamePlaceholder": "Ketik nama lengkap Anda",
+    "preview": "Pratinjau:",
+    "clear": "Hapus",
+    "drawHint": "Gambar tanda tangan Anda di atas"
+  }
+}

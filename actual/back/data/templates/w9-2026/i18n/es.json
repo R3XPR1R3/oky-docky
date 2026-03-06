@@ -1,0 +1,109 @@
+{
+  "fields": {
+    "entity_type": {
+      "label": "¿Para quién es este formulario W-9?",
+      "helpText": "Esto determinará qué campos necesita completar",
+      "options": {
+        "individual": "Persona física / Propietario único",
+        "business": "Empresa u organización"
+      }
+    },
+    "legal_name": {
+      "label": "Nombre legal completo",
+      "placeholder": "ej., John Smith",
+      "helpText": "Tal como aparece en su declaración de impuestos"
+    },
+    "business_name": {
+      "label": "Nombre de la empresa o entidad",
+      "placeholder": "ej., Smith Consulting LLC",
+      "helpText": "Nombre oficial de la empresa o DBA"
+    },
+    "tax_class": {
+      "label": "Clasificación fiscal federal",
+      "helpText": "Seleccione la clasificación fiscal correspondiente",
+      "options": {
+        "individual": "Persona física / Propietario único",
+        "c_corp": "Corporación C",
+        "s_corp": "Corporación S",
+        "partnership": "Sociedad",
+        "trust": "Fideicomiso / Patrimonio",
+        "llc": "Sociedad de responsabilidad limitada (LLC)",
+        "other": "Otro (ver instrucciones)"
+      }
+    },
+    "taxpayer_classification": {
+      "label": "Letra de clasificación fiscal de LLC",
+      "placeholder": "C, S o P",
+      "helpText": "Ingrese la clasificación: C = corporación C, S = corporación S, P = sociedad"
+    },
+    "other_taxpayer_classification": {
+      "label": "Otra clasificación fiscal",
+      "placeholder": "ej., Organización sin fines de lucro",
+      "helpText": "Describa su clasificación fiscal"
+    },
+    "has_exemptions": {
+      "label": "¿Tiene códigos de exención?",
+      "helpText": "Los códigos de exención aplican solo a ciertas entidades, no a personas físicas. Consulte las instrucciones del W-9 para más detalles.",
+      "options": {
+        "no": "No, no tengo exenciones",
+        "yes": "Sí, tengo códigos de exención"
+      }
+    },
+    "exempt_payee_code": {
+      "label": "Código de beneficiario exento",
+      "placeholder": "ej., 1",
+      "helpText": "Ingrese el código aplicable (1–13). Consulte las instrucciones del W-9."
+    },
+    "fatca_exemption": {
+      "label": "Código de exención de declaración FATCA",
+      "placeholder": "ej., A",
+      "helpText": "Ingrese el código aplicable (A–M). Consulte las instrucciones del W-9."
+    },
+    "broker_exempt": {
+      "label": "Transacción de corredor exenta",
+      "helpText": "Marque si usted es un corredor que solo procesa transacciones"
+    },
+    "address": {
+      "label": "Dirección",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Número, calle y apartamento"
+    },
+    "citystatezip": {
+      "label": "Ciudad, estado y código ZIP",
+      "placeholder": "New York, NY 10001"
+    },
+    "tin_type": {
+      "label": "¿Qué número de identificación proporcionará?",
+      "helpText": "SSN para personas físicas, EIN para empresas. Seleccione el adecuado.",
+      "options": {
+        "ssn": "Número de Seguro Social (SSN)",
+        "ein": "Número de Identificación del Empleador (EIN)"
+      }
+    },
+    "ssn": {
+      "label": "Número de Seguro Social (SSN)",
+      "placeholder": "123-45-6789",
+      "helpText": "Ingrese su SSN de 9 dígitos"
+    },
+    "ein": {
+      "label": "Número de Identificación del Empleador (EIN)",
+      "placeholder": "12-3456789",
+      "helpText": "Ingrese su EIN de 9 dígitos"
+    },
+    "requester_name": {
+      "label": "Nombre y dirección del solicitante",
+      "placeholder": "Nombre de la empresa, dirección",
+      "helpText": "Nombre y dirección de la persona o empresa que solicita este formulario (opcional)"
+    },
+    "account_number": {
+      "label": "Número(s) de cuenta",
+      "placeholder": "ej., 12345678",
+      "helpText": "Número de cuenta opcional"
+    },
+    "sign_date": {
+      "label": "Fecha (fecha de firma)",
+      "placeholder": "03/06/2026",
+      "helpText": "Ingrese la fecha de hoy en formato MM/DD/AAAA"
+    }
+  }
+}

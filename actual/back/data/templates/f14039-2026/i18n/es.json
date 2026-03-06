@@ -1,0 +1,209 @@
+{
+  "fields": {
+    "first_name": {
+      "label": "Nombre",
+      "placeholder": "Jane",
+      "helpText": "Su nombre legal tal como aparece en la declaración de impuestos"
+    },
+    "last_name": {
+      "label": "Apellido",
+      "placeholder": "Doe",
+      "helpText": "Su apellido legal"
+    },
+    "middle_initial": {
+      "label": "Inicial del segundo nombre",
+      "placeholder": "M",
+      "helpText": "Su inicial del segundo nombre (opcional)"
+    },
+    "tin": {
+      "label": "Número de SSN o ITIN",
+      "placeholder": "123-45-6789",
+      "helpText": "Ingrese el SSN o ITIN que fue utilizado de manera fraudulenta"
+    },
+    "current_mailing_address": {
+      "label": "Dirección postal actual",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Su dirección actual"
+    },
+    "city": {
+      "label": "Ciudad",
+      "placeholder": "New York"
+    },
+    "state": {
+      "label": "Estado (código de 2 letras)",
+      "placeholder": "NY",
+      "helpText": "Ingrese la abreviatura de 2 letras del estado"
+    },
+    "zip_first5": {
+      "label": "Código ZIP",
+      "placeholder": "10001",
+      "helpText": "Código ZIP de 5 dígitos"
+    },
+    "zip_last4": {
+      "label": "ZIP+4 (opcional)",
+      "placeholder": "0002",
+      "helpText": "Últimos 4 dígitos del ZIP+4"
+    },
+    "has_previous_address": {
+      "label": "¿Su dirección anterior es diferente a la actual?",
+      "helpText": "Si se mudó recientemente, proporcione su dirección anterior",
+      "options": {
+        "no": "No, es la misma dirección",
+        "yes": "Sí, dirección diferente"
+      }
+    },
+    "prev_address": {
+      "label": "Dirección anterior",
+      "placeholder": "456 Old Street"
+    },
+    "prev_city": {
+      "label": "Ciudad anterior",
+      "placeholder": "Chicago"
+    },
+    "prev_state": {
+      "label": "Estado anterior (código de 2 letras)",
+      "placeholder": "IL"
+    },
+    "prev_zip_first5": {
+      "label": "Código ZIP anterior",
+      "placeholder": "60601"
+    },
+    "prev_zip_last4": {
+      "label": "ZIP+4 anterior (opcional)",
+      "placeholder": "0003"
+    },
+    "phone_home": {
+      "label": "Teléfono fijo",
+      "placeholder": "(212) 555-1234"
+    },
+    "phone_cell": {
+      "label": "Teléfono celular",
+      "placeholder": "(212) 555-5678"
+    },
+    "best_time": {
+      "label": "Mejor hora para llamar",
+      "placeholder": "9:00 – 17:00 EST",
+      "helpText": "¿Cuándo puede contactarlo el IRS?"
+    },
+    "language": {
+      "label": "Idioma preferido para comunicarse",
+      "options": {
+        "english": "Inglés",
+        "spanish": "Español",
+        "other": "Otro"
+      }
+    },
+    "language_other": {
+      "label": "Especifique el idioma preferido",
+      "placeholder": "p. ej., Francés"
+    },
+    "reason_notice": {
+      "label": "Recibí un aviso del IRS indicando que alguien usó mi información",
+      "helpText": "Sección A — Marque todas las razones que apliquen"
+    },
+    "notice_letter": {
+      "label": "Número del aviso del IRS",
+      "placeholder": "p. ej., CP01A",
+      "helpText": "Ingrese el número de aviso/carta de la correspondencia del IRS"
+    },
+    "reason_rejected": {
+      "label": "Mi declaración electrónica fue rechazada porque ya se presentó una declaración con mi SSN/ITIN"
+    },
+    "reason_other_agency": {
+      "label": "Recibí un aviso de otra agencia (SSA, agencia estatal, etc.) sobre un posible robo de identidad"
+    },
+    "reason_other": {
+      "label": "Otra razón para presentar esta declaración jurada"
+    },
+    "theft_tax_return": {
+      "label": "Alguien usó mi información para presentar una declaración de impuestos",
+      "helpText": "Sección B — Marque todos los tipos de robo de identidad"
+    },
+    "theft_ssn_work": {
+      "label": "Alguien usó mi SSN o ITIN para obtener empleo"
+    },
+    "theft_dependent": {
+      "label": "Mi información fue utilizada para reclamar fraudulentamente a un dependiente"
+    },
+    "theft_details": {
+      "label": "Detalles adicionales sobre el robo de identidad (opcional)",
+      "placeholder": "Describa lo que sucedió...",
+      "helpText": "Proporcione información adicional para la investigación del IRS"
+    },
+    "last_tax_year": {
+      "label": "Último año fiscal afectado",
+      "placeholder": "2025",
+      "helpText": "Sección D — Ingrese el último año afectado por el robo"
+    },
+    "additional_years": {
+      "label": "Otros años fiscales afectados (separados por comas)",
+      "placeholder": "2024, 2023, 2022",
+      "helpText": "Enumere hasta 8 años adicionales separados por comas"
+    },
+    "had_no_filing": {
+      "label": "No estaba obligado(a) a presentar una declaración para el(los) año(s) afectado(s)",
+      "helpText": "Marque si no estaba obligado(a) a presentar declaración para los años indicados"
+    },
+    "name_on_return": {
+      "label": "Nombre en la declaración fraudulenta (si es diferente al suyo)",
+      "placeholder": "p. ej., Jon Doe",
+      "helpText": "Si se usó un nombre diferente en la declaración fraudulenta, indíquelo"
+    },
+    "signature": {
+      "label": "Su firma",
+      "helpText": "Sección E — Firme bajo pena de perjurio. Escriba su nombre o dibuje su firma."
+    },
+    "date_signed": {
+      "label": "Fecha de firma",
+      "placeholder": "27/02/2026",
+      "helpText": "Ingrese la fecha de hoy (MM/DD/AAAA)"
+    },
+    "filing_for": {
+      "label": "¿Quién presenta este formulario?",
+      "helpText": "Sección F — Si otra persona presenta en su nombre, seleccione 'Representante'",
+      "options": {
+        "myself": "Yo presento por mí mismo(a)",
+        "representative": "Un representante presenta en mi nombre"
+      }
+    },
+    "rep_first_name": {
+      "label": "Nombre del representante",
+      "placeholder": "John"
+    },
+    "rep_last_name": {
+      "label": "Apellido del representante",
+      "placeholder": "Smith"
+    },
+    "rep_middle_initial": {
+      "label": "Inicial del segundo nombre del representante",
+      "placeholder": "A"
+    },
+    "rep_address": {
+      "label": "Dirección del representante",
+      "placeholder": "789 Attorney Ave, Suite 100, Chicago, IL 60601"
+    },
+    "rep_phone": {
+      "label": "Teléfono del representante",
+      "placeholder": "(312) 555-9999"
+    },
+    "rep_caf": {
+      "label": "Número CAF (si aplica)",
+      "placeholder": "p. ej., 1234567890",
+      "helpText": "Número de archivo de autorización centralizada"
+    },
+    "rep_relationship": {
+      "label": "Relación del representante con el contribuyente",
+      "options": {
+        "parent_guardian": "Padre / Tutor legal",
+        "fiduciary": "Fiduciario",
+        "power_of_attorney": "Poder notarial",
+        "court_appointed": "Representante designado por el tribunal",
+        "other": "Otro"
+      }
+    },
+    "rep_relationship_other": {
+      "label": "Describa la relación del representante",
+      "placeholder": "p. ej., Agente registrado"
+    }
+  }
+}
