@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { FileText, Download, CheckCircle, Sparkles, RotateCcw } from 'lucide-react';
+import { FileText, Download, CheckCircle, RotateCcw } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
 

@@ -243,6 +243,20 @@ def build_pdf_field_values(form_data: Dict[str, Any], mapping: Dict[str, Any]) -
                     out[field_name] = digits[pos:pos + length]
                     pos += length
 
+        elif rtype == "date_split":
+            # Parse MM/DD/YYYY or M/D/YYYY and split into separate fields
+            import re
+            raw = "" if value is None else str(value).strip()
+            fields_map = rule.get("fields") or {}
+            m = re.match(r"(\d{1,2})[/\-](\d{1,2})[/\-](\d{2,4})", raw)
+            if m:
+                if "mm" in fields_map:
+                    out[fields_map["mm"]] = m.group(1)
+                if "dd" in fields_map:
+                    out[fields_map["dd"]] = m.group(2)
+                if "yyyy" in fields_map:
+                    out[fields_map["yyyy"]] = m.group(3)
+
         elif rtype == "spread":
             raw = "" if value is None else str(value)
             separator = rule.get("separator", ",")

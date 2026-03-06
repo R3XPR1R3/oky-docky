@@ -96,6 +96,13 @@
       "label": "Extra withholding",
       "placeholder": "e.g., 50",
       "helpText": "Step 4(c): Additional amount to withhold each pay period"
+    },
+    {
+      "key": "exempt_checkbox",
+      "type": "checkbox",
+      "required": false,
+      "label": "Claim exemption from withholding",
+      "helpText": "Check if you had no federal income tax liability last year AND expect none this year. See W-4 instructions."
     }
   ]
 }
