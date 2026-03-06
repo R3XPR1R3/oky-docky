@@ -70,19 +70,3 @@ Backend отправит туда JSON:
   "source": "oky-docky-feedback"
 }
 ```
-
-
-## Scenario Builder (admin)
-
-- Open `http://localhost:8000/admin/scenario-builder`
-- Edit `template.json`, `schema.json`, `mapping.json` directly in browser
-- Save writes back to `actual/back/data/templates/<template_id>/`
-
-### Scenario language in mapping
-
-`mapping.json` now supports programmable rules:
-- `math` with operations: `add`, `sum`, `subtract`, `multiply`, `divide`, `pow`, `mod`, `min`, `max`, `avg`, `round`
-- `set_var` to persist values in variables during scenario execution
-- `if` for conditional assignments
-
-Variables can be referenced as `var:<name>` inside rule inputs/conditions.
