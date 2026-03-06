@@ -1,15 +1,18 @@
 import { motion } from 'motion/react';
 import { FileText, Sparkles, Shield, Clock, CheckCircle, ArrowRight, Zap } from 'lucide-react';
 import { Button } from './ui/button';
+import type { Language } from '../lib/i18n';
+import { t } from '../lib/i18n';
 
 interface LandingPageProps {
+  language: Language;
   onGetStarted: () => void;
   onHowItWorks: () => void;
   onPricing: () => void;
   onDisclaimer: () => void;
 }
 
-export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaimer }: LandingPageProps) {
+export function LandingPage({ language, onGetStarted, onHowItWorks, onPricing, onDisclaimer }: LandingPageProps) {
   const features = [
     {
       icon: Sparkles,
@@ -60,13 +63,13 @@ export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaime
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" className="text-sm" onClick={onHowItWorks}>
-              How It Works
+              {t(language, 'how')}
             </Button>
             <Button variant="ghost" className="text-sm" onClick={onPricing}>
-              Pricing
+              {t(language, 'pricing')}
             </Button>
             <Button variant="outline" className="text-sm" onClick={onGetStarted}>
-              Get Started
+              {t(language, 'getStarted')}
             </Button>
           </div>
         </div>
@@ -87,19 +90,18 @@ export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaime
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 mb-6"
           >
             <Zap className="w-4 h-4" />
-            <span className="text-sm font-medium">Trusted by 500,000+ users</span>
+            <span className="text-sm font-medium">{t(language, 'trusted')}</span>
           </motion.div>
 
           <h1 className="text-6xl font-bold mb-6 leading-tight">
-            Fill Forms Like{' '}
+            {t(language, 'title')}{' '}
             <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Chatting With a Friend
+              {t(language, 'accent')}
             </span>
           </h1>
 
           <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-            No more confusing paperwork. Answer simple questions and we'll handle the rest.
-            Get your IRS forms completed in minutes.
+            {t(language, 'subtitle')}
           </p>
 
           <div className="flex items-center justify-center gap-4">
@@ -108,7 +110,7 @@ export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaime
               onClick={onGetStarted}
               className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all duration-300"
             >
-              Get Started Free
+              {t(language, 'getStartedFree')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <Button
@@ -117,12 +119,12 @@ export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaime
               className="px-8 py-6 text-lg rounded-xl border-2"
               onClick={onHowItWorks}
             >
-              See How It Works
+              {t(language, 'seeHow')}
             </Button>
           </div>
 
           <p className="text-sm text-slate-500 mt-4">
-            No credit card required &bull; Free for personal use
+            {t(language, 'noCard')}
           </p>
         </motion.div>
 
@@ -275,9 +277,9 @@ export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaime
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-600">
             <p>&copy; 2026 Barckhat LLC. All rights reserved.</p>
             <div className="flex items-center gap-6">
-              <button onClick={onHowItWorks} className="hover:text-indigo-600 transition-colors">How It Works</button>
-              <button onClick={onPricing} className="hover:text-indigo-600 transition-colors">Pricing</button>
-              <button onClick={onDisclaimer} className="hover:text-indigo-600 transition-colors">Terms & Disclaimer</button>
+              <button onClick={onHowItWorks} className="hover:text-indigo-600 transition-colors">{t(language, 'how')}</button>
+              <button onClick={onPricing} className="hover:text-indigo-600 transition-colors">{t(language, 'pricing')}</button>
+              <button onClick={onDisclaimer} className="hover:text-indigo-600 transition-colors">{t(language, 'footerTerms')}</button>
             </div>
           </div>
         </div>

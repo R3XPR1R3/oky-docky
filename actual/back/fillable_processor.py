@@ -1,13 +1,20 @@
 from __future__ import annotations
+
+import json
+import os
+import smtplib
+from email.message import EmailMessage
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Literal
+
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
+from pydantic import BaseModel, Field
 from pypdf import PdfReader
 
-from .core.template_store import load_template, list_templates, load_template_meta
 from .core.mapping import build_pdf_field_values
+from .core.template_store import load_template, list_templates, load_template_meta
 from .engines.acroform import fill_acroform_pdf
 
 app = FastAPI()
@@ -22,6 +29,148 @@ app.add_middleware(
 BASE_DIR = Path(__file__).resolve().parent  # actual/back
 TEMPLATES_ROOT = BASE_DIR / "data" / "templates"
 OUTPUT_DIR = BASE_DIR / "data" / "output"
+ADMIN_PAGE = BASE_DIR / "static" / "scenario-admin.html"
+
+
+class FeedbackPayload(BaseModel):
+    channel: Literal["email", "sms"] = Field(description="Delivery channel for feedback")
+    name: str = Field(min_length=1, max_length=100)
+    contact: str = Field(min_length=3, max_length=200, description="Email address or phone number")
+    message: str = Field(min_length=5, max_length=3000)
+
+
+class ResolveQuestionsPayload(BaseModel):
+    answers: dict = Field(default_factory=dict)
+
+
+def _is_field_visible(field: dict, answers: dict) -> bool:
+    visible_when = field.get("visible_when")
+    if not visible_when:
+        return True
+
+    for dep_key, allowed_values in visible_when.items():
+        current_value = answers.get(dep_key)
+        if current_value in (None, ""):
+            return False
+        if str(current_value) not in [str(v) for v in allowed_values]:
+            return False
+    return True
+
+
+def _resolve_visible_fields(schema: dict, answers: dict) -> list[dict]:
+    fields = schema.get("fields", []) if isinstance(schema, dict) else []
+    return [f for f in fields if _is_field_visible(f, answers)]
+
+
+def _send_feedback_email(payload: FeedbackPayload) -> None:
+    host = os.getenv("FEEDBACK_SMTP_HOST")
+    port = int(os.getenv("FEEDBACK_SMTP_PORT", "587"))
+    username = os.getenv("FEEDBACK_SMTP_USERNAME")
+    password = os.getenv("FEEDBACK_SMTP_PASSWORD")
+    to_addr = os.getenv("FEEDBACK_TO_EMAIL")
+    from_addr = os.getenv("FEEDBACK_FROM_EMAIL", username or "noreply@oky-docky.local")
+
+    if not (host and username and password and to_addr):
+        raise HTTPException(
+            503,
+            "Email feedback is not configured. Set FEEDBACK_SMTP_HOST/PORT/USERNAME/PASSWORD/TO_EMAIL.",
+        )
+
+    msg = EmailMessage()
+    msg["Subject"] = f"[Oky-Docky] Feedback from {payload.name}"
+    msg["From"] = from_addr
+    msg["To"] = to_addr
+    msg.set_content(
+        f"Name: {payload.name}\n"
+        f"Contact: {payload.contact}\n"
+        f"Channel: {payload.channel}\n\n"
+        f"Message:\n{payload.message}\n"
+    )
+
+    with smtplib.SMTP(host, port, timeout=20) as smtp:
+        smtp.starttls()
+        smtp.login(username, password)
+        smtp.send_message(msg)
+
+
+def _send_feedback_sms(payload: FeedbackPayload) -> None:
+    webhook_url = os.getenv("FEEDBACK_SMS_WEBHOOK_URL")
+    if not webhook_url:
+        raise HTTPException(503, "SMS feedback is not configured. Set FEEDBACK_SMS_WEBHOOK_URL.")
+
+    try:
+        import httpx  # lazy import: backend can start even if sms deps aren't installed
+    except ModuleNotFoundError as exc:
+        raise HTTPException(503, "SMS feedback dependency missing: install httpx") from exc
+
+    body = {
+        "to": payload.contact,
+        "message": payload.message,
+        "name": payload.name,
+        "source": "oky-docky-feedback",
+    }
+
+    try:
+        response = httpx.post(webhook_url, json=body, timeout=20)
+        response.raise_for_status()
+    except httpx.HTTPError as exc:
+        raise HTTPException(502, f"Failed to send SMS feedback: {exc}") from exc
+
+
+@app.get("/admin/scenario-builder", response_class=HTMLResponse)
+def admin_scenario_builder():
+    if not ADMIN_PAGE.exists():
+        raise HTTPException(404, "Admin page not found")
+    return ADMIN_PAGE.read_text(encoding="utf-8")
+
+
+@app.get("/api/admin/templates")
+def api_admin_list_templates():
+    template_ids = list_templates(TEMPLATES_ROOT)
+    templates = []
+    for tid in template_ids:
+        try:
+            templates.append(load_template_meta(TEMPLATES_ROOT, tid))
+        except Exception:
+            continue
+    return {"templates": templates}
+
+
+@app.get("/api/admin/templates/{template_id}/bundle")
+def api_admin_get_bundle(template_id: str):
+    try:
+        bundle = load_template(TEMPLATES_ROOT, template_id)
+    except Exception as e:
+        raise HTTPException(404, str(e))
+
+    return {
+        "template": bundle.meta,
+        "schema": bundle.schema,
+        "mapping": bundle.mapping,
+    }
+
+
+@app.put("/api/admin/templates/{template_id}/bundle")
+def api_admin_save_bundle(template_id: str, payload: dict):
+    target_dir = TEMPLATES_ROOT / template_id
+    if not target_dir.exists():
+        raise HTTPException(404, f"Template folder not found: {template_id}")
+
+    template_json = payload.get("template")
+    schema_json = payload.get("schema")
+    mapping_json = payload.get("mapping")
+
+    if not isinstance(template_json, dict) or not isinstance(schema_json, dict) or not isinstance(mapping_json, dict):
+        raise HTTPException(400, "payload must include object fields: template, schema, mapping")
+
+    if template_json.get("id") and template_json["id"] != template_id:
+        raise HTTPException(400, "template.id must match URL template_id")
+
+    (target_dir / "template.json").write_text(json.dumps(template_json, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (target_dir / "schema.json").write_text(json.dumps(schema_json, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (target_dir / "mapping.json").write_text(json.dumps(mapping_json, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    return {"status": "saved", "template_id": template_id}
 
 
 @app.get("/api/templates")
@@ -31,7 +180,6 @@ def api_list_templates(
     country: Optional[str] = Query(None, description="Filter by country code"),
     tag: Optional[str] = Query(None, description="Filter by tag"),
 ):
-    """Return all templates with full metadata. Supports search and filtering."""
     template_ids = list_templates(TEMPLATES_ROOT)
     results = []
 
@@ -43,10 +191,8 @@ def api_list_templates(
 
         if category and meta.get("category", "") != category:
             continue
-
         if country and meta.get("country", "") != country:
             continue
-
         if tag and tag not in meta.get("tags", []):
             continue
 
@@ -65,7 +211,6 @@ def api_list_templates(
 
 @app.get("/api/templates/{template_id}")
 def api_template_detail(template_id: str):
-    """Return full metadata for a single template."""
     try:
         meta = load_template_meta(TEMPLATES_ROOT, template_id)
     except Exception as e:
@@ -75,12 +220,25 @@ def api_template_detail(template_id: str):
 
 @app.get("/api/templates/{template_id}/schema")
 def api_template_schema(template_id: str):
-    """Return the schema (fields definition) for a template."""
     try:
         bundle = load_template(TEMPLATES_ROOT, template_id)
     except Exception as e:
         raise HTTPException(404, str(e))
     return bundle.schema
+
+
+
+
+@app.post("/api/templates/{template_id}/resolve-questions")
+def api_resolve_questions(template_id: str, payload: ResolveQuestionsPayload):
+    try:
+        bundle = load_template(TEMPLATES_ROOT, template_id)
+    except Exception as e:
+        raise HTTPException(404, str(e))
+
+    answers = payload.answers if isinstance(payload.answers, dict) else {}
+    visible_fields = _resolve_visible_fields(bundle.schema, answers)
+    return {"fields": visible_fields}
 
 
 @app.get("/api/templates/{template_id}/pdf-fields")
@@ -97,9 +255,6 @@ def api_pdf_fields(template_id: str):
 
 @app.post("/api/render/{template_id}")
 def api_render(template_id: str, payload: dict):
-    """
-    payload = {"data": {...human keys...}}
-    """
     data = payload.get("data")
     if not isinstance(data, dict):
         raise HTTPException(400, 'payload must be: {"data": {..}}')
@@ -122,3 +277,13 @@ def api_render(template_id: str, payload: dict):
         media_type="application/pdf",
         filename=f"{template_id}.pdf",
     )
+
+
+@app.post("/api/feedback")
+def api_feedback(payload: FeedbackPayload):
+    if payload.channel == "email":
+        _send_feedback_email(payload)
+    else:
+        _send_feedback_sms(payload)
+
+    return {"status": "accepted", "channel": payload.channel}
