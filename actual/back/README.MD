@@ -77,26 +77,3 @@ Backend получает клиентские поля:
 ### SMS config
 
 - `FEEDBACK_SMS_WEBHOOK_URL`
-
-
-## Scenario Builder (admin)
-
-- Open `http://localhost:8000/admin/scenario-builder`
-- Edit `template.json`, `schema.json`, `mapping.json` directly in browser
-- Save writes back to `actual/back/data/templates/<template_id>/`
-
-### Scenario language in mapping
-
-`mapping.json` now supports programmable rules:
-- `math` with operations: `add`, `sum`, `subtract`, `multiply`, `divide`, `pow`, `mod`, `min`, `max`, `avg`, `round`
-- `set_var` to persist values in variables during scenario execution
-- `if` for conditional assignments
-
-Variables can be referenced as `var:<name>` inside rule inputs/conditions.
-
-
-## Backend-driven question resolver
-
-- `POST /api/templates/{template_id}/resolve-questions`
-- Payload: `{ "answers": { ... } }`
-- Returns server-resolved visible `fields` based on schema `visible_when` rules.
