@@ -11,6 +11,8 @@ import { FormBuilder } from './components/FormBuilder';
 import { HowItWorks } from './components/HowItWorks';
 import { PricingPage } from './components/PricingPage';
 import { DisclaimerPage } from './components/DisclaimerPage';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
+import type { Language } from './lib/i18n';
 
 type Step = 'landing' | 'selection' | 'questions' | 'review' | 'success' | 'builder' | 'how-it-works' | 'pricing' | 'disclaimer';
 
@@ -51,6 +53,7 @@ export default function App() {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [language, setLanguage] = useState<Language>('en');
 
   // Hidden builder: only accessible via URL hash #builder
   useEffect(() => {
@@ -159,6 +162,7 @@ export default function App() {
               transition={{ duration: 0.3 }}
             >
               <LandingPage
+                language={language}
                 onGetStarted={handleGetStarted}
                 onHowItWorks={() => setCurrentStep('how-it-works')}
                 onPricing={() => setCurrentStep('pricing')}
@@ -287,6 +291,8 @@ export default function App() {
           )}
         </AnimatePresence>
       </div>
+
+      <LanguageSwitcher language={language} onChange={setLanguage} />
 
       <ErrorDialog
         isOpen={!!error}
