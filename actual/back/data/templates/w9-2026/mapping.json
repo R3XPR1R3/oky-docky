@@ -30,9 +30,10 @@
     "pattern": [2, 7]
   },
 
-  "mm": "f1_16[0]",
-  "dd": "f1_17[0]",
-  "yyyy": "f1_18[0]",
+  "sign_date": {
+    "type": "date_split",
+    "fields": { "mm": "f1_16[0]", "dd": "f1_17[0]", "yyyy": "f1_18[0]" }
+  },
 
   "tax_class": {
     "type": "radio_group",

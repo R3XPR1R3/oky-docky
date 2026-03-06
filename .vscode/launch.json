@@ -5,7 +5,7 @@
       "name": "Inspect PDF fields",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/actual/back/quickskripts/inspect_pdf_fields.py",
+      "program": "${workspaceFolder}/actual/back/tools/inspect_pdf_fields.py",
       "console": "integratedTerminal",
       "justMyCode": true
     }

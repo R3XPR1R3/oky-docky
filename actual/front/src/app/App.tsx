@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Toaster, toast } from 'sonner';
+import { I18nProvider, useTranslation } from './i18n/I18nContext';
 import { LandingPage } from './components/LandingPage';
 import { DocumentSelection } from './components/DocumentSelection';
 import { QuestionFlow } from './components/QuestionFlow';
@@ -11,8 +12,6 @@ import { FormBuilder } from './components/FormBuilder';
 import { HowItWorks } from './components/HowItWorks';
 import { PricingPage } from './components/PricingPage';
 import { DisclaimerPage } from './components/DisclaimerPage';
-import { LanguageSwitcher } from './components/LanguageSwitcher';
-import type { Language } from './lib/i18n';
 
 type Step = 'landing' | 'selection' | 'questions' | 'review' | 'success' | 'builder' | 'how-it-works' | 'pricing' | 'disclaimer';
 
@@ -45,7 +44,8 @@ export interface Schema {
   fields: SchemaField[];
 }
 
-export default function App() {
+function AppInner() {
+  const { locale, t } = useTranslation();
   const [currentStep, setCurrentStep] = useState<Step>('landing');
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateMeta | null>(null);
   const [schema, setSchema] = useState<Schema | null>(null);
@@ -53,9 +53,7 @@ export default function App() {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [language, setLanguage] = useState<Language>('en');
 
-  // Hidden builder: only accessible via URL hash #builder
   useEffect(() => {
     if (window.location.hash === '#builder') {
       setCurrentStep('builder');
@@ -76,13 +74,13 @@ export default function App() {
   const handleSelectDocument = async (template: TemplateMeta) => {
     setSelectedTemplate(template);
     try {
-      const res = await fetch(`${API_URL}/api/templates/${template.id}/schema`);
+      const res = await fetch(`${API_URL}/api/templates/${template.id}/schema?locale=${locale}`);
       if (!res.ok) throw new Error(`Failed to load schema: ${res.status}`);
       const data: Schema = await res.json();
       setSchema(data);
       setCurrentStep('questions');
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to load form schema';
+      const msg = err instanceof Error ? err.message : t('error.failedSchemaLoad');
       setError(msg);
     }
   };
@@ -103,7 +101,7 @@ export default function App() {
     setError(null);
 
     try {
-      toast.success('Generating your document...');
+      toast.success(t('error.generatingToast'));
       const response = await fetch(`${API_URL}/api/render/${selectedTemplate.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -119,16 +117,16 @@ export default function App() {
       const url = URL.createObjectURL(blob);
       setPdfUrl(url);
       setCurrentStep('success');
-      toast.success('Document generated successfully!');
+      toast.success(t('error.generatedToast'));
     } catch (err) {
-      let errorMessage = 'Failed to generate PDF. ';
+      let errorMessage = t('error.failedToGenerate');
       if (err instanceof TypeError && err.message.includes('fetch')) {
-        errorMessage += 'Cannot connect to the backend server. Please ensure the FastAPI server is running.';
+        errorMessage += t('error.cannotConnect');
       } else if (err instanceof Error) {
         errorMessage += err.message;
       }
       setError(errorMessage);
-      toast.error('Failed to generate document');
+      toast.error(t('error.failedToGenerateToast'));
     } finally {
       setIsLoading(false);
     }
@@ -154,151 +152,61 @@ export default function App() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <AnimatePresence mode="wait">
           {currentStep === 'landing' && (
-            <motion.div
-              key="landing"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <LandingPage
-                language={language}
-                onGetStarted={handleGetStarted}
-                onHowItWorks={() => setCurrentStep('how-it-works')}
-                onPricing={() => setCurrentStep('pricing')}
-                onDisclaimer={() => setCurrentStep('disclaimer')}
-              />
+            <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+              <LandingPage onGetStarted={handleGetStarted} onHowItWorks={() => setCurrentStep('how-it-works')} onPricing={() => setCurrentStep('pricing')} onDisclaimer={() => setCurrentStep('disclaimer')} />
             </motion.div>
           )}
-
           {currentStep === 'how-it-works' && (
-            <motion.div
-              key="how-it-works"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div key="how-it-works" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
               <HowItWorks onBack={() => setCurrentStep('landing')} onGetStarted={handleGetStarted} />
             </motion.div>
           )}
-
           {currentStep === 'pricing' && (
-            <motion.div
-              key="pricing"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div key="pricing" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
               <PricingPage onBack={() => setCurrentStep('landing')} onGetStarted={handleGetStarted} />
             </motion.div>
           )}
-
           {currentStep === 'disclaimer' && (
-            <motion.div
-              key="disclaimer"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div key="disclaimer" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
               <DisclaimerPage onBack={() => setCurrentStep('landing')} />
             </motion.div>
           )}
-
           {currentStep === 'selection' && (
-            <motion.div
-              key="selection"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <DocumentSelection
-                apiUrl={API_URL}
-                onSelectDocument={handleSelectDocument}
-                onBack={() => setCurrentStep('landing')}
-              />
+            <motion.div key="selection" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
+              <DocumentSelection apiUrl={API_URL} onSelectDocument={handleSelectDocument} onBack={() => setCurrentStep('landing')} />
             </motion.div>
           )}
-
           {currentStep === 'questions' && selectedTemplate && schema && (
-            <motion.div
-              key="questions"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <QuestionFlow
-                apiUrl={API_URL}
-                templateId={selectedTemplate.id}
-                templateTitle={selectedTemplate.title}
-                schema={schema}
-                initialData={formData}
-                onComplete={handleCompleteQuestions}
-                onBack={() => setCurrentStep('selection')}
-              />
+            <motion.div key="questions" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
+              <QuestionFlow apiUrl={API_URL} templateId={selectedTemplate.id} templateTitle={selectedTemplate.title} schema={schema} initialData={formData} onComplete={handleCompleteQuestions} onBack={() => setCurrentStep('selection')} />
             </motion.div>
           )}
-
           {currentStep === 'review' && selectedTemplate && schema && (
-            <motion.div
-              key="review"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <ReviewPage
-                formData={formData}
-                schema={schema}
-                templateTitle={selectedTemplate.title}
-                onEdit={handleEditQuestions}
-                onSubmit={handleSubmit}
-                isLoading={isLoading}
-              />
+            <motion.div key="review" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
+              <ReviewPage formData={formData} schema={schema} templateTitle={selectedTemplate.title} onEdit={handleEditQuestions} onSubmit={handleSubmit} isLoading={isLoading} />
             </motion.div>
           )}
-
           {currentStep === 'success' && pdfUrl && selectedTemplate && (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-            >
-              <SuccessPage
-                pdfUrl={pdfUrl}
-                templateTitle={selectedTemplate.title}
-                onStartOver={handleStartOver}
-              />
+            <motion.div key="success" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.3 }}>
+              <SuccessPage pdfUrl={pdfUrl} templateTitle={selectedTemplate.title} onStartOver={handleStartOver} />
             </motion.div>
           )}
-
           {currentStep === 'builder' && (
-            <motion.div
-              key="builder"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div key="builder" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
               <FormBuilder onBack={handleStartOver} />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-
-      <LanguageSwitcher language={language} onChange={setLanguage} />
-
-      <ErrorDialog
-        isOpen={!!error}
-        message={error || ''}
-        onClose={handleCloseError}
-      />
+      <ErrorDialog isOpen={!!error} message={error || ''} onClose={handleCloseError} />
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <I18nProvider>
+      <AppInner />
+    </I18nProvider>
   );
 }

@@ -160,6 +160,14 @@
       "label": "Account number(s)",
       "placeholder": "e.g., 12345678",
       "helpText": "Optional account number(s)"
+    },
+    {
+      "key": "sign_date",
+      "type": "text",
+      "required": true,
+      "label": "Date (signature date)",
+      "placeholder": "03/06/2026",
+      "helpText": "Enter today's date in MM/DD/YYYY format"
     }
   ]
 }
