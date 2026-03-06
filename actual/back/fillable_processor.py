@@ -1,15 +1,17 @@
 from __future__ import annotations
 
+import json
 import os
 import smtplib
+import uuid
 from email.message import EmailMessage
 from pathlib import Path
-from typing import Optional, Literal
+from typing import Any, Dict, Optional, Literal
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel, Field
 from pypdf import PdfReader
 
@@ -27,9 +29,13 @@ app.add_middleware(
 )
 
 BASE_DIR = Path(__file__).resolve().parent  # actual/back
-TEMPLATES_ROOT = BASE_DIR / "data" / "templates"
-OUTPUT_DIR = BASE_DIR / "data" / "output"
+DATA_DIR = BASE_DIR / "data"
+TEMPLATES_ROOT = DATA_DIR / "templates"
+OUTPUT_DIR = DATA_DIR / "output"
+I18N_DIR = DATA_DIR / "i18n"
 ADMIN_PAGE = BASE_DIR / "static" / "scenario-admin.html"
+
+DEFAULT_LOCALE = "en"
 
 
 class FeedbackPayload(BaseModel):
@@ -42,6 +48,69 @@ class FeedbackPayload(BaseModel):
 class ResolveQuestionsPayload(BaseModel):
     answers: dict = Field(default_factory=dict)
 
+
+# ---------------------------------------------------------------------------
+# i18n helpers
+# ---------------------------------------------------------------------------
+
+def _load_json(path: Path) -> Dict[str, Any]:
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _supported_locales() -> list[str]:
+    """Return list of available locale codes based on i18n/*.json files."""
+    if not I18N_DIR.exists():
+        return [DEFAULT_LOCALE]
+    return sorted(p.stem for p in I18N_DIR.glob("*.json"))
+
+
+def _apply_locale_to_schema(
+    schema: Dict[str, Any],
+    template_dir: Path,
+    locale: str,
+) -> Dict[str, Any]:
+    """Merge per-template i18n translations into schema fields."""
+    if locale == DEFAULT_LOCALE:
+        return schema
+
+    i18n_path = template_dir / "i18n" / f"{locale}.json"
+    translations = _load_json(i18n_path)
+    field_translations = translations.get("fields", {})
+
+    if not field_translations:
+        return schema
+
+    fields = schema.get("fields", [])
+    merged = []
+    for field in fields:
+        key = field["key"]
+        tr = field_translations.get(key)
+        if not tr:
+            merged.append(field)
+            continue
+
+        f = {**field}
+        for prop in ("label", "helpText", "placeholder"):
+            if prop in tr:
+                f[prop] = tr[prop]
+
+        if "options" in tr and f.get("options"):
+            opt_tr = tr["options"]
+            f["options"] = [
+                {**opt, "label": opt_tr.get(opt["value"], opt["label"])}
+                for opt in f["options"]
+            ]
+
+        merged.append(f)
+
+    return {**schema, "fields": merged}
+
+
+# ---------------------------------------------------------------------------
+# Visibility resolver
+# ---------------------------------------------------------------------------
 
 def _is_field_visible(field: dict, answers: dict) -> bool:
     visible_when = field.get("visible_when")
@@ -61,6 +130,48 @@ def _resolve_visible_fields(schema: dict, answers: dict) -> list[dict]:
     fields = schema.get("fields", []) if isinstance(schema, dict) else []
     return [f for f in fields if _is_field_visible(f, answers)]
 
+
+# ---------------------------------------------------------------------------
+# W-4 enrichment
+# ---------------------------------------------------------------------------
+
+def _to_non_negative_int(value: object) -> int:
+    if value is None:
+        return 0
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, int):
+        return max(0, value)
+
+    raw = str(value).strip()
+    digits = "".join(ch for ch in raw if ch.isdigit())
+    if not digits:
+        return 0
+    return int(digits)
+
+
+def enrich_form_data(template_id: str, data: dict) -> dict:
+    """Derive UX-friendly inputs into PDF-ready values."""
+    enriched = dict(data)
+
+    if template_id == "w4-2026":
+        children_count = _to_non_negative_int(enriched.get("qualifying_children_count"))
+        dependents_count = _to_non_negative_int(enriched.get("other_dependents_count"))
+
+        children_amount = children_count * 2000
+        dependents_amount = dependents_count * 500
+        total_amount = children_amount + dependents_amount
+
+        enriched["qualifying_children_amount"] = str(children_amount)
+        enriched["other_dependents_amount"] = str(dependents_amount)
+        enriched["total_dependents_amount"] = str(total_amount)
+
+    return enriched
+
+
+# ---------------------------------------------------------------------------
+# Feedback helpers
+# ---------------------------------------------------------------------------
 
 def _send_feedback_email(payload: FeedbackPayload) -> None:
     host = os.getenv("FEEDBACK_SMTP_HOST")
@@ -111,6 +222,10 @@ def _send_feedback_sms(payload: FeedbackPayload) -> None:
     except httpx.HTTPError as exc:
         raise HTTPException(502, f"Failed to send SMS feedback: {exc}") from exc
 
+
+# ---------------------------------------------------------------------------
+# Admin endpoints
+# ---------------------------------------------------------------------------
 
 @app.get("/admin/scenario-builder", response_class=HTMLResponse)
 def admin_scenario_builder():
@@ -168,100 +283,42 @@ def api_admin_save_bundle(template_id: str, payload: dict):
     return {"status": "saved", "template_id": template_id}
 
 
-class FeedbackPayload(BaseModel):
-    channel: Literal["email", "sms"] = Field(description="Delivery channel for feedback")
-    name: str = Field(min_length=1, max_length=100)
-    contact: str = Field(min_length=3, max_length=200, description="Email address or phone number")
-    message: str = Field(min_length=5, max_length=3000)
+# ---------------------------------------------------------------------------
+# i18n endpoints
+# ---------------------------------------------------------------------------
 
+@app.get("/api/meta")
+def api_meta():
+    """App-level metadata: supported locales, template count, computed stats."""
+    template_ids = list_templates(TEMPLATES_ROOT)
+    total_fields = 0
+    for tid in template_ids:
+        try:
+            bundle = load_template(TEMPLATES_ROOT, tid)
+            total_fields += len(bundle.schema.get("fields", []))
+        except Exception:
+            pass
 
-def _to_non_negative_int(value: object) -> int:
-    if value is None:
-        return 0
-    if isinstance(value, bool):
-        return int(value)
-    if isinstance(value, int):
-        return max(0, value)
-
-    raw = str(value).strip()
-    digits = "".join(ch for ch in raw if ch.isdigit())
-    if not digits:
-        return 0
-    return int(digits)
-
-
-def enrich_form_data(template_id: str, data: dict) -> dict:
-    """Derive UX-friendly inputs into PDF-ready values."""
-    enriched = dict(data)
-
-    if template_id == "w4-2026":
-        # Client-friendly input: ask counts, backend computes IRS amounts.
-        children_count = _to_non_negative_int(enriched.get("qualifying_children_count"))
-        dependents_count = _to_non_negative_int(enriched.get("other_dependents_count"))
-
-        children_amount = children_count * 2000
-        dependents_amount = dependents_count * 500
-        total_amount = children_amount + dependents_amount
-
-        enriched["qualifying_children_amount"] = str(children_amount)
-        enriched["other_dependents_amount"] = str(dependents_amount)
-        enriched["total_dependents_amount"] = str(total_amount)
-
-    return enriched
-
-
-def _send_feedback_email(payload: FeedbackPayload) -> None:
-    host = os.getenv("FEEDBACK_SMTP_HOST")
-    port = int(os.getenv("FEEDBACK_SMTP_PORT", "587"))
-    username = os.getenv("FEEDBACK_SMTP_USERNAME")
-    password = os.getenv("FEEDBACK_SMTP_PASSWORD")
-    to_addr = os.getenv("FEEDBACK_TO_EMAIL")
-    from_addr = os.getenv("FEEDBACK_FROM_EMAIL", username or "noreply@oky-docky.local")
-
-    if not (host and username and password and to_addr):
-        raise HTTPException(
-            503,
-            "Email feedback is not configured. Set FEEDBACK_SMTP_HOST/PORT/USERNAME/PASSWORD/TO_EMAIL.",
-        )
-
-    msg = EmailMessage()
-    msg["Subject"] = f"[Oky-Docky] Feedback from {payload.name}"
-    msg["From"] = from_addr
-    msg["To"] = to_addr
-    msg.set_content(
-        f"Name: {payload.name}\n"
-        f"Contact: {payload.contact}\n"
-        f"Channel: {payload.channel}\n\n"
-        f"Message:\n{payload.message}\n"
-    )
-
-    with smtplib.SMTP(host, port, timeout=20) as smtp:
-        smtp.starttls()
-        smtp.login(username, password)
-        smtp.send_message(msg)
-
-
-def _send_feedback_sms(payload: FeedbackPayload) -> None:
-    """
-    SMS delivery uses a webhook so you can connect Twilio/MessageBird/etc without code changes.
-    """
-    webhook_url = os.getenv("FEEDBACK_SMS_WEBHOOK_URL")
-    if not webhook_url:
-        raise HTTPException(503, "SMS feedback is not configured. Set FEEDBACK_SMS_WEBHOOK_URL.")
-
-    body = {
-        "to": payload.contact,
-        "message": payload.message,
-        "name": payload.name,
-        "source": "oky-docky-feedback",
+    return {
+        "locales": _supported_locales(),
+        "default_locale": DEFAULT_LOCALE,
+        "template_count": len(template_ids),
+        "total_fields": total_fields,
     }
 
-    try:
-        response = httpx.post(webhook_url, json=body, timeout=20)
-        response.raise_for_status()
-    except httpx.HTTPError as exc:
-        raise HTTPException(502, f"Failed to send SMS feedback: {exc}") from exc
 
+@app.get("/api/i18n/{locale}")
+def api_i18n(locale: str):
+    """Return global UI translations for the given locale."""
+    path = I18N_DIR / f"{locale}.json"
+    if not path.exists():
+        raise HTTPException(404, f"Locale '{locale}' not found")
+    return _load_json(path)
+
+
+# ---------------------------------------------------------------------------
+# Public API endpoints
+# ---------------------------------------------------------------------------
 
 @app.get("/api/templates")
 def api_list_templates(
@@ -309,14 +366,21 @@ def api_template_detail(template_id: str):
 
 
 @app.get("/api/templates/{template_id}/schema")
-def api_template_schema(template_id: str):
+def api_template_schema(
+    template_id: str,
+    locale: Optional[str] = Query(None, description="Locale code for translated labels"),
+):
+    """Return the schema (fields definition) for a template, optionally localized."""
     try:
         bundle = load_template(TEMPLATES_ROOT, template_id)
     except Exception as e:
         raise HTTPException(404, str(e))
-    return bundle.schema
 
+    schema = bundle.schema
+    if locale and locale != DEFAULT_LOCALE:
+        schema = _apply_locale_to_schema(schema, bundle.base_dir, locale)
 
+    return schema
 
 
 @app.post("/api/templates/{template_id}/resolve-questions")
@@ -360,7 +424,8 @@ def api_render(template_id: str, payload: dict):
     prepared_data = enrich_form_data(template_id, data)
     pdf_field_values, sig_overlays = build_pdf_field_values(prepared_data, bundle.mapping)
 
-    out_path = OUTPUT_DIR / f"{template_id}_filled.pdf"
+    request_id = uuid.uuid4().hex[:12]
+    out_path = OUTPUT_DIR / f"{template_id}_{request_id}.pdf"
     fill_acroform_pdf(bundle.pdf_path, pdf_field_values, out_path, sig_overlays)
 
     return FileResponse(

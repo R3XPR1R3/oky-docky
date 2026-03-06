@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { Type, Pen, RotateCcw } from 'lucide-react';
 import { Button } from './ui/button';
+import { useTranslation } from '../i18n/I18nContext';
 
 interface SignaturePadProps {
   value: string;
@@ -11,6 +12,7 @@ interface SignaturePadProps {
 type Mode = 'type' | 'draw';
 
 export function SignaturePad({ value, onChange }: SignaturePadProps) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<Mode>(() =>
     value && value.startsWith('data:image') ? 'draw' : 'type'
   );
@@ -23,25 +25,19 @@ export function SignaturePad({ value, onChange }: SignaturePadProps) {
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
   const hasDrawnRef = useRef(false);
 
-  // Initialize canvas when switching to draw mode
   useEffect(() => {
     if (mode !== 'draw') return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // set canvas resolution
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width * 2;
     canvas.height = rect.height * 2;
     ctx.scale(2, 2);
-
-    // clear
     ctx.clearRect(0, 0, rect.width, rect.height);
 
-    // if we have an existing drawn signature, restore it
     if (value && value.startsWith('data:image')) {
       const img = new Image();
       img.onload = () => {
@@ -51,7 +47,6 @@ export function SignaturePad({ value, onChange }: SignaturePadProps) {
       img.src = value;
     }
 
-    // draw guide line
     ctx.strokeStyle = '#e2e8f0';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -59,7 +54,6 @@ export function SignaturePad({ value, onChange }: SignaturePadProps) {
     ctx.lineTo(rect.width - 16, rect.height - 20);
     ctx.stroke();
 
-    // set drawing style
     ctx.strokeStyle = '#1e293b';
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
@@ -116,8 +110,6 @@ export function SignaturePad({ value, onChange }: SignaturePadProps) {
     if (!isDrawingRef.current) return;
     isDrawingRef.current = false;
     lastPointRef.current = null;
-
-    // export canvas to data URL
     const canvas = canvasRef.current;
     if (canvas && hasDrawnRef.current) {
       const dataUrl = canvas.toDataURL('image/png');
@@ -130,18 +122,14 @@ export function SignaturePad({ value, onChange }: SignaturePadProps) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-
     const rect = canvas.getBoundingClientRect();
     ctx.clearRect(0, 0, rect.width * 2, rect.height * 2);
-
-    // re-draw guide line
     ctx.strokeStyle = '#e2e8f0';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(16, rect.height - 20);
     ctx.lineTo(rect.width - 16, rect.height - 20);
     ctx.stroke();
-
     hasDrawnRef.current = false;
     onChange('');
   }, [onChange]);
@@ -160,96 +148,41 @@ export function SignaturePad({ value, onChange }: SignaturePadProps) {
 
   return (
     <div className="space-y-3">
-      {/* Mode toggle */}
       <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => handleModeSwitch('type')}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-            mode === 'type'
-              ? 'bg-indigo-100 text-indigo-700 border-2 border-indigo-300'
-              : 'bg-slate-100 text-slate-500 border-2 border-transparent hover:bg-slate-200'
-          }`}
-        >
+        <button type="button" onClick={() => handleModeSwitch('type')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${mode === 'type' ? 'bg-indigo-100 text-indigo-700 border-2 border-indigo-300' : 'bg-slate-100 text-slate-500 border-2 border-transparent hover:bg-slate-200'}`}>
           <Type className="w-4 h-4" />
-          Type name
+          {t('signature.type')}
         </button>
-        <button
-          type="button"
-          onClick={() => handleModeSwitch('draw')}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-            mode === 'draw'
-              ? 'bg-indigo-100 text-indigo-700 border-2 border-indigo-300'
-              : 'bg-slate-100 text-slate-500 border-2 border-transparent hover:bg-slate-200'
-          }`}
-        >
+        <button type="button" onClick={() => handleModeSwitch('draw')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${mode === 'draw' ? 'bg-indigo-100 text-indigo-700 border-2 border-indigo-300' : 'bg-slate-100 text-slate-500 border-2 border-transparent hover:bg-slate-200'}`}>
           <Pen className="w-4 h-4" />
-          Draw signature
+          {t('signature.draw')}
         </button>
       </div>
 
-      {/* Type mode */}
       {mode === 'type' && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-3"
-        >
-          <input
-            type="text"
-            value={typedName}
-            onChange={(e) => handleTypedChange(e.target.value)}
-            placeholder="Type your full name"
-            className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-base focus:border-indigo-500 focus:outline-none transition-colors"
-          />
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+          <input type="text" value={typedName} onChange={(e) => handleTypedChange(e.target.value)} placeholder={t('signature.typeNamePlaceholder')} className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-base focus:border-indigo-500 focus:outline-none transition-colors" />
           {typedName && (
             <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center">
-              <p className="text-xs text-slate-400 mb-2">Preview</p>
-              <p
-                className="text-3xl text-slate-800"
-                style={{ fontFamily: "'Brush Script MT', 'Segoe Script', 'Apple Chancery', cursive" }}
-              >
-                {typedName}
-              </p>
+              <p className="text-xs text-slate-400 mb-2">{t('signature.preview')}</p>
+              <p className="text-3xl text-slate-800" style={{ fontFamily: "'Brush Script MT', 'Segoe Script', 'Apple Chancery', cursive" }}>{typedName}</p>
             </div>
           )}
         </motion.div>
       )}
 
-      {/* Draw mode */}
       {mode === 'draw' && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-2"
-        >
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
           <div className="relative bg-white border-2 border-slate-200 rounded-xl overflow-hidden">
-            <canvas
-              ref={canvasRef}
-              className="w-full cursor-crosshair touch-none"
-              style={{ height: 140 }}
-              onMouseDown={startDrawing}
-              onMouseMove={draw}
-              onMouseUp={stopDrawing}
-              onMouseLeave={stopDrawing}
-              onTouchStart={startDrawing}
-              onTouchMove={draw}
-              onTouchEnd={stopDrawing}
-            />
+            <canvas ref={canvasRef} className="w-full cursor-crosshair touch-none" style={{ height: 140 }} onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={stopDrawing} onMouseLeave={stopDrawing} onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={stopDrawing} />
             <div className="absolute bottom-2 left-3 text-xs text-slate-300 pointer-events-none select-none">
-              Sign here
+              {t('signature.drawHint')}
             </div>
           </div>
           <div className="flex justify-end">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={clearCanvas}
-              className="text-slate-500 hover:text-red-500"
-            >
+            <Button type="button" variant="ghost" size="sm" onClick={clearCanvas} className="text-slate-500 hover:text-red-500">
               <RotateCcw className="w-3.5 h-3.5 mr-1" />
-              Clear
+              {t('signature.clear')}
             </Button>
           </div>
         </motion.div>

@@ -1,0 +1,286 @@
+{
+  "app": {
+    "name": "Oky-Docky"
+  },
+  "nav": {
+    "howItWorks": "How It Works",
+    "pricing": "Pricing",
+    "getStarted": "Get Started",
+    "back": "Back",
+    "termsDisclaimer": "Terms & Disclaimer"
+  },
+  "landing": {
+    "badge": "IRS forms made simple",
+    "heroTitle": "Fill Forms Like",
+    "heroTitleHighlight": "Chatting With a Friend",
+    "heroDescription": "No more confusing paperwork. Answer simple questions and we'll handle the rest. Get your IRS forms completed in minutes.",
+    "getStartedFree": "Get Started Free",
+    "seeHowItWorks": "See How It Works",
+    "noCreditCard": "No credit card required \u2022 Free for personal use",
+    "chatQuestion": "What's your full name?",
+    "chatAnswer": "John Smith",
+    "chatFollowUp": "Great! What's your address?",
+    "whyChoose": "Why Choose Oky-Docky?",
+    "whyChooseDescription": "We've reimagined document filling to be as simple as a conversation",
+    "ctaTitle": "Ready to simplify your paperwork?",
+    "ctaDescription": "Join thousands of users who save time and reduce stress with Oky-Docky",
+    "ctaButton": "Start Your First Form",
+    "copyright": "\u00a9 2026 Barckhat LLC. All rights reserved.",
+    "features": {
+      "simpleQuestions": {
+        "title": "Simple Questions",
+        "description": "Answer simple questions like talking to a friend"
+      },
+      "saveTime": {
+        "title": "Save Time",
+        "description": "Complete forms in minutes, not hours"
+      },
+      "secure": {
+        "title": "Secure & Accurate",
+        "description": "Your data is safe and forms are error-free"
+      },
+      "instant": {
+        "title": "Instant Results",
+        "description": "Download your completed form immediately"
+      }
+    }
+  },
+  "selection": {
+    "title": "Which form do you need?",
+    "description": "Choose a document and we'll guide you through it step by step",
+    "searchPlaceholder": "Search forms by name, tag, or description...",
+    "allForms": "All Forms",
+    "noFormsFound": "No forms found",
+    "tryDifferent": "Try a different search term",
+    "popular": "Popular"
+  },
+  "questionFlow": {
+    "questionOf": "Question {current} of {total}",
+    "back": "Back",
+    "continue": "Continue",
+    "review": "Review",
+    "yes": "Yes"
+  },
+  "review": {
+    "almostDone": "Almost done!",
+    "reviewInfo": "Review your information before we generate your {template}",
+    "yourInformation": "Your Information",
+    "verifyDetails": "Please verify all details are correct",
+    "edit": "Edit",
+    "makeChanges": "Make Changes",
+    "generateDocument": "Generate My Document",
+    "generating": "Generating...",
+    "notProvided": "Not provided",
+    "yes": "Yes",
+    "no": "No",
+    "signed": "Signed",
+    "notSigned": "Not signed",
+    "secureNote": "Your information is secure and encrypted"
+  },
+  "success": {
+    "allDone": "All Done!",
+    "ready": "Your {template} is ready! Download it now.",
+    "readyToDownload": "Ready to download and use",
+    "verified": "Verified",
+    "format": "Format",
+    "status": "Status",
+    "statusReady": "Ready",
+    "downloadPdf": "Download PDF",
+    "downloadStarted": "Download started!",
+    "fillAnother": "Fill Another Form",
+    "needDifferent": "Need a different document?",
+    "startNew": "Start New",
+    "downloadAgain": "Download Again",
+    "needCopy": "Need another copy?",
+    "download": "Download",
+    "whatsNext": "What's Next?",
+    "nextSteps": [
+      "Download and print your form, or submit it electronically",
+      "Keep a copy for your records",
+      "Review with a tax professional if needed"
+    ]
+  },
+  "howItWorks": {
+    "heroTitle": "Three Steps.",
+    "heroTitleHighlight": "Zero Stress.",
+    "heroDescription": "We turned confusing IRS paperwork into a friendly conversation. Here's how it works.",
+    "steps": [
+      {
+        "number": "01",
+        "title": "Pick Your Form",
+        "description": "Browse our library of IRS forms \u2014 W-9, W-4, 1099-NEC, and more. Each form is optimized with smart fields that know what information you need."
+      },
+      {
+        "number": "02",
+        "title": "Answer Simple Questions",
+        "description": "No tax jargon, no confusion. We ask you one question at a time in plain English. Smart logic shows only the questions relevant to your situation."
+      },
+      {
+        "number": "03",
+        "title": "Download & File",
+        "description": "Your completed form is generated instantly as a ready-to-file PDF. Download it, print it, or submit it electronically \u2014 you're done!"
+      }
+    ],
+    "ctaTitle": "Ready to try it?",
+    "ctaDescription": "Fill your first form in under 5 minutes. Free.",
+    "ctaButton": "Get Started Free",
+    "chatQuestion": "What's your full name?",
+    "chatAnswer": "Jane Doe",
+    "chatFollowUp": "Are you filing as...?",
+    "formW9": "Form W-9"
+  },
+  "pricing": {
+    "title": "Simple",
+    "titleHighlight": "Pricing",
+    "description": "Start free, upgrade when you need more. No surprises.",
+    "mostPopular": "Most Popular",
+    "tiers": [
+      {
+        "name": "Free",
+        "price": "$0",
+        "period": "forever",
+        "description": "Perfect for personal use",
+        "cta": "Get Started Free",
+        "features": [
+          "2 forms per month",
+          "W-9, W-4 templates",
+          "Instant PDF download",
+          "Step-by-step Q&A",
+          "Data never stored"
+        ]
+      },
+      {
+        "name": "Pro",
+        "price": "$9.99",
+        "period": "/month",
+        "description": "For freelancers & small business",
+        "cta": "Start Pro Trial",
+        "features": [
+          "Unlimited forms",
+          "All IRS templates (W-9, W-4, 1099-NEC, ...)",
+          "Batch Q&A \u2014 fill multiple forms at once",
+          "CSV import for bulk filling",
+          "Filing instructions & checklists",
+          "Priority support"
+        ]
+      },
+      {
+        "name": "Enterprise",
+        "price": "Custom",
+        "period": "",
+        "description": "API access & volume pricing",
+        "cta": "Contact Sales",
+        "features": [
+          "REST API with key authentication",
+          "Bulk form processing via API",
+          "Custom template creation",
+          "Dedicated account manager",
+          "SLA & uptime guarantee",
+          "Auto-filing integration (coming soon)"
+        ]
+      }
+    ],
+    "apiTitle": "Fill forms at scale",
+    "apiDescription": "Integrate Oky-Docky into your workflow with our REST API. Send data, get back filled PDFs. Perfect for payroll companies, accounting firms, and tax prep software.",
+    "apiBulk": "Bulk processing",
+    "apiSpeed": "Sub-second response",
+    "apiComment": "# Fill a W-9 via API",
+    "contactTitle": "Get in Touch",
+    "contactDescription": "Interested in Pro, Enterprise, or have questions? Drop us a line.",
+    "contactName": "Name *",
+    "contactEmail": "Email *",
+    "contactCompany": "Company",
+    "contactMessage": "How can we help?",
+    "contactMessagePlaceholder": "Tell us about your needs \u2014 volume, forms you need, integrations...",
+    "contactSend": "Send Message",
+    "contactSending": "Sending...",
+    "contactSuccess": "Thank you! We'll be in touch soon.",
+    "contactError": "Please fill in name and email"
+  },
+  "disclaimer": {
+    "title": "Terms of Service & Disclaimer",
+    "lastUpdated": "Last updated: February 2026",
+    "importantNotice": "Important Notice",
+    "importantNoticeText": "Oky-Docky is a <strong>document preparation tool</strong> operated by <strong>Barckhat LLC</strong>, not a tax advisory service. We do not provide tax, legal, financial, or accounting advice. The information and forms generated by this service are based solely on the data you provide. Always consult a qualified tax professional for advice specific to your situation.",
+    "sections": [
+      {
+        "title": "1. Service Description",
+        "paragraphs": [
+          "Oky-Docky is a product of Barckhat LLC. It provides an automated document preparation service that helps users fill out IRS tax forms (such as W-9, W-4, Form 14039, and others) through a guided question-and-answer interface.",
+          "The service generates pre-filled PDF documents based on user-provided information. Barckhat LLC does not verify, validate, or guarantee the accuracy, completeness, or legal sufficiency of any form generated.",
+          "Barckhat LLC is not a registered tax preparation firm. We do not file forms on your behalf unless explicitly stated in a separate paid service agreement."
+        ]
+      },
+      {
+        "title": "2. User Responsibility & Assumption of Risk",
+        "paragraphs": [
+          "YOU ARE SOLELY AND EXCLUSIVELY RESPONSIBLE for the accuracy, completeness, and legality of all information you enter into this service. Barckhat LLC acts only as a technology provider and bears no responsibility for the content of your submissions.",
+          "YOU ARE SOLELY RESPONSIBLE for reviewing, verifying, signing, filing, and submitting all generated documents. Any errors, omissions, or inaccuracies in the data you provide are entirely your responsibility.",
+          "YOU ASSUME ALL RISK and liability for any tax penalties, fines, legal consequences, audits, or other outcomes resulting from the use of documents generated by this service. Barckhat LLC shall not be held liable for any consequences arising from your use of generated forms.",
+          "You acknowledge that tax laws are complex and subject to change. It is your responsibility to ensure that the forms you generate comply with current IRS regulations and applicable state and federal laws.",
+          "You agree to not use this service for any fraudulent, illegal, or deceptive purpose, including but not limited to identity theft, tax evasion, or filing false documents."
+        ]
+      },
+      {
+        "title": "3. Limitation of Liability",
+        "paragraphs": [
+          "TO THE MAXIMUM EXTENT PERMITTED BY LAW, BARCKHAT LLC, ITS MEMBERS, MANAGERS, OFFICERS, EMPLOYEES, AND AGENTS SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THIS SERVICE.",
+          "This includes, without limitation: errors in generated forms, penalties or fines imposed by the IRS or any government agency, missed filing deadlines, incorrect tax calculations, rejected returns, identity theft consequences, or any financial loss resulting from reliance on forms generated by this service.",
+          "Barckhat LLC provides this service on an \"AS IS\" and \"AS AVAILABLE\" basis, without warranties of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement.",
+          "The total liability of Barckhat LLC for any claim arising from use of the service shall not exceed the amount you paid for the service in the 12 months preceding the claim, or $100, whichever is less.",
+          "By using this service, you agree to indemnify and hold harmless Barckhat LLC from any claims, damages, losses, or expenses (including attorney fees) arising from your use of the service or any forms generated through it."
+        ]
+      },
+      {
+        "title": "4. Privacy & Data Handling",
+        "paragraphs": [
+          "We take your privacy seriously. Sensitive information (such as Social Security Numbers and Employer Identification Numbers) is processed in memory only and is not stored on our servers after your PDF is generated.",
+          "We do not sell, share, or distribute your personal information to third parties.",
+          "Generated PDF files are created on-demand and delivered directly to your browser. We do not retain copies of completed forms.",
+          "You are responsible for the security of downloaded documents on your own devices."
+        ]
+      },
+      {
+        "title": "5. IRS & Regulatory Disclaimer",
+        "paragraphs": [
+          "Oky-Docky and Barckhat LLC are not affiliated with, endorsed by, or connected to the Internal Revenue Service (IRS) or any government agency.",
+          "IRS form templates used in this service are based on publicly available IRS publications. Form versions and field structures may change; we make reasonable efforts to keep templates current but do not guarantee they reflect the latest revisions.",
+          "For official IRS forms, instructions, and publications, visit www.irs.gov."
+        ]
+      },
+      {
+        "title": "6. Acceptance of Terms",
+        "paragraphs": [
+          "By using Oky-Docky, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service and Disclaimer.",
+          "We reserve the right to modify these terms at any time. Continued use of the service after changes constitutes acceptance of the revised terms.",
+          "If you do not agree with these terms, please do not use the service."
+        ]
+      }
+    ],
+    "contactLine": "Questions about our terms? Contact us at legal@barckhat.com",
+    "copyright": "\u00a9 2026 Barckhat LLC. All rights reserved. Oky-Docky is a product of Barckhat LLC."
+  },
+  "error": {
+    "connectionError": "Connection Error",
+    "unableToConnect": "Unable to connect to backend",
+    "fixSteps": "To fix this issue:",
+    "step1": "Ensure the FastAPI backend is running:",
+    "step2": "Add CORS support to your FastAPI app (in fillable_processor.py):",
+    "close": "Close",
+    "retry": "Retry",
+    "failedToGenerate": "Failed to generate PDF. ",
+    "cannotConnect": "Cannot connect to the backend server. Please ensure the FastAPI server is running.",
+    "failedToGenerateToast": "Failed to generate document",
+    "generatingToast": "Generating your document...",
+    "generatedToast": "Document generated successfully!",
+    "failedSchemaLoad": "Failed to load form schema"
+  },
+  "signature": {
+    "type": "Type",
+    "draw": "Draw",
+    "typeNamePlaceholder": "Type your full name",
+    "preview": "Preview:",
+    "clear": "Clear",
+    "drawHint": "Draw your signature above"
+  }
+}
