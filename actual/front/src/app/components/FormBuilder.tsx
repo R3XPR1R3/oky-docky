@@ -171,8 +171,15 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
       let pdf_base64 = '';
       let pdf_filename = '';
       if (newPdfFile) {
-        const buf = await newPdfFile.arrayBuffer();
-        pdf_base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+        pdf_base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = reader.result as string;
+            resolve(result.split(',')[1] || '');
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(newPdfFile);
+        });
         pdf_filename = newPdfFile.name;
       }
       const res = await fetch('/api/admin/templates', {
