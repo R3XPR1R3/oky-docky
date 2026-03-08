@@ -279,7 +279,7 @@ def _stamp_text_with_fpdf2(writer: PdfWriter, page_idx: int, text: str, x: float
     pdf = FPDF(unit="pt", format=(page_w, page_h))
     pdf.add_page()
     pdf.set_auto_page_break(False)
-    pdf.set_font("Courier", "I", size=min(h * 0.8, 12))
+    pdf.set_font("Helvetica", "I", size=min(h * 0.8, 18))
     pdf.set_xy(x, fpdf_y)
     pdf.cell(w=w, h=h, text=text, align="L")
 

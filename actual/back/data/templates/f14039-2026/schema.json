@@ -197,12 +197,20 @@
       "visible_when": { "has_previous_address": ["yes"] }
     },
     {
+      "key": "phone_home",
+      "type": "text",
+      "required": false,
+      "label": "Home phone number? (optional)",
+      "placeholder": "(405) 555-1234",
+      "helpText": "A landline number where the IRS can reach you."
+    },
+    {
       "key": "phone_cell",
       "type": "text",
       "required": false,
-      "label": "Your phone number? (optional)",
+      "label": "Cell phone number? (optional)",
       "placeholder": "(405) 555-5678",
-      "helpText": "A number where the IRS can reach you if they have questions."
+      "helpText": "A mobile number where the IRS can reach you."
     },
     {
       "key": "best_time",
@@ -279,6 +287,7 @@
       "key": "rep_relationship",
       "type": "radio",
       "required": true,
+      "routing": true,
       "label": "What is this person to you?",
       "visible_when": { "filing_for": ["representative"] },
       "options": [
@@ -288,6 +297,36 @@
         { "value": "court_appointed", "label": "Court-appointed representative" },
         { "value": "other", "label": "Someone else" }
       ]
+    },
+    {
+      "key": "court_appointed_for",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Who was the court appointment for?",
+      "helpText": "The court may have appointed this person for a specific reason.",
+      "visible_when": { "filing_for": ["representative"], "rep_relationship": ["court_appointed"] },
+      "options": [
+        { "value": "child", "label": "For my child (minor)" },
+        { "value": "parent_guardian", "label": "As my parent or legal guardian" },
+        { "value": "other_court", "label": "Other court-appointed reason" }
+      ]
+    },
+    {
+      "key": "court_appointed_other_explain",
+      "type": "text",
+      "required": true,
+      "label": "Describe the court appointment",
+      "placeholder": "Conservator, legal guardian of estate, etc.",
+      "visible_when": { "filing_for": ["representative"], "rep_relationship": ["court_appointed"], "court_appointed_for": ["other_court"] }
+    },
+    {
+      "key": "has_court_acceptance",
+      "type": "checkbox",
+      "required": false,
+      "label": "Court has accepted responsibility for this person's affairs",
+      "helpText": "Check this if the court order specifically grants authority to manage tax matters.",
+      "visible_when": { "filing_for": ["representative"], "rep_relationship": ["court_appointed"] }
     },
     {
       "key": "rep_relationship_other",

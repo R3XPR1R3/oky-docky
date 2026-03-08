@@ -195,6 +195,16 @@ def enrich_form_data(template_id: str, data: dict) -> dict:
         enriched["other_dependents_amount"] = str(dependents_amount)
         enriched["total_dependents_amount"] = str(total_amount)
 
+        # If worksheet deductions were filled, copy Line 5 into the main deductions field
+        ws_ded_5 = enriched.get("ws_ded_5", "").strip()
+        if ws_ded_5 and enriched.get("use_deductions_worksheet") == "yes":
+            enriched.setdefault("deductions", ws_ded_5)
+
+        # If worksheet extra withholding was calculated, copy into main field
+        ws_mj_4 = enriched.get("ws_mj_4", "").strip()
+        if ws_mj_4 and enriched.get("use_worksheet") == "yes":
+            enriched.setdefault("extra_withholding", ws_mj_4)
+
     elif template_id == "f14039-2026":
         # Derive Section A checkboxes from conversational radio "how_discovered"
         how = enriched.get("how_discovered", "")
