@@ -141,7 +141,17 @@ def _is_field_visible(field: dict, answers: dict) -> bool:
 
 def _resolve_visible_fields(schema: dict, answers: dict) -> list[dict]:
     fields = schema.get("fields", []) if isinstance(schema, dict) else []
-    return [f for f in fields if _is_field_visible(f, answers)]
+    return [f for f in fields if not f.get("hidden") and _is_field_visible(f, answers)]
+
+
+def _collect_hidden_defaults(schema: dict) -> dict:
+    """Collect default values from hidden fields."""
+    fields = schema.get("fields", []) if isinstance(schema, dict) else []
+    defaults = {}
+    for f in fields:
+        if f.get("hidden") and f.get("key") and "defaultValue" in f:
+            defaults[f["key"]] = f["defaultValue"]
+    return defaults
 
 
 # ---------------------------------------------------------------------------
@@ -489,6 +499,12 @@ def api_render(template_id: str, payload: dict):
 
     if bundle.engine != "acroform":
         raise HTTPException(400, f"Unsupported engine for now: {bundle.engine}")
+
+    # Inject default values from hidden fields
+    hidden_defaults = _collect_hidden_defaults(bundle.schema)
+    for k, v in hidden_defaults.items():
+        if k not in data:
+            data[k] = v
 
     # Use declarative transforms from schema if available, else legacy enrichment
     schema_transforms = bundle.schema.get("transforms")

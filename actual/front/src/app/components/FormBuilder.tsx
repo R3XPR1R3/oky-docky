@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   FileText, ArrowLeft, Plus, Trash2, ChevronUp, ChevronDown,
   ChevronRight, Copy, Download, Upload, Eye, EyeOff, GripVertical,
-  Settings2, X, Code2
+  Settings2, X, Code2, EyeOff as EyeOffIcon, Hash, AlertTriangle
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -289,9 +289,61 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
 
   const getPrecedingFields = (index: number) => fields.slice(0, index).filter((f) => f.key);
 
-  // Preview schema
+  // --- Field usage tracker ---
+  const fieldUsage = useMemo(() => {
+    const usage: Record<string, { conditions: string[]; transforms: string[]; isHidden: boolean }> = {};
+
+    for (const f of fields) {
+      if (!f.key) continue;
+      if (!usage[f.key]) usage[f.key] = { conditions: [], transforms: [], isHidden: !!f.hidden };
+
+      // Check where this field is used in other fields' visible_when
+      for (const other of fields) {
+        if (other === f || !other.key) continue;
+        if (other.visible_when && f.key in other.visible_when) {
+          usage[f.key].conditions.push(other.key);
+        }
+        if (other.visible_when_any) {
+          for (const cond of other.visible_when_any) {
+            if (f.key in cond) {
+              usage[f.key].conditions.push(other.key);
+            }
+          }
+        }
+      }
+
+      // Check where this field is used in transforms
+      for (let ti = 0; ti < transforms.length; ti++) {
+        const tr = transforms[ti];
+        const label = `transform #${ti + 1}`;
+        if (tr.when && f.key in tr.when) usage[f.key].transforms.push(label);
+        if (tr.input === f.key) usage[f.key].transforms.push(label);
+        if (tr.inputs?.includes(f.key)) usage[f.key].transforms.push(label);
+        if (tr.from === f.key) usage[f.key].transforms.push(label);
+        if (tr.output === f.key) usage[f.key].transforms.push(label + ' (output)');
+        if (tr.to === f.key) usage[f.key].transforms.push(label + ' (target)');
+        if (tr.field === f.key) usage[f.key].transforms.push(label + ' (target)');
+        if (tr.set && f.key in tr.set) usage[f.key].transforms.push(label + ' (set)');
+      }
+    }
+
+    return usage;
+  }, [fields, transforms]);
+
+  // Check for duplicate keys
+  const duplicateKeys = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const f of fields) {
+      if (f.key) counts[f.key] = (counts[f.key] || 0) + 1;
+    }
+    return new Set(Object.entries(counts).filter(([, c]) => c > 1).map(([k]) => k));
+  }, [fields]);
+
+  const [showUsagePanel, setShowUsagePanel] = useState(false);
+
+  // Preview schema — exclude hidden fields
   const previewSchema: Schema = {
-    fields: fields.filter((f) => f.key && f.label),
+    fields: fields.filter((f) => f.key && f.label && !f.hidden),
     ...(transforms.length > 0 ? { transforms } : {}),
   };
 
@@ -322,6 +374,27 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
               <Badge variant="secondary" className="text-sm">
                 {fields.length} field{fields.length !== 1 ? 's' : ''}
               </Badge>
+              {fields.some((f) => f.hidden) && (
+                <Badge variant="outline" className="text-sm gap-1">
+                  <EyeOffIcon className="w-3 h-3" />
+                  {fields.filter((f) => f.hidden).length} hidden
+                </Badge>
+              )}
+              {duplicateKeys.size > 0 && (
+                <Badge variant="destructive" className="text-sm gap-1">
+                  <AlertTriangle className="w-3 h-3" />
+                  {duplicateKeys.size} duplicate key{duplicateKeys.size !== 1 ? 's' : ''}
+                </Badge>
+              )}
+              <Button
+                variant={showUsagePanel ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setShowUsagePanel(!showUsagePanel)}
+                className="gap-2"
+              >
+                <Hash className="w-4 h-4" />
+                Usage
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -507,6 +580,70 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
             </motion.div>
           )}
 
+          {/* Field Usage Panel */}
+          <AnimatePresence>
+            {showUsagePanel && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden mb-8"
+              >
+                <div className="bg-white rounded-xl border-2 border-slate-200 p-5 space-y-3">
+                  <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wide flex items-center gap-2">
+                    <Hash className="w-4 h-4" /> Field Usage Map
+                  </h3>
+                  {Object.keys(fieldUsage).length === 0 ? (
+                    <p className="text-sm text-slate-400">No fields with keys defined yet.</p>
+                  ) : (
+                    <div className="grid gap-2">
+                      {Object.entries(fieldUsage).map(([key, info]) => {
+                        const totalRefs = info.conditions.length + info.transforms.length;
+                        const isDupe = duplicateKeys.has(key);
+                        return (
+                          <div
+                            key={key}
+                            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${
+                              isDupe ? 'bg-red-50 border border-red-200' :
+                              info.isHidden ? 'bg-amber-50 border border-amber-200' :
+                              totalRefs > 0 ? 'bg-slate-50 border border-slate-200' :
+                              'bg-slate-50/50 border border-dashed border-slate-200'
+                            }`}
+                          >
+                            <code className="font-mono text-indigo-600 font-medium min-w-[120px]">{key}</code>
+                            {info.isHidden && (
+                              <Badge variant="outline" className="text-xs gap-1 bg-amber-100 text-amber-700 border-amber-300">
+                                <EyeOffIcon className="w-3 h-3" /> hidden
+                              </Badge>
+                            )}
+                            {isDupe && (
+                              <Badge variant="destructive" className="text-xs gap-1">
+                                <AlertTriangle className="w-3 h-3" /> duplicate
+                              </Badge>
+                            )}
+                            {info.conditions.length > 0 && (
+                              <span className="text-xs text-slate-500">
+                                conditions: <span className="font-mono">{info.conditions.join(', ')}</span>
+                              </span>
+                            )}
+                            {info.transforms.length > 0 && (
+                              <span className="text-xs text-cyan-600">
+                                transforms: <span className="font-mono">{info.transforms.join(', ')}</span>
+                              </span>
+                            )}
+                            {totalRefs === 0 && !info.isHidden && (
+                              <span className="text-xs text-slate-400 italic">unused in conditions/transforms</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Field List */}
           <div className="space-y-4">
             {fields.map((field, index) => {
@@ -539,8 +676,18 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                     {field.key && (
                       <span className="text-xs font-mono text-slate-400 hidden sm:block">{field.key}</span>
                     )}
+                    {field.hidden && (
+                      <Badge variant="outline" className="text-xs gap-1 bg-amber-50 text-amber-700 border-amber-300">
+                        <EyeOffIcon className="w-3 h-3" /> hidden
+                      </Badge>
+                    )}
                     {field.required && (
                       <Badge variant="destructive" className="text-xs">req</Badge>
+                    )}
+                    {duplicateKeys.has(field.key) && (
+                      <Badge variant="destructive" className="text-xs gap-1">
+                        <AlertTriangle className="w-3 h-3" /> dupe
+                      </Badge>
                     )}
                     {condCount > 0 && (
                       <Badge variant="outline" className="text-xs gap-1">
@@ -646,14 +793,38 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                 placeholder="e.g., John Smith"
                               />
                             </div>
-                            <div className="flex items-center gap-2 pb-1">
-                              <Switch
-                                checked={!!field.required}
-                                onCheckedChange={(v) => updateField(index, { required: v })}
-                              />
-                              <Label className="text-sm">Required</Label>
+                            <div className="flex items-center gap-4 pb-1">
+                              <div className="flex items-center gap-2">
+                                <Switch
+                                  checked={!!field.required}
+                                  onCheckedChange={(v) => updateField(index, { required: v })}
+                                />
+                                <Label className="text-sm">Required</Label>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Switch
+                                  checked={!!field.hidden}
+                                  onCheckedChange={(v) => updateField(index, { hidden: v || undefined })}
+                                />
+                                <Label className="text-sm text-amber-700">Hidden</Label>
+                              </div>
                             </div>
                           </div>
+
+                          {/* Default Value (especially useful for hidden fields) */}
+                          {field.hidden && (
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-medium text-amber-600">
+                                Default Value <span className="text-slate-400">(this field is hidden from the user)</span>
+                              </Label>
+                              <Input
+                                value={field.defaultValue != null ? String(field.defaultValue) : ''}
+                                onChange={(e) => updateField(index, { defaultValue: e.target.value || undefined })}
+                                placeholder="Value to use in transforms/mapping"
+                                className="border-amber-300 focus:border-amber-500"
+                              />
+                            </div>
+                          )}
 
                           {/* Row 4: Help Text */}
                           <div className="space-y-1.5">

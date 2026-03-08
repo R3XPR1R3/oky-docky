@@ -33,11 +33,13 @@ export interface SchemaField {
   type: 'text' | 'radio' | 'checkbox' | 'signature';
   required?: boolean;
   routing?: boolean;
+  hidden?: boolean;
   label: string;
   placeholder?: string;
   helpText?: string;
   inputMask?: string;
   maxLength?: number;
+  defaultValue?: string | number | boolean;
   options?: { value: string; label: string }[];
   visible_when?: Record<string, string[]>;
   visible_when_any?: Record<string, string[]>[];
