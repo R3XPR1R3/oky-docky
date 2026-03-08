@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   FileText, ArrowLeft, Plus, Trash2, ChevronUp, ChevronDown,
   ChevronRight, Copy, Download, Upload, Eye, EyeOff, GripVertical,
-  Settings2, X, Code2
+  Settings2, X, Code2, EyeOff as EyeOffIcon, Hash, AlertTriangle,
+  FilePlus2
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -100,6 +101,13 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
   const [templates, setTemplates] = useState<any[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [showLoadTemplate, setShowLoadTemplate] = useState(false);
+  const [showCreateTemplate, setShowCreateTemplate] = useState(false);
+  const [newTemplate, setNewTemplate] = useState({
+    id: '', title: '', description: '', category: 'tax', tags: '',
+    country: 'US', estimated_time: '5 min',
+  });
+  const [newPdfFile, setNewPdfFile] = useState<File | null>(null);
+  const [creating, setCreating] = useState(false);
 
   // --- Load templates list ---
   const loadTemplateList = useCallback(async () => {
@@ -151,7 +159,52 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
         toast.error('Failed to save');
       }
     } catch { toast.error('Failed to save template'); }
-  }, [selectedTemplate, fields]);
+  }, [selectedTemplate, fields, transforms]);
+
+  const createTemplate = useCallback(async () => {
+    if (!newTemplate.id.trim() || !newTemplate.title.trim()) {
+      toast.error('Template ID and title are required');
+      return;
+    }
+    setCreating(true);
+    try {
+      let pdf_base64 = '';
+      let pdf_filename = '';
+      if (newPdfFile) {
+        const buf = await newPdfFile.arrayBuffer();
+        pdf_base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+        pdf_filename = newPdfFile.name;
+      }
+      const res = await fetch('/api/admin/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...newTemplate,
+          tags: newTemplate.tags ? newTemplate.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+          pdf_base64,
+          pdf_filename,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        toast.success(`Template "${newTemplate.title}" created!`);
+        setShowCreateTemplate(false);
+        setNewTemplate({ id: '', title: '', description: '', category: 'tax', tags: '', country: 'US', estimated_time: '5 min' });
+        setNewPdfFile(null);
+        // Auto-load the new template for editing
+        setFields([]);
+        setTransforms([]);
+        setSelectedTemplate(data.template_id);
+        if (data.pdf_fields?.length > 0) {
+          toast.info(`Detected ${data.pdf_fields.length} PDF fields`);
+        }
+      } else {
+        const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
+        toast.error(err.detail || 'Failed to create template');
+      }
+    } catch { toast.error('Failed to create template'); }
+    finally { setCreating(false); }
+  }, [newTemplate, newPdfFile]);
 
   // --- Field CRUD ---
 
@@ -289,9 +342,61 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
 
   const getPrecedingFields = (index: number) => fields.slice(0, index).filter((f) => f.key);
 
-  // Preview schema
+  // --- Field usage tracker ---
+  const fieldUsage = useMemo(() => {
+    const usage: Record<string, { conditions: string[]; transforms: string[]; isHidden: boolean }> = {};
+
+    for (const f of fields) {
+      if (!f.key) continue;
+      if (!usage[f.key]) usage[f.key] = { conditions: [], transforms: [], isHidden: !!f.hidden };
+
+      // Check where this field is used in other fields' visible_when
+      for (const other of fields) {
+        if (other === f || !other.key) continue;
+        if (other.visible_when && f.key in other.visible_when) {
+          usage[f.key].conditions.push(other.key);
+        }
+        if (other.visible_when_any) {
+          for (const cond of other.visible_when_any) {
+            if (f.key in cond) {
+              usage[f.key].conditions.push(other.key);
+            }
+          }
+        }
+      }
+
+      // Check where this field is used in transforms
+      for (let ti = 0; ti < transforms.length; ti++) {
+        const tr = transforms[ti];
+        const label = `transform #${ti + 1}`;
+        if (tr.when && f.key in tr.when) usage[f.key].transforms.push(label);
+        if (tr.input === f.key) usage[f.key].transforms.push(label);
+        if (tr.inputs?.includes(f.key)) usage[f.key].transforms.push(label);
+        if (tr.from === f.key) usage[f.key].transforms.push(label);
+        if (tr.output === f.key) usage[f.key].transforms.push(label + ' (output)');
+        if (tr.to === f.key) usage[f.key].transforms.push(label + ' (target)');
+        if (tr.field === f.key) usage[f.key].transforms.push(label + ' (target)');
+        if (tr.set && f.key in tr.set) usage[f.key].transforms.push(label + ' (set)');
+      }
+    }
+
+    return usage;
+  }, [fields, transforms]);
+
+  // Check for duplicate keys
+  const duplicateKeys = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const f of fields) {
+      if (f.key) counts[f.key] = (counts[f.key] || 0) + 1;
+    }
+    return new Set(Object.entries(counts).filter(([, c]) => c > 1).map(([k]) => k));
+  }, [fields]);
+
+  const [showUsagePanel, setShowUsagePanel] = useState(false);
+
+  // Preview schema — exclude hidden fields
   const previewSchema: Schema = {
-    fields: fields.filter((f) => f.key && f.label),
+    fields: fields.filter((f) => f.key && f.label && !f.hidden),
     ...(transforms.length > 0 ? { transforms } : {}),
   };
 
@@ -322,6 +427,27 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
               <Badge variant="secondary" className="text-sm">
                 {fields.length} field{fields.length !== 1 ? 's' : ''}
               </Badge>
+              {fields.some((f) => f.hidden) && (
+                <Badge variant="outline" className="text-sm gap-1">
+                  <EyeOffIcon className="w-3 h-3" />
+                  {fields.filter((f) => f.hidden).length} hidden
+                </Badge>
+              )}
+              {duplicateKeys.size > 0 && (
+                <Badge variant="destructive" className="text-sm gap-1">
+                  <AlertTriangle className="w-3 h-3" />
+                  {duplicateKeys.size} duplicate key{duplicateKeys.size !== 1 ? 's' : ''}
+                </Badge>
+              )}
+              <Button
+                variant={showUsagePanel ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setShowUsagePanel(!showUsagePanel)}
+                className="gap-2"
+              >
+                <Hash className="w-4 h-4" />
+                Usage
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -365,6 +491,9 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
           >
             <Button variant="outline" size="sm" onClick={() => { loadTemplateList(); setShowLoadTemplate(true); }} className="gap-2">
               <FileText className="w-4 h-4" /> Load Template
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setShowCreateTemplate(true)} className="gap-2">
+              <FilePlus2 className="w-4 h-4" /> New Template
             </Button>
             <Button variant="outline" size="sm" onClick={saveToTemplate} className="gap-2" disabled={!selectedTemplate || fields.length === 0}>
               <Download className="w-4 h-4" /> Save{selectedTemplate ? ` → ${selectedTemplate}` : ''}
@@ -468,6 +597,127 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
             )}
           </AnimatePresence>
 
+          {/* Create Template Modal */}
+          <AnimatePresence>
+            {showCreateTemplate && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+                onClick={() => setShowCreateTemplate(false)}
+              >
+                <motion.div
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0.95 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold">Create New Template</h3>
+                    <Button variant="ghost" size="icon" onClick={() => setShowCreateTemplate(false)}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-sm font-medium">Template ID *</Label>
+                      <Input
+                        value={newTemplate.id}
+                        onChange={(e) => setNewTemplate(p => ({ ...p, id: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '') }))}
+                        placeholder="my-form-2026"
+                        className="mt-1"
+                      />
+                      <p className="text-xs text-slate-400 mt-1">Letters, digits, hyphens, underscores only</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Title *</Label>
+                      <Input
+                        value={newTemplate.title}
+                        onChange={(e) => setNewTemplate(p => ({ ...p, title: e.target.value }))}
+                        placeholder="Form W-4"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Description</Label>
+                      <Input
+                        value={newTemplate.description}
+                        onChange={(e) => setNewTemplate(p => ({ ...p, description: e.target.value }))}
+                        placeholder="Employee's Withholding Certificate"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-sm font-medium">Category</Label>
+                        <Input
+                          value={newTemplate.category}
+                          onChange={(e) => setNewTemplate(p => ({ ...p, category: e.target.value }))}
+                          placeholder="tax"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium">Country</Label>
+                        <Input
+                          value={newTemplate.country}
+                          onChange={(e) => setNewTemplate(p => ({ ...p, country: e.target.value.toUpperCase().slice(0, 2) }))}
+                          placeholder="US"
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-sm font-medium">Tags</Label>
+                        <Input
+                          value={newTemplate.tags}
+                          onChange={(e) => setNewTemplate(p => ({ ...p, tags: e.target.value }))}
+                          placeholder="tax, irs, personal"
+                          className="mt-1"
+                        />
+                        <p className="text-xs text-slate-400 mt-1">Comma-separated</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium">Est. Time</Label>
+                        <Input
+                          value={newTemplate.estimated_time}
+                          onChange={(e) => setNewTemplate(p => ({ ...p, estimated_time: e.target.value }))}
+                          placeholder="5 min"
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">PDF File</Label>
+                      <div className="mt-1">
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          onChange={(e) => setNewPdfFile(e.target.files?.[0] || null)}
+                          className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                        />
+                      </div>
+                      <p className="text-xs text-slate-400 mt-1">Upload a fillable PDF (AcroForm). Optional — you can add it later.</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2 mt-6">
+                    <Button variant="outline" onClick={() => setShowCreateTemplate(false)}>Cancel</Button>
+                    <Button
+                      onClick={createTemplate}
+                      disabled={creating || !newTemplate.id.trim() || !newTemplate.title.trim()}
+                      className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
+                    >
+                      {creating ? 'Creating...' : 'Create Template'}
+                    </Button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* JSON Preview */}
           <AnimatePresence>
             {showJson && (
@@ -503,9 +753,76 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                 <Button variant="outline" onClick={() => setShowImport(true)} className="gap-2">
                   <Upload className="w-4 h-4" /> Import JSON
                 </Button>
+                <Button variant="outline" onClick={() => setShowCreateTemplate(true)} className="gap-2">
+                  <FilePlus2 className="w-4 h-4" /> New Template
+                </Button>
               </div>
             </motion.div>
           )}
+
+          {/* Field Usage Panel */}
+          <AnimatePresence>
+            {showUsagePanel && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden mb-8"
+              >
+                <div className="bg-white rounded-xl border-2 border-slate-200 p-5 space-y-3">
+                  <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wide flex items-center gap-2">
+                    <Hash className="w-4 h-4" /> Field Usage Map
+                  </h3>
+                  {Object.keys(fieldUsage).length === 0 ? (
+                    <p className="text-sm text-slate-400">No fields with keys defined yet.</p>
+                  ) : (
+                    <div className="grid gap-2">
+                      {Object.entries(fieldUsage).map(([key, info]) => {
+                        const totalRefs = info.conditions.length + info.transforms.length;
+                        const isDupe = duplicateKeys.has(key);
+                        return (
+                          <div
+                            key={key}
+                            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${
+                              isDupe ? 'bg-red-50 border border-red-200' :
+                              info.isHidden ? 'bg-amber-50 border border-amber-200' :
+                              totalRefs > 0 ? 'bg-slate-50 border border-slate-200' :
+                              'bg-slate-50/50 border border-dashed border-slate-200'
+                            }`}
+                          >
+                            <code className="font-mono text-indigo-600 font-medium min-w-[120px]">{key}</code>
+                            {info.isHidden && (
+                              <Badge variant="outline" className="text-xs gap-1 bg-amber-100 text-amber-700 border-amber-300">
+                                <EyeOffIcon className="w-3 h-3" /> hidden
+                              </Badge>
+                            )}
+                            {isDupe && (
+                              <Badge variant="destructive" className="text-xs gap-1">
+                                <AlertTriangle className="w-3 h-3" /> duplicate
+                              </Badge>
+                            )}
+                            {info.conditions.length > 0 && (
+                              <span className="text-xs text-slate-500">
+                                conditions: <span className="font-mono">{info.conditions.join(', ')}</span>
+                              </span>
+                            )}
+                            {info.transforms.length > 0 && (
+                              <span className="text-xs text-cyan-600">
+                                transforms: <span className="font-mono">{info.transforms.join(', ')}</span>
+                              </span>
+                            )}
+                            {totalRefs === 0 && !info.isHidden && (
+                              <span className="text-xs text-slate-400 italic">unused in conditions/transforms</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Field List */}
           <div className="space-y-4">
@@ -539,8 +856,18 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                     {field.key && (
                       <span className="text-xs font-mono text-slate-400 hidden sm:block">{field.key}</span>
                     )}
+                    {field.hidden && (
+                      <Badge variant="outline" className="text-xs gap-1 bg-amber-50 text-amber-700 border-amber-300">
+                        <EyeOffIcon className="w-3 h-3" /> hidden
+                      </Badge>
+                    )}
                     {field.required && (
                       <Badge variant="destructive" className="text-xs">req</Badge>
+                    )}
+                    {duplicateKeys.has(field.key) && (
+                      <Badge variant="destructive" className="text-xs gap-1">
+                        <AlertTriangle className="w-3 h-3" /> dupe
+                      </Badge>
                     )}
                     {condCount > 0 && (
                       <Badge variant="outline" className="text-xs gap-1">
@@ -646,14 +973,38 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                 placeholder="e.g., John Smith"
                               />
                             </div>
-                            <div className="flex items-center gap-2 pb-1">
-                              <Switch
-                                checked={!!field.required}
-                                onCheckedChange={(v) => updateField(index, { required: v })}
-                              />
-                              <Label className="text-sm">Required</Label>
+                            <div className="flex items-center gap-4 pb-1">
+                              <div className="flex items-center gap-2">
+                                <Switch
+                                  checked={!!field.required}
+                                  onCheckedChange={(v) => updateField(index, { required: v })}
+                                />
+                                <Label className="text-sm">Required</Label>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Switch
+                                  checked={!!field.hidden}
+                                  onCheckedChange={(v) => updateField(index, { hidden: v || undefined })}
+                                />
+                                <Label className="text-sm text-amber-700">Hidden</Label>
+                              </div>
                             </div>
                           </div>
+
+                          {/* Default Value (especially useful for hidden fields) */}
+                          {field.hidden && (
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-medium text-amber-600">
+                                Default Value <span className="text-slate-400">(this field is hidden from the user)</span>
+                              </Label>
+                              <Input
+                                value={field.defaultValue != null ? String(field.defaultValue) : ''}
+                                onChange={(e) => updateField(index, { defaultValue: e.target.value || undefined })}
+                                placeholder="Value to use in transforms/mapping"
+                                className="border-amber-300 focus:border-amber-500"
+                              />
+                            </div>
+                          )}
 
                           {/* Row 4: Help Text */}
                           <div className="space-y-1.5">
