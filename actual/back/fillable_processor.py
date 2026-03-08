@@ -8,6 +8,9 @@ from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, Dict, Optional, Literal
 
+import base64
+import re
+
 import httpx
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -360,6 +363,108 @@ def api_admin_save_bundle(template_id: str, payload: dict):
     (target_dir / "mapping.json").write_text(json.dumps(mapping_json, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     return {"status": "saved", "template_id": template_id}
+
+
+class CreateTemplatePayload(BaseModel):
+    id: str = Field(min_length=1, max_length=80, description="Unique template ID (folder name)")
+    title: str = Field(min_length=1, max_length=200)
+    description: str = Field(default="", max_length=500)
+    category: str = Field(default="general", max_length=50)
+    tags: list[str] = Field(default_factory=list)
+    country: str = Field(default="US", max_length=5)
+    estimated_time: str = Field(default="5 min", max_length=20)
+    pdf_base64: str = Field(default="", description="Base64-encoded PDF file content")
+    pdf_filename: str = Field(default="", description="Original PDF filename")
+
+
+@app.post("/api/admin/templates")
+def api_admin_create_template(payload: CreateTemplatePayload):
+    """Create a brand-new template with directory structure and starter files."""
+    template_id = payload.id.strip()
+
+    # Validate template ID format
+    if not re.match(r'^[a-zA-Z0-9][a-zA-Z0-9_-]*$', template_id):
+        raise HTTPException(400, "Template ID must start with a letter/digit and contain only letters, digits, hyphens, underscores")
+
+    target_dir = TEMPLATES_ROOT / template_id
+    if target_dir.exists():
+        raise HTTPException(409, f"Template '{template_id}' already exists")
+
+    # Determine PDF filename
+    pdf_filename = payload.pdf_filename.strip() if payload.pdf_filename else f"{template_id}.pdf"
+    if not pdf_filename.lower().endswith(".pdf"):
+        pdf_filename += ".pdf"
+
+    # Create directory
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        # Write PDF if provided
+        if payload.pdf_base64:
+            pdf_bytes = base64.b64decode(payload.pdf_base64)
+            (target_dir / pdf_filename).write_bytes(pdf_bytes)
+        else:
+            # Create a minimal blank PDF placeholder
+            (target_dir / pdf_filename).write_bytes(
+                b"%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
+                b"2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
+                b"3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R>>endobj\n"
+                b"xref\n0 4\n0000000000 65535 f \n0000000009 00000 n \n"
+                b"0000000058 00000 n \n0000000115 00000 n \n"
+                b"trailer<</Size 4/Root 1 0 R>>\nstartxref\n190\n%%EOF\n"
+            )
+
+        # template.json
+        template_meta = {
+            "id": template_id,
+            "engine": "acroform",
+            "pdf": pdf_filename,
+            "schema": "schema.json",
+            "mapping": "mapping.json",
+            "title": payload.title,
+            "description": payload.description,
+            "category": payload.category,
+            "tags": payload.tags,
+            "country": payload.country,
+            "popular": False,
+            "estimated_time": payload.estimated_time,
+        }
+        (target_dir / "template.json").write_text(
+            json.dumps(template_meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+
+        # schema.json — empty starter
+        schema = {"fields": [], "transforms": []}
+        (target_dir / "schema.json").write_text(
+            json.dumps(schema, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+
+        # mapping.json — empty starter
+        (target_dir / "mapping.json").write_text(
+            json.dumps({}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+
+        # Detect PDF form fields if a real PDF was uploaded
+        pdf_fields: list[str] = []
+        if payload.pdf_base64:
+            try:
+                reader = PdfReader(str(target_dir / pdf_filename))
+                raw_fields = reader.get_fields() or {}
+                pdf_fields = list(raw_fields.keys())
+            except Exception:
+                pass
+
+    except Exception as e:
+        # Clean up on failure
+        import shutil
+        shutil.rmtree(target_dir, ignore_errors=True)
+        raise HTTPException(500, f"Failed to create template: {e}")
+
+    return {
+        "status": "created",
+        "template_id": template_id,
+        "pdf_fields": pdf_fields,
+    }
 
 
 # ---------------------------------------------------------------------------
