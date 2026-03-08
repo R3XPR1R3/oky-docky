@@ -3,3 +3,6 @@ __pycache__/
 actual/back/data/output/
 node_modules/
 dist/
+.cloudflared/
+deploy.log
+tunnel.log

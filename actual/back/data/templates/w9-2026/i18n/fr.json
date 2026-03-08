@@ -1,0 +1,109 @@
+{
+  "fields": {
+    "entity_type": {
+      "label": "Pour qui est ce formulaire W-9 ?",
+      "helpText": "Cela déterminera les champs que vous devez remplir",
+      "options": {
+        "individual": "Personne physique / Entrepreneur individuel",
+        "business": "Entreprise ou organisation"
+      }
+    },
+    "legal_name": {
+      "label": "Nom légal complet",
+      "placeholder": "ex., John Smith",
+      "helpText": "Tel qu'il apparaît sur votre déclaration de revenus"
+    },
+    "business_name": {
+      "label": "Nom de l'entreprise ou de l'entité",
+      "placeholder": "ex., Smith Consulting LLC",
+      "helpText": "Nom officiel de l'entreprise ou DBA"
+    },
+    "tax_class": {
+      "label": "Classification fiscale fédérale",
+      "helpText": "Sélectionnez la classification fiscale appropriée",
+      "options": {
+        "individual": "Personne physique / Entrepreneur individuel",
+        "c_corp": "Société C",
+        "s_corp": "Société S",
+        "partnership": "Société de personnes",
+        "trust": "Fiducie / Succession",
+        "llc": "Société à responsabilité limitée (LLC)",
+        "other": "Autre (voir instructions)"
+      }
+    },
+    "taxpayer_classification": {
+      "label": "Lettre de classification fiscale LLC",
+      "placeholder": "C, S ou P",
+      "helpText": "Entrez la classification : C = société C, S = société S, P = société de personnes"
+    },
+    "other_taxpayer_classification": {
+      "label": "Autre classification fiscale",
+      "placeholder": "ex., Organisation à but non lucratif",
+      "helpText": "Décrivez votre classification fiscale"
+    },
+    "has_exemptions": {
+      "label": "Avez-vous des codes d'exemption ?",
+      "helpText": "Les codes d'exemption s'appliquent uniquement à certaines entités, pas aux personnes physiques. Consultez les instructions du W-9 pour plus de détails.",
+      "options": {
+        "no": "Non, je n'ai pas d'exemptions",
+        "yes": "Oui, j'ai des codes d'exemption"
+      }
+    },
+    "exempt_payee_code": {
+      "label": "Code de bénéficiaire exempté",
+      "placeholder": "ex., 1",
+      "helpText": "Entrez le code applicable (1–13). Consultez les instructions du W-9."
+    },
+    "fatca_exemption": {
+      "label": "Code d'exemption de déclaration FATCA",
+      "placeholder": "ex., A",
+      "helpText": "Entrez le code applicable (A–M). Consultez les instructions du W-9."
+    },
+    "broker_exempt": {
+      "label": "Transaction de courtier exemptée",
+      "helpText": "Cochez si vous êtes un courtier qui ne fait que traiter des transactions"
+    },
+    "address": {
+      "label": "Adresse",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Numéro, rue et appartement"
+    },
+    "citystatezip": {
+      "label": "Ville, état et code ZIP",
+      "placeholder": "New York, NY 10001"
+    },
+    "tin_type": {
+      "label": "Quel numéro d'identification fournirez-vous ?",
+      "helpText": "SSN pour les personnes physiques, EIN pour les entreprises. Sélectionnez le type approprié.",
+      "options": {
+        "ssn": "Numéro de sécurité sociale (SSN)",
+        "ein": "Numéro d'identification de l'employeur (EIN)"
+      }
+    },
+    "ssn": {
+      "label": "Numéro de sécurité sociale (SSN)",
+      "placeholder": "123-45-6789",
+      "helpText": "Entrez votre SSN à 9 chiffres"
+    },
+    "ein": {
+      "label": "Numéro d'identification de l'employeur (EIN)",
+      "placeholder": "12-3456789",
+      "helpText": "Entrez votre EIN à 9 chiffres"
+    },
+    "requester_name": {
+      "label": "Nom et adresse du demandeur",
+      "placeholder": "Nom de l'entreprise, adresse",
+      "helpText": "Nom et adresse de la personne ou de l'entreprise demandant ce formulaire (facultatif)"
+    },
+    "account_number": {
+      "label": "Numéro(s) de compte",
+      "placeholder": "ex., 12345678",
+      "helpText": "Numéro de compte facultatif"
+    },
+    "sign_date": {
+      "label": "Date (date de signature)",
+      "placeholder": "03/06/2026",
+      "helpText": "Entrez la date du jour au format MM/JJ/AAAA"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "fields": {
+    "first_middle_names": {
+      "label": "Prénom et initiale du deuxième prénom",
+      "placeholder": "ex., John A",
+      "helpText": "Votre prénom et initiale du deuxième prénom tels qu'ils figurent sur votre déclaration de revenus"
+    },
+    "last_name": {
+      "label": "Nom de famille",
+      "placeholder": "ex., Smith"
+    },
+    "ssn": {
+      "label": "Numéro de sécurité sociale",
+      "placeholder": "123-45-6789",
+      "helpText": "Votre SSN sera conservé en toute sécurité"
+    },
+    "address": {
+      "label": "Adresse du domicile",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Numéro, rue, appartement"
+    },
+    "city_state_zip": {
+      "label": "Ville, état et code ZIP",
+      "placeholder": "New York, NY 10001"
+    },
+    "filing_status": {
+      "label": "Statut de déclaration",
+      "helpText": "Sélectionnez votre statut de déclaration pour la retenue d'impôt",
+      "options": {
+        "single_mfs": "Célibataire ou marié(e) déclarant séparément",
+        "mfj_qss": "Marié(e) déclarant conjointement ou veuf/veuve qualifié(e)",
+        "hoh": "Chef de ménage"
+      }
+    },
+    "two_jobs_checkbox": {
+      "label": "Seulement deux emplois au total",
+      "helpText": "Cochez si vous et votre conjoint(e) avez seulement deux emplois au total (étape 2c)"
+    },
+    "qualifying_children_amount": {
+      "label": "Montant pour enfants admissibles",
+      "placeholder": "ex., 4000",
+      "helpText": "Nombre d'enfants de moins de 17 ans × 2 000 $"
+    },
+    "other_dependents_amount": {
+      "label": "Montant pour autres personnes à charge",
+      "placeholder": "ex., 500",
+      "helpText": "Nombre d'autres personnes à charge × 500 $"
+    },
+    "total_dependents_amount": {
+      "label": "Montant total des personnes à charge",
+      "placeholder": "ex., 4500",
+      "helpText": "Additionnez les montants pour enfants et autres personnes à charge"
+    },
+    "other_income": {
+      "label": "Autres revenus",
+      "placeholder": "ex., 1000",
+      "helpText": "Étape 4(a) : Revenus non salariaux (intérêts, dividendes, retraite)"
+    },
+    "deductions": {
+      "label": "Déductions",
+      "placeholder": "ex., 0",
+      "helpText": "Étape 4(b) : Déductions en plus de la déduction standard"
+    },
+    "extra_withholding": {
+      "label": "Retenue supplémentaire",
+      "placeholder": "ex., 50",
+      "helpText": "Étape 4(c) : Montant supplémentaire à retenir à chaque période de paie"
+    },
+    "exempt_checkbox": {
+      "label": "Demander l'exonération de retenue",
+      "helpText": "Cochez si l'année dernière vous n'aviez aucune obligation d'impôt fédéral sur le revenu ET vous n'en prévoyez pas cette année."
+    }
+  }
+}

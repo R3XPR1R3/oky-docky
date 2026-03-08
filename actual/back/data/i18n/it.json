@@ -1,0 +1,286 @@
+{
+  "app": {
+    "name": "Oky-Docky"
+  },
+  "nav": {
+    "howItWorks": "Come Funziona",
+    "pricing": "Prezzi",
+    "getStarted": "Inizia",
+    "back": "Indietro",
+    "termsDisclaimer": "Termini e Avvertenze"
+  },
+  "landing": {
+    "badge": "Moduli IRS semplificati",
+    "heroTitle": "Compila Moduli Come Se",
+    "heroTitleHighlight": "Chattassi Con un Amico",
+    "heroDescription": "Basta con le scartoffie confuse. Rispondi a domande semplici e pensiamo noi al resto. Completa i tuoi moduli IRS in pochi minuti.",
+    "getStartedFree": "Inizia Gratis",
+    "seeHowItWorks": "Scopri Come Funziona",
+    "noCreditCard": "Nessuna carta di credito richiesta \u2022 Gratuito per uso personale",
+    "chatQuestion": "Qual è il tuo nome completo?",
+    "chatAnswer": "John Smith",
+    "chatFollowUp": "Ottimo! Qual è il tuo indirizzo?",
+    "whyChoose": "Perché Scegliere Oky-Docky?",
+    "whyChooseDescription": "Abbiamo reinventato la compilazione dei documenti per renderla semplice come una conversazione",
+    "ctaTitle": "Pronto a semplificare le tue pratiche?",
+    "ctaDescription": "Unisciti a migliaia di utenti che risparmiano tempo e riducono lo stress con Oky-Docky",
+    "ctaButton": "Compila il Tuo Primo Modulo",
+    "copyright": "\u00a9 2026 Barckhat LLC. Tutti i diritti riservati.",
+    "features": {
+      "simpleQuestions": {
+        "title": "Domande Semplici",
+        "description": "Rispondi a domande semplici come se parlassi con un amico"
+      },
+      "saveTime": {
+        "title": "Risparmia Tempo",
+        "description": "Completa i moduli in minuti, non in ore"
+      },
+      "secure": {
+        "title": "Sicuro e Preciso",
+        "description": "I tuoi dati sono al sicuro e i moduli sono privi di errori"
+      },
+      "instant": {
+        "title": "Risultati Immediati",
+        "description": "Scarica subito il tuo modulo compilato"
+      }
+    }
+  },
+  "selection": {
+    "title": "Di quale modulo hai bisogno?",
+    "description": "Scegli un documento e ti guideremo passo dopo passo",
+    "searchPlaceholder": "Cerca moduli per nome, tag o descrizione...",
+    "allForms": "Tutti i Moduli",
+    "noFormsFound": "Nessun modulo trovato",
+    "tryDifferent": "Prova un termine di ricerca diverso",
+    "popular": "Popolare"
+  },
+  "questionFlow": {
+    "questionOf": "Domanda {current} di {total}",
+    "back": "Indietro",
+    "continue": "Continua",
+    "review": "Rivedi",
+    "yes": "Sì"
+  },
+  "review": {
+    "almostDone": "Quasi fatto!",
+    "reviewInfo": "Rivedi le tue informazioni prima di generare il tuo {template}",
+    "yourInformation": "Le Tue Informazioni",
+    "verifyDetails": "Per favore verifica che tutti i dettagli siano corretti",
+    "edit": "Modifica",
+    "makeChanges": "Apporta Modifiche",
+    "generateDocument": "Genera il Mio Documento",
+    "generating": "Generazione in corso...",
+    "notProvided": "Non fornito",
+    "yes": "Sì",
+    "no": "No",
+    "signed": "Firmato",
+    "notSigned": "Non firmato",
+    "secureNote": "Le tue informazioni sono sicure e crittografate"
+  },
+  "success": {
+    "allDone": "Tutto Fatto!",
+    "ready": "Il tuo {template} è pronto! Scaricalo ora.",
+    "readyToDownload": "Pronto per il download e l'utilizzo",
+    "verified": "Verificato",
+    "format": "Formato",
+    "status": "Stato",
+    "statusReady": "Pronto",
+    "downloadPdf": "Scarica PDF",
+    "downloadStarted": "Download avviato!",
+    "fillAnother": "Compila un Altro Modulo",
+    "needDifferent": "Hai bisogno di un documento diverso?",
+    "startNew": "Inizia Nuovo",
+    "downloadAgain": "Scarica di Nuovo",
+    "needCopy": "Hai bisogno di un'altra copia?",
+    "download": "Scarica",
+    "whatsNext": "Cosa Fare Dopo?",
+    "nextSteps": [
+      "Scarica e stampa il tuo modulo, oppure invialo elettronicamente",
+      "Conserva una copia per i tuoi archivi",
+      "Rivedi con un professionista fiscale se necessario"
+    ]
+  },
+  "howItWorks": {
+    "heroTitle": "Tre Passi.",
+    "heroTitleHighlight": "Zero Stress.",
+    "heroDescription": "Abbiamo trasformato le confuse pratiche IRS in una conversazione amichevole. Ecco come funziona.",
+    "steps": [
+      {
+        "number": "01",
+        "title": "Scegli il Tuo Modulo",
+        "description": "Sfoglia la nostra libreria di moduli IRS — W-9, W-4, 1099-NEC e altri. Ogni modulo è ottimizzato con campi intelligenti che sanno quali informazioni ti servono."
+      },
+      {
+        "number": "02",
+        "title": "Rispondi a Domande Semplici",
+        "description": "Niente gergo fiscale, niente confusione. Ti facciamo una domanda alla volta in linguaggio semplice. La logica intelligente mostra solo le domande pertinenti alla tua situazione."
+      },
+      {
+        "number": "03",
+        "title": "Scarica e Presenta",
+        "description": "Il tuo modulo compilato viene generato istantaneamente come PDF pronto per la presentazione. Scaricalo, stampalo o invialo elettronicamente — hai finito!"
+      }
+    ],
+    "ctaTitle": "Pronto a provare?",
+    "ctaDescription": "Compila il tuo primo modulo in meno di 5 minuti. Gratis.",
+    "ctaButton": "Inizia Gratis",
+    "chatQuestion": "Qual è il tuo nome completo?",
+    "chatAnswer": "Jane Doe",
+    "chatFollowUp": "Stai presentando come...?",
+    "formW9": "Form W-9"
+  },
+  "pricing": {
+    "title": "Prezzi",
+    "titleHighlight": "Semplici",
+    "description": "Inizia gratis, aggiorna quando hai bisogno di più. Nessuna sorpresa.",
+    "mostPopular": "Più Popolare",
+    "tiers": [
+      {
+        "name": "Gratuito",
+        "price": "$0",
+        "period": "per sempre",
+        "description": "Perfetto per uso personale",
+        "cta": "Inizia Gratis",
+        "features": [
+          "2 moduli al mese",
+          "Modelli W-9, W-4",
+          "Download PDF istantaneo",
+          "Domande e risposte passo dopo passo",
+          "Dati mai memorizzati"
+        ]
+      },
+      {
+        "name": "Pro",
+        "price": "$9.99",
+        "period": "/mese",
+        "description": "Per freelancer e piccole imprese",
+        "cta": "Inizia Prova Pro",
+        "features": [
+          "Moduli illimitati",
+          "Tutti i modelli IRS (W-9, W-4, 1099-NEC, ...)",
+          "Domande e risposte in blocco — compila più moduli contemporaneamente",
+          "Importazione CSV per compilazione massiva",
+          "Istruzioni e checklist per la presentazione",
+          "Supporto prioritario"
+        ]
+      },
+      {
+        "name": "Enterprise",
+        "price": "Personalizzato",
+        "period": "",
+        "description": "Accesso API e prezzi per volume",
+        "cta": "Contatta le Vendite",
+        "features": [
+          "REST API con autenticazione a chiave",
+          "Elaborazione moduli in blocco tramite API",
+          "Creazione modelli personalizzati",
+          "Account manager dedicato",
+          "SLA e garanzia di operatività",
+          "Integrazione auto-presentazione (in arrivo)"
+        ]
+      }
+    ],
+    "apiTitle": "Compila moduli su larga scala",
+    "apiDescription": "Integra Oky-Docky nel tuo flusso di lavoro con la nostra REST API. Invia dati, ricevi PDF compilati. Perfetto per aziende di buste paga, studi contabili e software di preparazione fiscale.",
+    "apiBulk": "Elaborazione in blocco",
+    "apiSpeed": "Risposta in meno di un secondo",
+    "apiComment": "# Compila un W-9 tramite API",
+    "contactTitle": "Contattaci",
+    "contactDescription": "Interessato a Pro, Enterprise o hai domande? Scrivici.",
+    "contactName": "Nome *",
+    "contactEmail": "Email *",
+    "contactCompany": "Azienda",
+    "contactMessage": "Come possiamo aiutarti?",
+    "contactMessagePlaceholder": "Raccontaci le tue esigenze — volume, moduli necessari, integrazioni...",
+    "contactSend": "Invia Messaggio",
+    "contactSending": "Invio in corso...",
+    "contactSuccess": "Grazie! Ti contatteremo presto.",
+    "contactError": "Per favore compila nome ed email"
+  },
+  "disclaimer": {
+    "title": "Termini di Servizio e Avvertenze",
+    "lastUpdated": "Ultimo aggiornamento: febbraio 2026",
+    "importantNotice": "Avviso Importante",
+    "importantNoticeText": "Oky-Docky è uno <strong>strumento di preparazione documenti</strong> gestito da <strong>Barckhat LLC</strong>, non un servizio di consulenza fiscale. Non forniamo consulenza fiscale, legale, finanziaria o contabile. Le informazioni e i moduli generati da questo servizio si basano esclusivamente sui dati da te forniti. Consulta sempre un professionista fiscale qualificato per consigli specifici alla tua situazione.",
+    "sections": [
+      {
+        "title": "1. Descrizione del Servizio",
+        "paragraphs": [
+          "Oky-Docky è un prodotto di Barckhat LLC. Fornisce un servizio automatizzato di preparazione documenti che aiuta gli utenti a compilare moduli fiscali IRS (come W-9, W-4, Form 14039 e altri) attraverso un'interfaccia guidata di domande e risposte.",
+          "Il servizio genera documenti PDF precompilati basati sulle informazioni fornite dall'utente. Barckhat LLC non verifica, convalida o garantisce l'accuratezza, la completezza o la sufficienza legale di qualsiasi modulo generato.",
+          "Barckhat LLC non è uno studio di preparazione fiscale registrato. Non presentiamo moduli per tuo conto salvo quanto esplicitamente indicato in un accordo di servizio a pagamento separato."
+        ]
+      },
+      {
+        "title": "2. Responsabilità dell'Utente e Assunzione del Rischio",
+        "paragraphs": [
+          "SEI L'UNICO ED ESCLUSIVO RESPONSABILE dell'accuratezza, completezza e legalità di tutte le informazioni che inserisci in questo servizio. Barckhat LLC agisce solo come fornitore di tecnologia e non si assume alcuna responsabilità per il contenuto delle tue comunicazioni.",
+          "SEI L'UNICO RESPONSABILE della revisione, verifica, firma, presentazione e invio di tutti i documenti generati. Eventuali errori, omissioni o inesattezze nei dati da te forniti sono interamente sotto la tua responsabilità.",
+          "TI ASSUMI OGNI RISCHIO e responsabilità per eventuali sanzioni fiscali, multe, conseguenze legali, verifiche o altri esiti derivanti dall'uso di documenti generati da questo servizio. Barckhat LLC non sarà ritenuta responsabile per eventuali conseguenze derivanti dall'uso dei moduli generati.",
+          "Riconosci che le leggi fiscali sono complesse e soggette a modifiche. È tua responsabilità assicurarti che i moduli generati siano conformi alle normative IRS vigenti e alle leggi statali e federali applicabili.",
+          "Accetti di non utilizzare questo servizio per scopi fraudolenti, illegali o ingannevoli, inclusi ma non limitati a furto di identità, evasione fiscale o presentazione di documenti falsi."
+        ]
+      },
+      {
+        "title": "3. Limitazione di Responsabilità",
+        "paragraphs": [
+          "NELLA MISURA MASSIMA CONSENTITA DALLA LEGGE, BARCKHAT LLC, I SUOI MEMBRI, DIRIGENTI, FUNZIONARI, DIPENDENTI E AGENTI NON SARANNO RESPONSABILI PER DANNI DIRETTI, INDIRETTI, INCIDENTALI, SPECIALI, CONSEQUENZIALI O PUNITIVI DERIVANTI DALL'USO DI QUESTO SERVIZIO.",
+          "Ciò include, senza limitazione: errori nei moduli generati, sanzioni o multe imposte dall'IRS o da qualsiasi agenzia governativa, scadenze di presentazione mancate, calcoli fiscali errati, dichiarazioni rifiutate, conseguenze di furto di identità o qualsiasi perdita finanziaria derivante dall'affidamento ai moduli generati da questo servizio.",
+          "Barckhat LLC fornisce questo servizio su base \"COSÌ COM'È\" e \"COME DISPONIBILE\", senza garanzie di alcun tipo, esplicite o implicite, incluse ma non limitate a garanzie di commerciabilità, idoneità per uno scopo particolare o non violazione.",
+          "La responsabilità totale di Barckhat LLC per qualsiasi reclamo derivante dall'uso del servizio non supererà l'importo da te pagato per il servizio nei 12 mesi precedenti il reclamo, o $100, a seconda di quale sia inferiore.",
+          "Utilizzando questo servizio, accetti di indennizzare e manlevare Barckhat LLC da qualsiasi reclamo, danno, perdita o spesa (incluse le spese legali) derivanti dal tuo uso del servizio o da qualsiasi modulo generato attraverso di esso."
+        ]
+      },
+      {
+        "title": "4. Privacy e Trattamento dei Dati",
+        "paragraphs": [
+          "Prendiamo la tua privacy seriamente. Le informazioni sensibili (come SSN e EIN) vengono elaborate solo in memoria e non vengono memorizzate sui nostri server dopo la generazione del PDF.",
+          "Non vendiamo, condividiamo o distribuiamo le tue informazioni personali a terzi.",
+          "I file PDF generati vengono creati su richiesta e consegnati direttamente al tuo browser. Non conserviamo copie dei moduli compilati.",
+          "Sei responsabile della sicurezza dei documenti scaricati sui tuoi dispositivi."
+        ]
+      },
+      {
+        "title": "5. Avvertenze IRS e Normative",
+        "paragraphs": [
+          "Oky-Docky e Barckhat LLC non sono affiliati, approvati o collegati all'Internal Revenue Service (IRS) o a qualsiasi agenzia governativa.",
+          "I modelli di moduli IRS utilizzati in questo servizio si basano su pubblicazioni IRS disponibili al pubblico. Le versioni dei moduli e le strutture dei campi possono cambiare; facciamo ragionevoli sforzi per mantenere i modelli aggiornati ma non garantiamo che riflettano le ultime revisioni.",
+          "Per i moduli ufficiali IRS, le istruzioni e le pubblicazioni, visita www.irs.gov."
+        ]
+      },
+      {
+        "title": "6. Accettazione dei Termini",
+        "paragraphs": [
+          "Utilizzando Oky-Docky, riconosci di aver letto, compreso e accettato di essere vincolato da questi Termini di Servizio e Avvertenze.",
+          "Ci riserviamo il diritto di modificare questi termini in qualsiasi momento. L'uso continuato del servizio dopo le modifiche costituisce accettazione dei termini rivisti.",
+          "Se non sei d'accordo con questi termini, ti preghiamo di non utilizzare il servizio."
+        ]
+      }
+    ],
+    "contactLine": "Domande sui nostri termini? Contattaci a legal@barckhat.com",
+    "copyright": "\u00a9 2026 Barckhat LLC. Tutti i diritti riservati. Oky-Docky è un prodotto di Barckhat LLC."
+  },
+  "error": {
+    "connectionError": "Errore di Connessione",
+    "unableToConnect": "Impossibile connettersi al backend",
+    "fixSteps": "Per risolvere questo problema:",
+    "step1": "Assicurati che il backend FastAPI sia in esecuzione:",
+    "step2": "Aggiungi il supporto CORS alla tua app FastAPI (in fillable_processor.py):",
+    "close": "Chiudi",
+    "retry": "Riprova",
+    "failedToGenerate": "Generazione PDF non riuscita. ",
+    "cannotConnect": "Impossibile connettersi al server backend. Assicurati che il server FastAPI sia in esecuzione.",
+    "failedToGenerateToast": "Generazione documento non riuscita",
+    "generatingToast": "Generazione del documento in corso...",
+    "generatedToast": "Documento generato con successo!",
+    "failedSchemaLoad": "Caricamento dello schema del modulo non riuscito"
+  },
+  "signature": {
+    "type": "Digita",
+    "draw": "Disegna",
+    "typeNamePlaceholder": "Digita il tuo nome completo",
+    "preview": "Anteprima:",
+    "clear": "Cancella",
+    "drawHint": "Disegna la tua firma qui sopra"
+  }
+}

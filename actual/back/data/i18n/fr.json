@@ -1,0 +1,286 @@
+{
+  "app": {
+    "name": "Oky-Docky"
+  },
+  "nav": {
+    "howItWorks": "Comment \u00e7a marche",
+    "pricing": "Tarifs",
+    "getStarted": "Commencer",
+    "back": "Retour",
+    "termsDisclaimer": "Conditions et avertissement"
+  },
+  "landing": {
+    "badge": "Les formulaires IRS simplifi\u00e9s",
+    "heroTitle": "Remplissez vos formulaires comme si vous",
+    "heroTitleHighlight": "discutiez avec un ami",
+    "heroDescription": "Fini la paperasse compliqu\u00e9e. R\u00e9pondez \u00e0 des questions simples et nous nous occupons du reste. Remplissez vos formulaires IRS en quelques minutes.",
+    "getStartedFree": "Commencer gratuitement",
+    "seeHowItWorks": "Voir comment \u00e7a marche",
+    "noCreditCard": "Aucune carte de cr\u00e9dit requise \u2022 Gratuit pour un usage personnel",
+    "chatQuestion": "Quel est votre nom complet\u00a0?",
+    "chatAnswer": "Jean Dupont",
+    "chatFollowUp": "Parfait\u00a0! Quelle est votre adresse\u00a0?",
+    "whyChoose": "Pourquoi choisir Oky-Docky\u00a0?",
+    "whyChooseDescription": "Nous avons r\u00e9invent\u00e9 le remplissage de documents pour le rendre aussi simple qu\u2019une conversation",
+    "ctaTitle": "Pr\u00eat \u00e0 simplifier votre paperasse\u00a0?",
+    "ctaDescription": "Rejoignez des milliers d\u2019utilisateurs qui gagnent du temps et r\u00e9duisent le stress avec Oky-Docky",
+    "ctaButton": "Remplir votre premier formulaire",
+    "copyright": "\u00a9 2026 Barckhat LLC. Tous droits r\u00e9serv\u00e9s.",
+    "features": {
+      "simpleQuestions": {
+        "title": "Questions simples",
+        "description": "R\u00e9pondez \u00e0 des questions simples comme si vous parliez \u00e0 un ami"
+      },
+      "saveTime": {
+        "title": "Gagnez du temps",
+        "description": "Remplissez vos formulaires en minutes, pas en heures"
+      },
+      "secure": {
+        "title": "S\u00e9curis\u00e9 et pr\u00e9cis",
+        "description": "Vos donn\u00e9es sont en s\u00e9curit\u00e9 et les formulaires sont sans erreur"
+      },
+      "instant": {
+        "title": "R\u00e9sultats instantan\u00e9s",
+        "description": "T\u00e9l\u00e9chargez votre formulaire rempli imm\u00e9diatement"
+      }
+    }
+  },
+  "selection": {
+    "title": "De quel formulaire avez-vous besoin\u00a0?",
+    "description": "Choisissez un document et nous vous guiderons \u00e9tape par \u00e9tape",
+    "searchPlaceholder": "Rechercher des formulaires par nom, tag ou description...",
+    "allForms": "Tous les formulaires",
+    "noFormsFound": "Aucun formulaire trouv\u00e9",
+    "tryDifferent": "Essayez un autre terme de recherche",
+    "popular": "Populaire"
+  },
+  "questionFlow": {
+    "questionOf": "Question {current} sur {total}",
+    "back": "Retour",
+    "continue": "Continuer",
+    "review": "V\u00e9rifier",
+    "yes": "Oui"
+  },
+  "review": {
+    "almostDone": "Presque termin\u00e9\u00a0!",
+    "reviewInfo": "V\u00e9rifiez vos informations avant de g\u00e9n\u00e9rer votre {template}",
+    "yourInformation": "Vos informations",
+    "verifyDetails": "Veuillez v\u00e9rifier que tous les d\u00e9tails sont corrects",
+    "edit": "Modifier",
+    "makeChanges": "Apporter des modifications",
+    "generateDocument": "G\u00e9n\u00e9rer mon document",
+    "generating": "G\u00e9n\u00e9ration en cours...",
+    "notProvided": "Non fourni",
+    "yes": "Oui",
+    "no": "Non",
+    "signed": "Sign\u00e9",
+    "notSigned": "Non sign\u00e9",
+    "secureNote": "Vos informations sont s\u00e9curis\u00e9es et chiffr\u00e9es"
+  },
+  "success": {
+    "allDone": "Termin\u00e9\u00a0!",
+    "ready": "Votre {template} est pr\u00eat\u00a0! T\u00e9l\u00e9chargez-le maintenant.",
+    "readyToDownload": "Pr\u00eat \u00e0 t\u00e9l\u00e9charger et \u00e0 utiliser",
+    "verified": "V\u00e9rifi\u00e9",
+    "format": "Format",
+    "status": "Statut",
+    "statusReady": "Pr\u00eat",
+    "downloadPdf": "T\u00e9l\u00e9charger le PDF",
+    "downloadStarted": "T\u00e9l\u00e9chargement lanc\u00e9\u00a0!",
+    "fillAnother": "Remplir un autre formulaire",
+    "needDifferent": "Besoin d\u2019un autre document\u00a0?",
+    "startNew": "Nouveau formulaire",
+    "downloadAgain": "T\u00e9l\u00e9charger \u00e0 nouveau",
+    "needCopy": "Besoin d\u2019une autre copie\u00a0?",
+    "download": "T\u00e9l\u00e9charger",
+    "whatsNext": "Et ensuite\u00a0?",
+    "nextSteps": [
+      "T\u00e9l\u00e9chargez et imprimez votre formulaire, ou soumettez-le \u00e9lectroniquement",
+      "Conservez une copie pour vos dossiers",
+      "Consultez un professionnel fiscal si n\u00e9cessaire"
+    ]
+  },
+  "howItWorks": {
+    "heroTitle": "Trois \u00e9tapes.",
+    "heroTitleHighlight": "Z\u00e9ro stress.",
+    "heroDescription": "Nous avons transform\u00e9 la paperasse IRS compliqu\u00e9e en une conversation conviviale. Voici comment \u00e7a marche.",
+    "steps": [
+      {
+        "number": "01",
+        "title": "Choisissez votre formulaire",
+        "description": "Parcourez notre biblioth\u00e8que de formulaires IRS \u2014 W-9, W-4, 1099-NEC et plus encore. Chaque formulaire est optimis\u00e9 avec des champs intelligents qui savent quelles informations vous devez fournir."
+      },
+      {
+        "number": "02",
+        "title": "R\u00e9pondez \u00e0 des questions simples",
+        "description": "Pas de jargon fiscal, pas de confusion. Nous vous posons une question \u00e0 la fois en langage clair. La logique intelligente n\u2019affiche que les questions pertinentes \u00e0 votre situation."
+      },
+      {
+        "number": "03",
+        "title": "T\u00e9l\u00e9chargez et d\u00e9posez",
+        "description": "Votre formulaire rempli est g\u00e9n\u00e9r\u00e9 instantan\u00e9ment en PDF pr\u00eat \u00e0 d\u00e9poser. T\u00e9l\u00e9chargez-le, imprimez-le ou soumettez-le \u00e9lectroniquement \u2014 c\u2019est fait\u00a0!"
+      }
+    ],
+    "ctaTitle": "Pr\u00eat \u00e0 essayer\u00a0?",
+    "ctaDescription": "Remplissez votre premier formulaire en moins de 5 minutes. Gratuit.",
+    "ctaButton": "Commencer gratuitement",
+    "chatQuestion": "Quel est votre nom complet\u00a0?",
+    "chatAnswer": "Marie Dupont",
+    "chatFollowUp": "Vous d\u00e9clarez en tant que...\u00a0?",
+    "formW9": "Form W-9"
+  },
+  "pricing": {
+    "title": "Tarifs",
+    "titleHighlight": "simples",
+    "description": "Commencez gratuitement, passez \u00e0 la version sup\u00e9rieure quand vous en avez besoin. Aucune surprise.",
+    "mostPopular": "Le plus populaire",
+    "tiers": [
+      {
+        "name": "Gratuit",
+        "price": "$0",
+        "period": "pour toujours",
+        "description": "Parfait pour un usage personnel",
+        "cta": "Commencer gratuitement",
+        "features": [
+          "2 formulaires par mois",
+          "Mod\u00e8les W-9, W-4",
+          "T\u00e9l\u00e9chargement PDF instantan\u00e9",
+          "Questions-r\u00e9ponses \u00e9tape par \u00e9tape",
+          "Donn\u00e9es jamais stock\u00e9es"
+        ]
+      },
+      {
+        "name": "Pro",
+        "price": "$9.99",
+        "period": "/mois",
+        "description": "Pour les freelances et petites entreprises",
+        "cta": "Essayer Pro",
+        "features": [
+          "Formulaires illimit\u00e9s",
+          "Tous les mod\u00e8les IRS (W-9, W-4, 1099-NEC, ...)",
+          "Questions-r\u00e9ponses group\u00e9es \u2014 remplissez plusieurs formulaires \u00e0 la fois",
+          "Import CSV pour le remplissage en masse",
+          "Instructions de d\u00e9p\u00f4t et listes de v\u00e9rification",
+          "Support prioritaire"
+        ]
+      },
+      {
+        "name": "Entreprise",
+        "price": "Sur mesure",
+        "period": "",
+        "description": "Acc\u00e8s API et tarifs en volume",
+        "cta": "Contacter les ventes",
+        "features": [
+          "REST API avec authentification par cl\u00e9",
+          "Traitement de formulaires en masse via API",
+          "Cr\u00e9ation de mod\u00e8les personnalis\u00e9s",
+          "Gestionnaire de compte d\u00e9di\u00e9",
+          "SLA et garantie de disponibilit\u00e9",
+          "Int\u00e9gration de d\u00e9p\u00f4t automatique (bient\u00f4t disponible)"
+        ]
+      }
+    ],
+    "apiTitle": "Remplissez des formulaires \u00e0 grande \u00e9chelle",
+    "apiDescription": "Int\u00e9grez Oky-Docky dans votre flux de travail gr\u00e2ce \u00e0 notre REST API. Envoyez des donn\u00e9es, recevez des PDF remplis. Parfait pour les entreprises de paie, les cabinets comptables et les logiciels de pr\u00e9paration fiscale.",
+    "apiBulk": "Traitement en masse",
+    "apiSpeed": "R\u00e9ponse en moins d\u2019une seconde",
+    "apiComment": "# Remplir un W-9 via API",
+    "contactTitle": "Contactez-nous",
+    "contactDescription": "Int\u00e9ress\u00e9 par Pro, Entreprise, ou vous avez des questions\u00a0? \u00c9crivez-nous.",
+    "contactName": "Nom *",
+    "contactEmail": "E-mail *",
+    "contactCompany": "Entreprise",
+    "contactMessage": "Comment pouvons-nous vous aider\u00a0?",
+    "contactMessagePlaceholder": "Parlez-nous de vos besoins \u2014 volume, formulaires n\u00e9cessaires, int\u00e9grations...",
+    "contactSend": "Envoyer le message",
+    "contactSending": "Envoi en cours...",
+    "contactSuccess": "Merci\u00a0! Nous vous contacterons bient\u00f4t.",
+    "contactError": "Veuillez remplir le nom et l\u2019e-mail"
+  },
+  "disclaimer": {
+    "title": "Conditions d\u2019utilisation et avertissement",
+    "lastUpdated": "Derni\u00e8re mise \u00e0 jour\u00a0: f\u00e9vrier 2026",
+    "importantNotice": "Avis important",
+    "importantNoticeText": "Oky-Docky est un <strong>outil de pr\u00e9paration de documents</strong> exploit\u00e9 par <strong>Barckhat LLC</strong>, et non un service de conseil fiscal. Nous ne fournissons aucun conseil fiscal, juridique, financier ou comptable. Les informations et formulaires g\u00e9n\u00e9r\u00e9s par ce service sont bas\u00e9s uniquement sur les donn\u00e9es que vous fournissez. Consultez toujours un professionnel fiscal qualifi\u00e9 pour des conseils adapt\u00e9s \u00e0 votre situation.",
+    "sections": [
+      {
+        "title": "1. Description du service",
+        "paragraphs": [
+          "Oky-Docky est un produit de Barckhat LLC. Il fournit un service automatis\u00e9 de pr\u00e9paration de documents qui aide les utilisateurs \u00e0 remplir des formulaires fiscaux IRS (tels que W-9, W-4, Form 14039 et autres) via une interface guid\u00e9e de questions-r\u00e9ponses.",
+          "Le service g\u00e9n\u00e8re des documents PDF pr\u00e9-remplis bas\u00e9s sur les informations fournies par l\u2019utilisateur. Barckhat LLC ne v\u00e9rifie pas, ne valide pas et ne garantit pas l\u2019exactitude, l\u2019exhaustivit\u00e9 ou la suffisance juridique de tout formulaire g\u00e9n\u00e9r\u00e9.",
+          "Barckhat LLC n\u2019est pas un cabinet de pr\u00e9paration fiscale enregistr\u00e9. Nous ne d\u00e9posons pas de formulaires en votre nom, sauf indication explicite dans un contrat de service payant s\u00e9par\u00e9."
+        ]
+      },
+      {
+        "title": "2. Responsabilit\u00e9 de l\u2019utilisateur et acceptation des risques",
+        "paragraphs": [
+          "VOUS \u00caTES SEUL ET EXCLUSIVEMENT RESPONSABLE de l\u2019exactitude, de l\u2019exhaustivit\u00e9 et de la l\u00e9galit\u00e9 de toutes les informations que vous saisissez dans ce service. Barckhat LLC agit uniquement en tant que fournisseur de technologie et n\u2019assume aucune responsabilit\u00e9 quant au contenu de vos soumissions.",
+          "VOUS \u00caTES SEUL RESPONSABLE de la v\u00e9rification, de la signature, du d\u00e9p\u00f4t et de la soumission de tous les documents g\u00e9n\u00e9r\u00e9s. Toute erreur, omission ou inexactitude dans les donn\u00e9es que vous fournissez rel\u00e8ve enti\u00e8rement de votre responsabilit\u00e9.",
+          "VOUS ASSUMEZ TOUS LES RISQUES et la responsabilit\u00e9 de toute p\u00e9nalit\u00e9 fiscale, amende, cons\u00e9quence juridique, audit ou autre r\u00e9sultat d\u00e9coulant de l\u2019utilisation des documents g\u00e9n\u00e9r\u00e9s par ce service. Barckhat LLC ne saurait \u00eatre tenue responsable de toute cons\u00e9quence r\u00e9sultant de votre utilisation des formulaires g\u00e9n\u00e9r\u00e9s.",
+          "Vous reconnaissez que les lois fiscales sont complexes et sujettes \u00e0 modification. Il est de votre responsabilit\u00e9 de vous assurer que les formulaires que vous g\u00e9n\u00e9rez sont conformes aux r\u00e9glementations IRS en vigueur et aux lois f\u00e9d\u00e9rales et \u00e9tatiques applicables.",
+          "Vous acceptez de ne pas utiliser ce service \u00e0 des fins frauduleuses, ill\u00e9gales ou trompeuses, y compris, mais sans s\u2019y limiter, l\u2019usurpation d\u2019identit\u00e9, l\u2019\u00e9vasion fiscale ou le d\u00e9p\u00f4t de faux documents."
+        ]
+      },
+      {
+        "title": "3. Limitation de responsabilit\u00e9",
+        "paragraphs": [
+          "DANS LA MESURE MAXIMALE PERMISE PAR LA LOI, BARCKHAT LLC, SES MEMBRES, DIRIGEANTS, CADRES, EMPLOY\u00c9S ET AGENTS NE SAURAIENT \u00caTRE TENUS RESPONSABLES DE TOUT DOMMAGE DIRECT, INDIRECT, ACCESSOIRE, SP\u00c9CIAL, CONS\u00c9CUTIF OU PUNITIF D\u00c9COULANT DE VOTRE UTILISATION DE CE SERVICE.",
+          "Cela inclut, sans limitation\u00a0: les erreurs dans les formulaires g\u00e9n\u00e9r\u00e9s, les p\u00e9nalit\u00e9s ou amendes impos\u00e9es par l\u2019IRS ou toute agence gouvernementale, les d\u00e9lais de d\u00e9p\u00f4t manqu\u00e9s, les calculs fiscaux incorrects, les d\u00e9clarations rejet\u00e9es, les cons\u00e9quences de vol d\u2019identit\u00e9, ou toute perte financi\u00e8re r\u00e9sultant de la confiance accord\u00e9e aux formulaires g\u00e9n\u00e9r\u00e9s par ce service.",
+          "Barckhat LLC fournit ce service \u00ab\u00a0TEL QUEL\u00a0\u00bb et \u00ab\u00a0SELON DISPONIBILIT\u00c9\u00a0\u00bb, sans garantie d\u2019aucune sorte, expresse ou implicite, y compris, mais sans s\u2019y limiter, les garanties de qualit\u00e9 marchande, d\u2019ad\u00e9quation \u00e0 un usage particulier ou de non-contrefa\u00e7on.",
+          "La responsabilit\u00e9 totale de Barckhat LLC pour toute r\u00e9clamation d\u00e9coulant de l\u2019utilisation du service ne saurait exc\u00e9der le montant que vous avez pay\u00e9 pour le service au cours des 12 mois pr\u00e9c\u00e9dant la r\u00e9clamation, ou $100, selon le montant le moins \u00e9lev\u00e9.",
+          "En utilisant ce service, vous acceptez d\u2019indemniser et de d\u00e9gager de toute responsabilit\u00e9 Barckhat LLC contre toute r\u00e9clamation, dommage, perte ou d\u00e9pense (y compris les frais d\u2019avocat) d\u00e9coulant de votre utilisation du service ou de tout formulaire g\u00e9n\u00e9r\u00e9 par celui-ci."
+        ]
+      },
+      {
+        "title": "4. Confidentialit\u00e9 et traitement des donn\u00e9es",
+        "paragraphs": [
+          "Nous prenons votre confidentialit\u00e9 au s\u00e9rieux. Les informations sensibles (telles que les num\u00e9ros SSN et EIN) sont trait\u00e9es uniquement en m\u00e9moire et ne sont pas stock\u00e9es sur nos serveurs apr\u00e8s la g\u00e9n\u00e9ration de votre PDF.",
+          "Nous ne vendons, ne partageons ni ne distribuons vos informations personnelles \u00e0 des tiers.",
+          "Les fichiers PDF g\u00e9n\u00e9r\u00e9s sont cr\u00e9\u00e9s \u00e0 la demande et livr\u00e9s directement \u00e0 votre navigateur. Nous ne conservons pas de copies des formulaires remplis.",
+          "Vous \u00eates responsable de la s\u00e9curit\u00e9 des documents t\u00e9l\u00e9charg\u00e9s sur vos propres appareils."
+        ]
+      },
+      {
+        "title": "5. Avertissement IRS et r\u00e9glementaire",
+        "paragraphs": [
+          "Oky-Docky et Barckhat LLC ne sont ni affili\u00e9s, ni approuv\u00e9s, ni li\u00e9s \u00e0 l\u2019Internal Revenue Service (IRS) ou \u00e0 toute agence gouvernementale.",
+          "Les mod\u00e8les de formulaires IRS utilis\u00e9s dans ce service sont bas\u00e9s sur les publications IRS accessibles au public. Les versions des formulaires et les structures de champs peuvent changer\u00a0; nous faisons des efforts raisonnables pour maintenir les mod\u00e8les \u00e0 jour, mais ne garantissons pas qu\u2019ils refl\u00e8tent les derni\u00e8res r\u00e9visions.",
+          "Pour les formulaires, instructions et publications officiels de l\u2019IRS, visitez www.irs.gov."
+        ]
+      },
+      {
+        "title": "6. Acceptation des conditions",
+        "paragraphs": [
+          "En utilisant Oky-Docky, vous reconnaissez avoir lu, compris et accept\u00e9 d\u2019\u00eatre li\u00e9 par ces conditions d\u2019utilisation et cet avertissement.",
+          "Nous nous r\u00e9servons le droit de modifier ces conditions \u00e0 tout moment. L\u2019utilisation continue du service apr\u00e8s les modifications constitue l\u2019acceptation des conditions r\u00e9vis\u00e9es.",
+          "Si vous n\u2019\u00eates pas d\u2019accord avec ces conditions, veuillez ne pas utiliser le service."
+        ]
+      }
+    ],
+    "contactLine": "Des questions sur nos conditions\u00a0? Contactez-nous \u00e0 legal@barckhat.com",
+    "copyright": "\u00a9 2026 Barckhat LLC. Tous droits r\u00e9serv\u00e9s. Oky-Docky est un produit de Barckhat LLC."
+  },
+  "error": {
+    "connectionError": "Erreur de connexion",
+    "unableToConnect": "Impossible de se connecter au serveur",
+    "fixSteps": "Pour r\u00e9soudre ce probl\u00e8me\u00a0:",
+    "step1": "Assurez-vous que le serveur FastAPI est en cours d\u2019ex\u00e9cution\u00a0:",
+    "step2": "Ajoutez le support CORS \u00e0 votre application FastAPI (dans fillable_processor.py)\u00a0:",
+    "close": "Fermer",
+    "retry": "R\u00e9essayer",
+    "failedToGenerate": "\u00c9chec de la g\u00e9n\u00e9ration du PDF. ",
+    "cannotConnect": "Impossible de se connecter au serveur. Veuillez vous assurer que le serveur FastAPI est en cours d\u2019ex\u00e9cution.",
+    "failedToGenerateToast": "\u00c9chec de la g\u00e9n\u00e9ration du document",
+    "generatingToast": "G\u00e9n\u00e9ration de votre document en cours...",
+    "generatedToast": "Document g\u00e9n\u00e9r\u00e9 avec succ\u00e8s\u00a0!",
+    "failedSchemaLoad": "\u00c9chec du chargement du sch\u00e9ma de formulaire"
+  },
+  "signature": {
+    "type": "Saisir",
+    "draw": "Dessiner",
+    "typeNamePlaceholder": "Saisissez votre nom complet",
+    "preview": "Aper\u00e7u\u00a0:",
+    "clear": "Effacer",
+    "drawHint": "Dessinez votre signature ci-dessus"
+  }
+}

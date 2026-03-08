@@ -1,0 +1,109 @@
+{
+  "fields": {
+    "entity_type": {
+      "label": "Per chi è questo modulo W-9?",
+      "helpText": "Questo determinerà quali campi dovrai compilare",
+      "options": {
+        "individual": "Persona fisica / Imprenditore individuale",
+        "business": "Azienda o organizzazione"
+      }
+    },
+    "legal_name": {
+      "label": "Nome legale completo",
+      "placeholder": "es., John Smith",
+      "helpText": "Come indicato nella dichiarazione dei redditi"
+    },
+    "business_name": {
+      "label": "Nome dell'azienda o dell'entità",
+      "placeholder": "es., Smith Consulting LLC",
+      "helpText": "Nome ufficiale dell'azienda o DBA"
+    },
+    "tax_class": {
+      "label": "Classificazione fiscale federale",
+      "helpText": "Seleziona la classificazione fiscale appropriata",
+      "options": {
+        "individual": "Persona fisica / Imprenditore individuale",
+        "c_corp": "Società C",
+        "s_corp": "Società S",
+        "partnership": "Società di persone",
+        "trust": "Trust / Patrimonio",
+        "llc": "Società a responsabilità limitata (LLC)",
+        "other": "Altro (vedi istruzioni)"
+      }
+    },
+    "taxpayer_classification": {
+      "label": "Lettera di classificazione fiscale LLC",
+      "placeholder": "C, S o P",
+      "helpText": "Inserisci la classificazione: C = società C, S = società S, P = società di persone"
+    },
+    "other_taxpayer_classification": {
+      "label": "Altra classificazione fiscale",
+      "placeholder": "es., Organizzazione senza scopo di lucro",
+      "helpText": "Descrivi la tua classificazione fiscale"
+    },
+    "has_exemptions": {
+      "label": "Hai codici di esenzione?",
+      "helpText": "I codici di esenzione si applicano solo a determinate entità, non alle persone fisiche. Consulta le istruzioni del W-9 per i dettagli.",
+      "options": {
+        "no": "No, non ho esenzioni",
+        "yes": "Sì, ho codici di esenzione"
+      }
+    },
+    "exempt_payee_code": {
+      "label": "Codice beneficiario esente",
+      "placeholder": "es., 1",
+      "helpText": "Inserisci il codice applicabile (1–13). Consulta le istruzioni del W-9."
+    },
+    "fatca_exemption": {
+      "label": "Codice di esenzione dalla dichiarazione FATCA",
+      "placeholder": "es., A",
+      "helpText": "Inserisci il codice applicabile (A–M). Consulta le istruzioni del W-9."
+    },
+    "broker_exempt": {
+      "label": "Transazione di intermediario esente",
+      "helpText": "Seleziona se sei un intermediario che elabora solo transazioni"
+    },
+    "address": {
+      "label": "Indirizzo",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Numero civico, via e appartamento"
+    },
+    "citystatezip": {
+      "label": "Città, stato e codice ZIP",
+      "placeholder": "New York, NY 10001"
+    },
+    "tin_type": {
+      "label": "Quale numero di identificazione fornirai?",
+      "helpText": "SSN per le persone fisiche, EIN per le aziende. Seleziona quello appropriato.",
+      "options": {
+        "ssn": "Numero di previdenza sociale (SSN)",
+        "ein": "Numero di identificazione del datore di lavoro (EIN)"
+      }
+    },
+    "ssn": {
+      "label": "Numero di previdenza sociale (SSN)",
+      "placeholder": "123-45-6789",
+      "helpText": "Inserisci il tuo SSN di 9 cifre"
+    },
+    "ein": {
+      "label": "Numero di identificazione del datore di lavoro (EIN)",
+      "placeholder": "12-3456789",
+      "helpText": "Inserisci il tuo EIN di 9 cifre"
+    },
+    "requester_name": {
+      "label": "Nome e indirizzo del richiedente",
+      "placeholder": "Nome dell'azienda, indirizzo",
+      "helpText": "Nome e indirizzo della persona o dell'azienda che richiede questo modulo (facoltativo)"
+    },
+    "account_number": {
+      "label": "Numero/i di conto",
+      "placeholder": "es., 12345678",
+      "helpText": "Numero di conto facoltativo"
+    },
+    "sign_date": {
+      "label": "Data (data di firma)",
+      "placeholder": "03/06/2026",
+      "helpText": "Inserisci la data odierna nel formato MM/GG/AAAA"
+    }
+  }
+}

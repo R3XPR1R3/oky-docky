@@ -1,0 +1,209 @@
+{
+  "fields": {
+    "first_name": {
+      "label": "Prénom",
+      "placeholder": "Jane",
+      "helpText": "Votre prénom légal tel qu'il apparaît sur la déclaration fiscale"
+    },
+    "last_name": {
+      "label": "Nom de famille",
+      "placeholder": "Doe",
+      "helpText": "Votre nom de famille légal"
+    },
+    "middle_initial": {
+      "label": "Initiale du deuxième prénom",
+      "placeholder": "M",
+      "helpText": "Votre initiale du deuxième prénom (facultatif)"
+    },
+    "tin": {
+      "label": "Numéro SSN ou ITIN",
+      "placeholder": "123-45-6789",
+      "helpText": "Entrez le SSN ou ITIN qui a été utilisé frauduleusement"
+    },
+    "current_mailing_address": {
+      "label": "Adresse postale actuelle",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Votre adresse actuelle"
+    },
+    "city": {
+      "label": "Ville",
+      "placeholder": "New York"
+    },
+    "state": {
+      "label": "État (code à 2 lettres)",
+      "placeholder": "NY",
+      "helpText": "Entrez l'abréviation à 2 lettres de l'état"
+    },
+    "zip_first5": {
+      "label": "Code ZIP",
+      "placeholder": "10001",
+      "helpText": "Code ZIP à 5 chiffres"
+    },
+    "zip_last4": {
+      "label": "ZIP+4 (facultatif)",
+      "placeholder": "0002",
+      "helpText": "Les 4 derniers chiffres du ZIP+4"
+    },
+    "has_previous_address": {
+      "label": "Votre adresse précédente est-elle différente de l'adresse actuelle ?",
+      "helpText": "Si vous avez déménagé récemment, indiquez votre adresse précédente",
+      "options": {
+        "no": "Non, même adresse",
+        "yes": "Oui, adresse différente"
+      }
+    },
+    "prev_address": {
+      "label": "Adresse précédente",
+      "placeholder": "456 Old Street"
+    },
+    "prev_city": {
+      "label": "Ville précédente",
+      "placeholder": "Chicago"
+    },
+    "prev_state": {
+      "label": "État précédent (code à 2 lettres)",
+      "placeholder": "IL"
+    },
+    "prev_zip_first5": {
+      "label": "Code ZIP précédent",
+      "placeholder": "60601"
+    },
+    "prev_zip_last4": {
+      "label": "ZIP+4 précédent (facultatif)",
+      "placeholder": "0003"
+    },
+    "phone_home": {
+      "label": "Téléphone fixe",
+      "placeholder": "(212) 555-1234"
+    },
+    "phone_cell": {
+      "label": "Téléphone portable",
+      "placeholder": "(212) 555-5678"
+    },
+    "best_time": {
+      "label": "Meilleur moment pour appeler",
+      "placeholder": "9:00 – 17:00 EST",
+      "helpText": "Quand l'IRS peut-il vous contacter ?"
+    },
+    "language": {
+      "label": "Langue préférée pour la communication",
+      "options": {
+        "english": "Anglais",
+        "spanish": "Espagnol",
+        "other": "Autre"
+      }
+    },
+    "language_other": {
+      "label": "Précisez la langue préférée",
+      "placeholder": "p. ex., Français"
+    },
+    "reason_notice": {
+      "label": "J'ai reçu un avis de l'IRS indiquant que quelqu'un a utilisé mes informations",
+      "helpText": "Section A — Cochez toutes les raisons applicables"
+    },
+    "notice_letter": {
+      "label": "Numéro de l'avis de l'IRS",
+      "placeholder": "p. ex., CP01A",
+      "helpText": "Entrez le numéro d'avis/lettre de la correspondance de l'IRS"
+    },
+    "reason_rejected": {
+      "label": "Ma déclaration électronique a été rejetée car une déclaration avec mon SSN/ITIN a déjà été déposée"
+    },
+    "reason_other_agency": {
+      "label": "J'ai reçu un avis d'une autre agence (SSA, agence gouvernementale, etc.) concernant un possible vol d'identité"
+    },
+    "reason_other": {
+      "label": "Autre raison de dépôt de cette déclaration sous serment"
+    },
+    "theft_tax_return": {
+      "label": "Quelqu'un a utilisé mes informations pour déposer une déclaration fiscale",
+      "helpText": "Section B — Cochez tous les types de vol d'identité"
+    },
+    "theft_ssn_work": {
+      "label": "Quelqu'un a utilisé mon SSN ou ITIN pour obtenir un emploi"
+    },
+    "theft_dependent": {
+      "label": "Mes informations ont été utilisées pour déclarer frauduleusement une personne à charge"
+    },
+    "theft_details": {
+      "label": "Détails supplémentaires sur le vol d'identité (facultatif)",
+      "placeholder": "Décrivez ce qui s'est passé...",
+      "helpText": "Fournissez des informations supplémentaires pour l'enquête de l'IRS"
+    },
+    "last_tax_year": {
+      "label": "Dernière année fiscale concernée",
+      "placeholder": "2025",
+      "helpText": "Section D — Entrez la dernière année concernée par le vol"
+    },
+    "additional_years": {
+      "label": "Autres années fiscales concernées (séparées par des virgules)",
+      "placeholder": "2024, 2023, 2022",
+      "helpText": "Énumérez jusqu'à 8 années supplémentaires séparées par des virgules"
+    },
+    "had_no_filing": {
+      "label": "Je n'étais pas tenu(e) de déposer une déclaration pour la ou les années concernées",
+      "helpText": "Cochez si vous n'étiez pas tenu(e) de déposer une déclaration pour les années indiquées"
+    },
+    "name_on_return": {
+      "label": "Nom sur la déclaration frauduleuse (si différent du vôtre)",
+      "placeholder": "p. ex., Jon Doe",
+      "helpText": "Si un nom différent a été utilisé sur la déclaration frauduleuse, indiquez-le"
+    },
+    "signature": {
+      "label": "Votre signature",
+      "helpText": "Section E — Signez sous peine de parjure. Tapez votre nom ou dessinez votre signature."
+    },
+    "date_signed": {
+      "label": "Date de signature",
+      "placeholder": "27/02/2026",
+      "helpText": "Entrez la date d'aujourd'hui (MM/JJ/AAAA)"
+    },
+    "filing_for": {
+      "label": "Qui dépose ce formulaire ?",
+      "helpText": "Section F — Si quelqu'un d'autre dépose en votre nom, sélectionnez 'Représentant'",
+      "options": {
+        "myself": "Je dépose pour moi-même",
+        "representative": "Un représentant dépose en mon nom"
+      }
+    },
+    "rep_first_name": {
+      "label": "Prénom du représentant",
+      "placeholder": "John"
+    },
+    "rep_last_name": {
+      "label": "Nom de famille du représentant",
+      "placeholder": "Smith"
+    },
+    "rep_middle_initial": {
+      "label": "Initiale du deuxième prénom du représentant",
+      "placeholder": "A"
+    },
+    "rep_address": {
+      "label": "Adresse du représentant",
+      "placeholder": "789 Attorney Ave, Suite 100, Chicago, IL 60601"
+    },
+    "rep_phone": {
+      "label": "Téléphone du représentant",
+      "placeholder": "(312) 555-9999"
+    },
+    "rep_caf": {
+      "label": "Numéro CAF (le cas échéant)",
+      "placeholder": "p. ex., 1234567890",
+      "helpText": "Numéro du dossier d'autorisation centralisée"
+    },
+    "rep_relationship": {
+      "label": "Relation du représentant avec le contribuable",
+      "options": {
+        "parent_guardian": "Parent / Tuteur légal",
+        "fiduciary": "Fiduciaire",
+        "power_of_attorney": "Procuration",
+        "court_appointed": "Représentant désigné par le tribunal",
+        "other": "Autre"
+      }
+    },
+    "rep_relationship_other": {
+      "label": "Décrivez la relation du représentant",
+      "placeholder": "p. ex., Agent agréé"
+    }
+  }
+}

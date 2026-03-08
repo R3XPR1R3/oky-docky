@@ -1,0 +1,209 @@
+{
+  "fields": {
+    "first_name": {
+      "label": "Prenon",
+      "placeholder": "Jane",
+      "helpText": "Non legal ou jan li parèt sou deklarasyon taks la"
+    },
+    "last_name": {
+      "label": "Non fanmi",
+      "placeholder": "Doe",
+      "helpText": "Non fanmi legal ou"
+    },
+    "middle_initial": {
+      "label": "Inisyal dezyèm non",
+      "placeholder": "M",
+      "helpText": "Inisyal dezyèm non ou (opsyonèl)"
+    },
+    "tin": {
+      "label": "Nimewo SSN oswa ITIN",
+      "placeholder": "123-45-6789",
+      "helpText": "Antre SSN oswa ITIN ki te itilize nan fwod la"
+    },
+    "current_mailing_address": {
+      "label": "Adrès postal aktyèl",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Adrès aktyèl ou"
+    },
+    "city": {
+      "label": "Vil",
+      "placeholder": "New York"
+    },
+    "state": {
+      "label": "Eta (kòd 2 lèt)",
+      "placeholder": "NY",
+      "helpText": "Antre abrevyasyon 2 lèt eta a"
+    },
+    "zip_first5": {
+      "label": "Kòd ZIP",
+      "placeholder": "10001",
+      "helpText": "Kòd ZIP 5 chif"
+    },
+    "zip_last4": {
+      "label": "ZIP+4 (opsyonèl)",
+      "placeholder": "0002",
+      "helpText": "Dènye 4 chif ZIP+4"
+    },
+    "has_previous_address": {
+      "label": "Èske adrès ou te genyen anvan an diferan de sa aktyèl la?",
+      "helpText": "Si ou te demenaje dènyèman, bay adrès ou te genyen anvan an",
+      "options": {
+        "no": "Non, menm adrès",
+        "yes": "Wi, adrès diferan"
+      }
+    },
+    "prev_address": {
+      "label": "Adrès anvan",
+      "placeholder": "456 Old Street"
+    },
+    "prev_city": {
+      "label": "Vil anvan",
+      "placeholder": "Chicago"
+    },
+    "prev_state": {
+      "label": "Eta anvan (kòd 2 lèt)",
+      "placeholder": "IL"
+    },
+    "prev_zip_first5": {
+      "label": "Kòd ZIP anvan",
+      "placeholder": "60601"
+    },
+    "prev_zip_last4": {
+      "label": "ZIP+4 anvan (opsyonèl)",
+      "placeholder": "0003"
+    },
+    "phone_home": {
+      "label": "Telefòn lakay",
+      "placeholder": "(212) 555-1234"
+    },
+    "phone_cell": {
+      "label": "Telefòn selilè",
+      "placeholder": "(212) 555-5678"
+    },
+    "best_time": {
+      "label": "Pi bon lè pou rele",
+      "placeholder": "9:00 – 17:00 EST",
+      "helpText": "Ki lè IRS ka kontakte ou?"
+    },
+    "language": {
+      "label": "Lang ou prefere pou kominikasyon",
+      "options": {
+        "english": "Anglè",
+        "spanish": "Panyòl",
+        "other": "Lòt"
+      }
+    },
+    "language_other": {
+      "label": "Presize lang ou prefere a",
+      "placeholder": "pa egzanp, Kreyòl Ayisyen"
+    },
+    "reason_notice": {
+      "label": "Mwen te resevwa yon avi nan men IRS ki di yon moun te itilize enfòmasyon mwen",
+      "helpText": "Seksyon A — Tcheke tout rezon ki aplike yo"
+    },
+    "notice_letter": {
+      "label": "Nimewo avi IRS la",
+      "placeholder": "pa egzanp, CP01A",
+      "helpText": "Antre nimewo avi/lèt nan korespondans IRS la"
+    },
+    "reason_rejected": {
+      "label": "Deklarasyon elektwonik mwen an te rejte paske yon deklarasyon ak SSN/ITIN mwen te deja depoze"
+    },
+    "reason_other_agency": {
+      "label": "Mwen te resevwa yon avi nan men yon lòt ajans (SSA, ajans gouvènman, elatriye) konsènan yon posib vòl idantite"
+    },
+    "reason_other": {
+      "label": "Lòt rezon pou depoze afidavi sa a"
+    },
+    "theft_tax_return": {
+      "label": "Yon moun te itilize enfòmasyon mwen pou depoze yon deklarasyon taks",
+      "helpText": "Seksyon B — Tcheke tout kalite vòl idantite yo"
+    },
+    "theft_ssn_work": {
+      "label": "Yon moun te itilize SSN oswa ITIN mwen pou jwenn travay"
+    },
+    "theft_dependent": {
+      "label": "Enfòmasyon mwen te itilize pou reklame yon depandan nan fwod"
+    },
+    "theft_details": {
+      "label": "Detay siplemantè sou vòl idantite a (opsyonèl)",
+      "placeholder": "Dekri sa ki te pase...",
+      "helpText": "Bay enfòmasyon siplemantè pou ankèt IRS la"
+    },
+    "last_tax_year": {
+      "label": "Dènye ane fiskal ki afekte",
+      "placeholder": "2025",
+      "helpText": "Seksyon D — Antre dènye ane ki afekte pa vòl la"
+    },
+    "additional_years": {
+      "label": "Lòt ane fiskal ki afekte (separe pa vigil)",
+      "placeholder": "2024, 2023, 2022",
+      "helpText": "Lis jiska 8 ane siplemantè separe pa vigil"
+    },
+    "had_no_filing": {
+      "label": "Mwen pa t oblije depoze yon deklarasyon pou ane ki afekte yo",
+      "helpText": "Tcheke si ou pa t oblije depoze deklarasyon pou ane yo endike yo"
+    },
+    "name_on_return": {
+      "label": "Non sou deklarasyon fwod la (si li diferan de pa ou)",
+      "placeholder": "pa egzanp, Jon Doe",
+      "helpText": "Si yon non diferan te itilize sou deklarasyon fwod la, endike li"
+    },
+    "signature": {
+      "label": "Siyati ou",
+      "helpText": "Seksyon E — Siyen anba pèn fo temwayaj. Tape non ou oswa desine siyati ou."
+    },
+    "date_signed": {
+      "label": "Dat siyati",
+      "placeholder": "27/02/2026",
+      "helpText": "Antre dat jodi a (MM/JJ/AAAA)"
+    },
+    "filing_for": {
+      "label": "Ki moun k ap depoze fòm sa a?",
+      "helpText": "Seksyon F — Si yon lòt moun ap depoze nan non ou, chwazi 'Reprezantan'",
+      "options": {
+        "myself": "Mwen ap depoze pou tèt mwen",
+        "representative": "Yon reprezantan ap depoze nan non mwen"
+      }
+    },
+    "rep_first_name": {
+      "label": "Prenon reprezantan an",
+      "placeholder": "John"
+    },
+    "rep_last_name": {
+      "label": "Non fanmi reprezantan an",
+      "placeholder": "Smith"
+    },
+    "rep_middle_initial": {
+      "label": "Inisyal dezyèm non reprezantan an",
+      "placeholder": "A"
+    },
+    "rep_address": {
+      "label": "Adrès reprezantan an",
+      "placeholder": "789 Attorney Ave, Suite 100, Chicago, IL 60601"
+    },
+    "rep_phone": {
+      "label": "Telefòn reprezantan an",
+      "placeholder": "(312) 555-9999"
+    },
+    "rep_caf": {
+      "label": "Nimewo CAF (si genyen)",
+      "placeholder": "pa egzanp, 1234567890",
+      "helpText": "Nimewo dosye otorizasyon santralize"
+    },
+    "rep_relationship": {
+      "label": "Relasyon reprezantan an ak kontribyab la",
+      "options": {
+        "parent_guardian": "Paran / Gadyen legal",
+        "fiduciary": "Fidisyè",
+        "power_of_attorney": "Pouvwa pou aji nan non moun nan",
+        "court_appointed": "Reprezantan nonmen pa tribinal",
+        "other": "Lòt"
+      }
+    },
+    "rep_relationship_other": {
+      "label": "Dekri relasyon reprezantan an",
+      "placeholder": "pa egzanp, Ajan anrejistre"
+    }
+  }
+}

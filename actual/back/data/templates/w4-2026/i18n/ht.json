@@ -1,0 +1,74 @@
+{
+  "fields": {
+    "first_middle_names": {
+      "label": "Prenon ak inisyal dezyèm non",
+      "placeholder": "egz., John A",
+      "helpText": "Prenon ou ak inisyal dezyèm non ou jan li ye nan deklarasyon taks ou"
+    },
+    "last_name": {
+      "label": "Non fanmi",
+      "placeholder": "egz., Smith"
+    },
+    "ssn": {
+      "label": "Nimewo Sekirite Sosyal",
+      "placeholder": "123-45-6789",
+      "helpText": "SSN ou ap rete an sekirite"
+    },
+    "address": {
+      "label": "Adrès lakay",
+      "placeholder": "123 Main Street, Apt 4",
+      "helpText": "Nimewo kay, ri, apatman"
+    },
+    "city_state_zip": {
+      "label": "Vil, eta ak kòd ZIP",
+      "placeholder": "New York, NY 10001"
+    },
+    "filing_status": {
+      "label": "Estati deklarasyon",
+      "helpText": "Chwazi estati deklarasyon ou pou retni taks",
+      "options": {
+        "single_mfs": "Selibatè oswa marye ki deklare apa",
+        "mfj_qss": "Marye ki deklare ansanm oswa vèf/vèv ki kalifye",
+        "hoh": "Chèf kay"
+      }
+    },
+    "two_jobs_checkbox": {
+      "label": "Sèlman de travay an total",
+      "helpText": "Make si ou menm ak konjwen ou gen sèlman de travay an total (etap 2c)"
+    },
+    "qualifying_children_amount": {
+      "label": "Montan pou timoun ki kalifye",
+      "placeholder": "egz., 4000",
+      "helpText": "Kantite timoun ki gen mwens pase 17 an × $2,000"
+    },
+    "other_dependents_amount": {
+      "label": "Montan pou lòt depandan",
+      "placeholder": "egz., 500",
+      "helpText": "Kantite lòt depandan × $500"
+    },
+    "total_dependents_amount": {
+      "label": "Montan total depandan",
+      "placeholder": "egz., 4500",
+      "helpText": "Adisyone montan pou timoun ak lòt depandan"
+    },
+    "other_income": {
+      "label": "Lòt revni",
+      "placeholder": "egz., 1000",
+      "helpText": "Etap 4(a): Revni ki pa soti nan travay (enterè, dividann, pansyon)"
+    },
+    "deductions": {
+      "label": "Dediksyon",
+      "placeholder": "egz., 0",
+      "helpText": "Etap 4(b): Dediksyon anplis dediksyon estanda a"
+    },
+    "extra_withholding": {
+      "label": "Retni siplemantè",
+      "placeholder": "egz., 50",
+      "helpText": "Etap 4(c): Montan siplemantè pou retni chak peryòd peman"
+    },
+    "exempt_checkbox": {
+      "label": "Mande egzanpsyon de retni",
+      "helpText": "Make si ane pase ou pa t gen obligasyon taks federal sou revni E ou pa atann gen youn ane sa a."
+    }
+  }
+}
