@@ -87,16 +87,17 @@ def _xfa_value(raw_value: Any) -> str:
     return s
 
 
-def _fill_xfa_datasets(reader: PdfReader, writer: PdfWriter, field_values: Dict[str, Any]) -> None:
+def _fill_xfa_datasets(writer: PdfWriter, field_values: Dict[str, Any]) -> None:
     """
     Fill XFA datasets XML embedded in the PDF.
-    Matches AcroForm field paths to XFA element paths using multiple fallbacks.
+    Reads and writes XFA directly in the writer (objects already cloned via clone_from).
     """
     try:
-        acroform = reader.trailer["/Root"]["/AcroForm"].get_object()
+        acroform = writer._root_object["/AcroForm"]
+        acro_obj = acroform.get_object() if hasattr(acroform, "get_object") else acroform
     except Exception:
         return
-    xfa_array = acroform.get("/XFA")
+    xfa_array = acro_obj.get("/XFA")
     if not xfa_array:
         return
 
@@ -179,8 +180,6 @@ def _fill_xfa_datasets(reader: PdfReader, writer: PdfWriter, field_values: Dict[
                             leaf_index[candidates[0]].text = xfa_val
                             filled += 1
                         elif len(candidates) > 1 and len(segments) >= 3:
-                            # Disambiguate: find candidate whose parent path
-                            # best matches a parent segment from the AcroForm path
                             parent_seg = segments[-3] if len(segments) >= 3 else ""
                             for c in candidates:
                                 if parent_seg and ("/" + parent_seg + "/") in c:
@@ -195,15 +194,11 @@ def _fill_xfa_datasets(reader: PdfReader, writer: PdfWriter, field_values: Dict[
     new_xml = ET.tostring(tree_root, encoding="unicode", xml_declaration=False)
     new_xml_bytes = new_xml.encode("utf-8")
 
-    # Replace the datasets stream in the writer with a NEW indirect object.
-    # EncodedStreamObject.set_data() doesn't persist through PdfWriter.write(),
-    # so we must create a fresh DecodedStreamObject and register it.
+    # Replace the datasets stream with a new DecodedStreamObject.
+    # Even with clone_from, set_data() on EncodedStreamObject may not persist,
+    # so create a fresh object and register it.
     try:
-        w_acro = writer._root_object.get("/AcroForm")
-        if w_acro is None:
-            return
-        w_acro_obj = w_acro.get_object() if hasattr(w_acro, "get_object") else w_acro
-        w_xfa = w_acro_obj.get("/XFA")
+        w_xfa = acro_obj.get("/XFA")
         if w_xfa is None:
             return
 
@@ -341,21 +336,22 @@ def fill_acroform_pdf(
 
     reader = PdfReader(str(src_pdf))
 
-    writer = PdfWriter()
-    writer.append_pages_from_reader(reader)
+    # clone_from properly deep-copies all objects (AcroForm, Fields, XFA)
+    # so indirect references stay valid in the writer.
+    writer = PdfWriter(clone_from=reader)
 
-    # copy AcroForm so /Fields and Btn fields update correctly
-    root = reader.trailer["/Root"]
-    if "/AcroForm" in root:
-        writer._root_object.update({NameObject("/AcroForm"): root["/AcroForm"]})
-        try:
-            writer._root_object["/AcroForm"].update({NameObject("/NeedAppearances"): BooleanObject(True)})
-        except Exception:
-            pass
-    else:
+    # Ensure viewers regenerate field appearances
+    acroform = writer._root_object.get("/AcroForm")
+    if acroform is None:
         with out_pdf.open("wb") as f:
             writer.write(f)
         return out_pdf
+
+    try:
+        acro_obj = acroform.get_object() if hasattr(acroform, "get_object") else acroform
+        acro_obj[NameObject("/NeedAppearances")] = BooleanObject(True)
+    except Exception:
+        pass
 
     # name fallbacks (long -> short)
     safe_values = _with_name_fallbacks(reader, field_values)
@@ -368,7 +364,7 @@ def fill_acroform_pdf(
             pass
 
     # update XFA datasets XML if present
-    _fill_xfa_datasets(reader, writer, field_values)
+    _fill_xfa_datasets(writer, field_values)
 
     # apply drawn signature image overlays
     if signature_overlays:
