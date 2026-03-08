@@ -1,10 +1,86 @@
 {
   "fields": [
     {
+      "key": "how_discovered",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "How did you find out someone used your identity?",
+      "helpText": "Pick the main reason you're filing this form. If more than one applies, pick the one that happened first.",
+      "options": [
+        { "value": "irs_letter", "label": "The IRS sent me a letter or notice about it" },
+        { "value": "rejected", "label": "I tried to file my taxes and they got rejected — someone already filed using my info" },
+        { "value": "other_agency", "label": "Social Security, a state agency, or another organization told me" },
+        { "value": "self_discovered", "label": "I discovered it myself (credit report, strange mail, etc.)" }
+      ]
+    },
+    {
+      "key": "notice_letter",
+      "type": "text",
+      "required": false,
+      "label": "What was the IRS letter or notice number?",
+      "placeholder": "CP01A, LTR 5071C, etc.",
+      "helpText": "Look at the top-right corner of the IRS letter. It should have a number. If you can't find it, just skip this.",
+      "visible_when": { "how_discovered": ["irs_letter"] }
+    },
+    {
+      "key": "what_they_did",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "What did the thief do with your information?",
+      "helpText": "Pick the main thing that happened. If multiple things happened, pick the biggest one and describe the rest later.",
+      "options": [
+        { "value": "fake_return", "label": "Filed a fake tax return to steal my refund" },
+        { "value": "used_ssn_job", "label": "Used my Social Security Number to get a job" },
+        { "value": "claimed_dependent", "label": "Claimed me or my child as a dependent on their taxes" },
+        { "value": "other_theft", "label": "Something else or multiple things" }
+      ]
+    },
+    {
+      "key": "theft_details",
+      "type": "text",
+      "required": false,
+      "label": "Can you tell us more about what happened?",
+      "placeholder": "I noticed a W-2 from a company I never worked for...",
+      "helpText": "Any details help — when you noticed, what was wrong, anything unusual. This helps the IRS investigate."
+    },
+    {
+      "key": "last_tax_year",
+      "type": "text",
+      "required": true,
+      "label": "What tax year was affected?",
+      "placeholder": "2025",
+      "helpText": "The most recent year when someone messed with your taxes. Usually last year."
+    },
+    {
+      "key": "additional_years",
+      "type": "text",
+      "required": false,
+      "label": "Were other years affected too?",
+      "placeholder": "2024, 2023",
+      "helpText": "If this happened over multiple years, list them separated by commas. Leave blank if it was just one year."
+    },
+    {
+      "key": "had_no_filing",
+      "type": "checkbox",
+      "required": false,
+      "label": "I wasn't even required to file taxes that year",
+      "helpText": "Check this if you didn't need to file a tax return for the year(s) listed above — for example, if you didn't work or earned too little."
+    },
+    {
+      "key": "name_on_return",
+      "type": "text",
+      "required": false,
+      "label": "Do you know the name the thief used?",
+      "placeholder": "Jon Doe",
+      "helpText": "If you know a different name appeared on the fake return, enter it here. Otherwise skip this."
+    },
+    {
       "key": "first_name",
       "type": "text",
       "required": true,
-      "label": "What is your first name?",
+      "label": "Now let's get your info — what is your first name?",
       "placeholder": "Jane",
       "helpText": "Your legal first name as it appears on your tax return."
     },
@@ -12,7 +88,7 @@
       "key": "last_name",
       "type": "text",
       "required": true,
-      "label": "What is your last name?",
+      "label": "Last name?",
       "placeholder": "Williams"
     },
     {
@@ -26,9 +102,9 @@
       "key": "tin",
       "type": "text",
       "required": true,
-      "label": "What SSN or ITIN was stolen or misused?",
+      "label": "What is the SSN or ITIN that was misused?",
       "placeholder": "123-45-6789",
-      "helpText": "Enter the Social Security Number or Individual Taxpayer ID that someone used without your permission."
+      "helpText": "The 9-digit number that belongs to you — the one the thief used."
     },
     {
       "key": "current_mailing_address",
@@ -64,9 +140,9 @@
       "key": "zip_last4",
       "type": "text",
       "required": false,
-      "label": "ZIP+4 extension? (optional)",
+      "label": "ZIP+4? (optional)",
       "placeholder": "0002",
-      "helpText": "The extra 4 digits after your ZIP code. Skip this if you don't know it."
+      "helpText": "The extra 4 digits after your ZIP. Skip if you don't know."
     },
     {
       "key": "has_previous_address",
@@ -74,10 +150,10 @@
       "required": true,
       "routing": true,
       "label": "Did you recently move?",
-      "helpText": "If you had a different address when the identity theft happened, we need that old address too.",
+      "helpText": "If your address was different when the identity theft happened, we need that old address too.",
       "options": [
-        { "value": "no", "label": "No, I've been at the same address" },
-        { "value": "yes", "label": "Yes, I moved — my old address was different" }
+        { "value": "no", "label": "No, same address" },
+        { "value": "yes", "label": "Yes, I moved" }
       ]
     },
     {
@@ -121,26 +197,20 @@
       "visible_when": { "has_previous_address": ["yes"] }
     },
     {
-      "key": "phone_home",
-      "type": "text",
-      "required": false,
-      "label": "Home phone number? (optional)",
-      "placeholder": "(405) 555-1234"
-    },
-    {
       "key": "phone_cell",
       "type": "text",
       "required": false,
-      "label": "Cell phone number? (optional)",
-      "placeholder": "(405) 555-5678"
+      "label": "Your phone number? (optional)",
+      "placeholder": "(405) 555-5678",
+      "helpText": "A number where the IRS can reach you if they have questions."
     },
     {
       "key": "best_time",
       "type": "text",
       "required": false,
-      "label": "Best time for the IRS to call you? (optional)",
+      "label": "Best time to call? (optional)",
       "placeholder": "9 AM – 5 PM",
-      "helpText": "When would be a good time for them to reach you?"
+      "helpText": "When should they try calling?"
     },
     {
       "key": "language",
@@ -163,121 +233,29 @@
       "visible_when": { "language": ["other"] }
     },
     {
-      "key": "reason_notice",
-      "type": "checkbox",
-      "required": false,
-      "label": "I got a letter from the IRS saying someone used my info",
-      "helpText": "Check this if the IRS sent you a notice or letter about suspicious activity."
-    },
-    {
-      "key": "notice_letter",
-      "type": "text",
-      "required": false,
-      "label": "What was the letter number? (if you have it)",
-      "placeholder": "CP01A",
-      "helpText": "Look at the top-right corner of the IRS letter. It should have a number like CP01A or LTR 5071C.",
-      "visible_when": { "reason_notice": ["true"] }
-    },
-    {
-      "key": "reason_rejected",
-      "type": "checkbox",
-      "required": false,
-      "label": "My tax return was rejected because someone already filed using my info"
-    },
-    {
-      "key": "reason_other_agency",
-      "type": "checkbox",
-      "required": false,
-      "label": "Another agency (Social Security, state, etc.) told me about possible identity theft"
-    },
-    {
-      "key": "reason_other",
-      "type": "checkbox",
-      "required": false,
-      "label": "Other reason"
-    },
-    {
-      "key": "theft_tax_return",
-      "type": "checkbox",
-      "required": false,
-      "label": "Someone filed a fake tax return using my info",
-      "helpText": "Now tell us what the thief actually did. Check everything that applies."
-    },
-    {
-      "key": "theft_ssn_work",
-      "type": "checkbox",
-      "required": false,
-      "label": "Someone used my SSN to get a job"
-    },
-    {
-      "key": "theft_dependent",
-      "type": "checkbox",
-      "required": false,
-      "label": "Someone claimed me (or my child) as a dependent on their taxes"
-    },
-    {
-      "key": "theft_details",
-      "type": "text",
-      "required": false,
-      "label": "Anything else you want to tell the IRS about what happened? (optional)",
-      "placeholder": "Describe what happened...",
-      "helpText": "Any details that might help them investigate — when you noticed, what happened, etc."
-    },
-    {
-      "key": "last_tax_year",
-      "type": "text",
-      "required": true,
-      "label": "What tax year was affected?",
-      "placeholder": "2025",
-      "helpText": "The most recent year when someone messed with your taxes. Usually last year."
-    },
-    {
-      "key": "additional_years",
-      "type": "text",
-      "required": false,
-      "label": "Were other years affected too? (optional)",
-      "placeholder": "2024, 2023",
-      "helpText": "If this happened over multiple years, list them separated by commas."
-    },
-    {
-      "key": "had_no_filing",
-      "type": "checkbox",
-      "required": false,
-      "label": "I wasn't even required to file taxes that year",
-      "helpText": "Check this if you didn't need to file a tax return for the year(s) listed above."
-    },
-    {
-      "key": "name_on_return",
-      "type": "text",
-      "required": false,
-      "label": "Do you know the name the thief used? (optional)",
-      "placeholder": "e.g., Jon Doe",
-      "helpText": "If you know a different name was used on the fake return, enter it here."
-    },
-    {
       "key": "signature",
       "type": "signature",
       "required": true,
       "label": "Sign your name",
-      "helpText": "By signing, you swear under penalty of perjury that everything you wrote is true. You can type your name or draw your signature."
+      "helpText": "By signing, you swear under penalty of perjury that everything you wrote above is true. You can type your name or draw your signature."
     },
     {
       "key": "filing_for",
       "type": "radio",
       "required": true,
       "routing": true,
-      "label": "Are you filling this out yourself?",
-      "helpText": "If someone else (a lawyer, parent, guardian) is submitting this for you, pick the second option.",
+      "label": "Who is filling out this form?",
+      "helpText": "If a lawyer, enrolled agent, parent, or guardian is doing this for you, pick the second option.",
       "options": [
-        { "value": "myself", "label": "Yes, I'm doing this myself" },
-        { "value": "representative", "label": "No, someone else is doing this for me" }
+        { "value": "myself", "label": "I'm doing it myself" },
+        { "value": "representative", "label": "Someone else is doing it for me (attorney, EA, parent, etc.)" }
       ]
     },
     {
       "key": "rep_first_name",
       "type": "text",
       "required": true,
-      "label": "Representative's first name?",
+      "label": "Their first name?",
       "placeholder": "John",
       "visible_when": { "filing_for": ["representative"] }
     },
@@ -285,7 +263,7 @@
       "key": "rep_last_name",
       "type": "text",
       "required": true,
-      "label": "Representative's last name?",
+      "label": "Their last name?",
       "placeholder": "Smith",
       "visible_when": { "filing_for": ["representative"] }
     },
@@ -293,15 +271,37 @@
       "key": "rep_middle_initial",
       "type": "text",
       "required": false,
-      "label": "Representative's middle initial? (optional)",
+      "label": "Their middle initial? (optional)",
       "placeholder": "A",
       "visible_when": { "filing_for": ["representative"] }
+    },
+    {
+      "key": "rep_relationship",
+      "type": "radio",
+      "required": true,
+      "label": "What is this person to you?",
+      "visible_when": { "filing_for": ["representative"] },
+      "options": [
+        { "value": "parent_guardian", "label": "My parent or legal guardian" },
+        { "value": "fiduciary", "label": "Trustee, executor, or fiduciary" },
+        { "value": "power_of_attorney", "label": "My attorney (Power of Attorney)" },
+        { "value": "court_appointed", "label": "Court-appointed representative" },
+        { "value": "other", "label": "Someone else" }
+      ]
+    },
+    {
+      "key": "rep_relationship_other",
+      "type": "text",
+      "required": true,
+      "label": "Describe who they are",
+      "placeholder": "Enrolled Agent, Tax Preparer, CPA, etc.",
+      "visible_when": { "filing_for": ["representative"], "rep_relationship": ["other"] }
     },
     {
       "key": "rep_address",
       "type": "text",
       "required": true,
-      "label": "Representative's address?",
+      "label": "Their address?",
       "placeholder": "789 Attorney Ave, Suite 100, Chicago, IL 60601",
       "visible_when": { "filing_for": ["representative"] }
     },
@@ -309,7 +309,7 @@
       "key": "rep_phone",
       "type": "text",
       "required": true,
-      "label": "Representative's phone number?",
+      "label": "Their phone number?",
       "placeholder": "(312) 555-9999",
       "visible_when": { "filing_for": ["representative"] }
     },
@@ -317,32 +317,10 @@
       "key": "rep_caf",
       "type": "text",
       "required": false,
-      "label": "Representative's CAF number? (optional)",
+      "label": "Their CAF number? (optional)",
       "placeholder": "1234567890",
-      "helpText": "This is a special IRS authorization number. Skip it if you don't know what it is.",
+      "helpText": "Centralized Authorization File number. Your tax preparer or attorney will know this. Skip if they don't have one.",
       "visible_when": { "filing_for": ["representative"] }
-    },
-    {
-      "key": "rep_relationship",
-      "type": "radio",
-      "required": true,
-      "label": "What is this person's relationship to you?",
-      "visible_when": { "filing_for": ["representative"] },
-      "options": [
-        { "value": "parent_guardian", "label": "My parent or legal guardian" },
-        { "value": "fiduciary", "label": "Fiduciary (trustee, executor)" },
-        { "value": "power_of_attorney", "label": "Power of Attorney" },
-        { "value": "court_appointed", "label": "Court-appointed representative" },
-        { "value": "other", "label": "Other" }
-      ]
-    },
-    {
-      "key": "rep_relationship_other",
-      "type": "text",
-      "required": true,
-      "label": "Describe their relationship to you",
-      "placeholder": "e.g., Enrolled Agent, Tax Preparer",
-      "visible_when": { "filing_for": ["representative"], "rep_relationship": ["other"] }
     }
   ]
 }

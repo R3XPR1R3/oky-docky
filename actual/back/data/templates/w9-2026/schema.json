@@ -67,6 +67,43 @@
       "visible_when": { "tax_class": ["other"] }
     },
     {
+      "key": "has_exemptions",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Do you have any exemption codes?",
+      "helpText": "Most people don't. Exemption codes are for specific types of companies and organizations — not for regular individuals. If you're not sure, pick 'No'.",
+      "options": [
+        { "value": "no", "label": "No (most people)" },
+        { "value": "yes", "label": "Yes, I have exemption codes" }
+      ]
+    },
+    {
+      "key": "exempt_payee_code",
+      "type": "text",
+      "required": false,
+      "label": "Exempt payee code?",
+      "placeholder": "e.g., 1",
+      "helpText": "A number between 1 and 13. Your accountant or the company requesting this form should know which one applies to you.",
+      "visible_when": { "has_exemptions": ["yes"] }
+    },
+    {
+      "key": "fatca_exemption",
+      "type": "text",
+      "required": false,
+      "label": "FATCA exemption code?",
+      "placeholder": "e.g., A",
+      "helpText": "A letter between A and M. This is for organizations exempt from foreign account reporting. If you don't know it, leave it blank.",
+      "visible_when": { "has_exemptions": ["yes"] }
+    },
+    {
+      "key": "broker_exempt",
+      "type": "checkbox",
+      "required": false,
+      "label": "I'm a broker exempt from reporting certain transactions",
+      "helpText": "Only check this if you're a securities broker who only processes transactions and doesn't report income from them. Most people skip this."
+    },
+    {
       "key": "address",
       "type": "text",
       "required": true,

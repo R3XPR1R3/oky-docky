@@ -196,6 +196,31 @@ def enrich_form_data(template_id: str, data: dict) -> dict:
         enriched["total_dependents_amount"] = str(total_amount)
 
     elif template_id == "f14039-2026":
+        # Derive Section A checkboxes from conversational radio "how_discovered"
+        how = enriched.get("how_discovered", "")
+        if how == "irs_letter":
+            enriched["reason_notice"] = True
+        elif how == "rejected":
+            enriched["reason_rejected"] = True
+        elif how == "other_agency":
+            enriched["reason_other_agency"] = True
+        elif how == "self_discovered":
+            enriched["reason_other"] = True
+
+        # Derive Section B checkboxes from conversational radio "what_they_did"
+        what = enriched.get("what_they_did", "")
+        if what == "fake_return":
+            enriched["theft_tax_return"] = True
+        elif what == "used_ssn_job":
+            enriched["theft_ssn_work"] = True
+        elif what == "claimed_dependent":
+            enriched["theft_dependent"] = True
+
+        # Map phone_cell → phone_home as well (mapping expects phone_home)
+        phone = enriched.get("phone_cell", "")
+        if phone:
+            enriched.setdefault("phone_home", phone)
+
         # Auto-fill signature date as today
         enriched.setdefault("date_signed", _date.today().strftime("%m/%d/%Y"))
 
