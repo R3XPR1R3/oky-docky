@@ -174,7 +174,7 @@ function AppInner() {
         <AnimatePresence mode="wait">
           {currentStep === 'landing' && (
             <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
-              <LandingPage onGetStarted={handleGetStarted} onHowItWorks={() => setCurrentStep('how-it-works')} onPricing={() => setCurrentStep('pricing')} onDisclaimer={() => setCurrentStep('disclaimer')} />
+              <LandingPage onGetStarted={handleGetStarted} onHowItWorks={() => setCurrentStep('how-it-works')} onPricing={() => setCurrentStep('pricing')} onDisclaimer={() => setCurrentStep('disclaimer')} onBuilder={() => { window.location.hash = 'builder'; setCurrentStep('builder'); }} />
             </motion.div>
           )}
           {currentStep === 'how-it-works' && (
