@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { FileText, Sparkles, Shield, Clock, CheckCircle, ArrowRight, Zap } from 'lucide-react';
+import { FileText, Sparkles, Shield, Clock, CheckCircle, ArrowRight, Zap, Settings2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { LanguageSelector } from './LanguageSelector';
 import { useTranslation } from '../i18n/I18nContext';
@@ -9,12 +9,13 @@ interface LandingPageProps {
   onHowItWorks: () => void;
   onPricing: () => void;
   onDisclaimer: () => void;
+  onBuilder?: () => void;
 }
 
 const FEATURE_ICONS = [Sparkles, Clock, Shield, CheckCircle];
 const FEATURE_KEYS = ['simpleQuestions', 'saveTime', 'secure', 'instant'] as const;
 
-export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaimer }: LandingPageProps) {
+export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaimer, onBuilder }: LandingPageProps) {
   const { t } = useTranslation();
 
   const features = FEATURE_KEYS.map((key, i) => ({
@@ -36,6 +37,11 @@ export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaime
           <div className="flex items-center gap-4">
             <Button variant="ghost" className="text-sm" onClick={onHowItWorks}>{t('nav.howItWorks')}</Button>
             <Button variant="ghost" className="text-sm" onClick={onPricing}>{t('nav.pricing')}</Button>
+            {onBuilder && (
+              <Button variant="ghost" className="text-sm gap-1" onClick={onBuilder}>
+                <Settings2 className="w-4 h-4" /> Builder
+              </Button>
+            )}
             <LanguageSelector />
             <Button variant="outline" className="text-sm" onClick={onGetStarted}>{t('nav.getStarted')}</Button>
           </div>

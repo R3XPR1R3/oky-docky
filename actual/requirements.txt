@@ -3,3 +3,5 @@ fastapi
 uvicorn[standard]
 python-multipart
 httpx
+fpdf2
+Pillow

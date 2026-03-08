@@ -10,7 +10,7 @@ import { Progress } from './ui/progress';
 import { SignaturePad } from './SignaturePad';
 import { useTranslation } from '../i18n/I18nContext';
 import type { Schema, SchemaField } from '../App';
-import { formatInputValueByKey } from '../lib/inputFormatting';
+import { formatInputValue } from '../lib/inputFormatting';
 
 interface QuestionFlowProps {
   apiUrl: string;
@@ -83,7 +83,7 @@ export function QuestionFlow({ apiUrl, templateId, templateTitle, schema, initia
     if (!currentQuestion) return;
 
     const nextValue = currentQuestion.type === 'text' && typeof value === 'string'
-      ? formatInputValueByKey(currentQuestion.key, value)
+      ? formatInputValue(currentQuestion.key, value, currentQuestion.inputMask)
       : value;
 
     setAnswers((prev) => ({ ...prev, [currentQuestion.key]: nextValue }));
@@ -149,7 +149,12 @@ export function QuestionFlow({ apiUrl, templateId, templateTitle, schema, initia
               <div className="p-8">
                 {currentQuestion.type === 'text' && (
                   <div className="space-y-2">
-                    <Input value={answers[currentQuestion.key] || ''} onChange={(e) => handleAnswerChange(e.target.value)} placeholder={currentQuestion.placeholder} className="text-lg px-6 py-6 rounded-xl border-2 focus:border-indigo-500 transition-colors" autoFocus />
+                    <Input value={answers[currentQuestion.key] || ''} onChange={(e) => handleAnswerChange(e.target.value)} placeholder={currentQuestion.placeholder} maxLength={currentQuestion.maxLength} className="text-lg px-6 py-6 rounded-xl border-2 focus:border-indigo-500 transition-colors" autoFocus />
+                    {currentQuestion.inputMask && (
+                      <p className="text-xs text-slate-400 font-mono pl-2">
+                        Format: {currentQuestion.inputMask.replace(/D/g, '#').replace(/L/g, 'A').replace(/A/g, '*')}
+                      </p>
+                    )}
                   </div>
                 )}
 

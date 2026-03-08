@@ -8,13 +8,34 @@
       "label": "What best describes you?",
       "helpText": "Pick the one that fits you best. Most regular people pick the first option.",
       "options": [
-        { "value": "individual", "label": "Just me — I'm a regular person, freelancer, or self-employed" },
-        { "value": "llc", "label": "My single-member LLC" },
-        { "value": "c_corp", "label": "C Corporation" },
-        { "value": "s_corp", "label": "S Corporation" },
-        { "value": "partnership", "label": "Partnership" },
-        { "value": "trust", "label": "Trust or Estate" },
-        { "value": "other", "label": "Something else" }
+        {
+          "value": "individual",
+          "label": "Just me — I'm a regular person, freelancer, or self-employed"
+        },
+        {
+          "value": "llc",
+          "label": "My single-member LLC"
+        },
+        {
+          "value": "c_corp",
+          "label": "C Corporation"
+        },
+        {
+          "value": "s_corp",
+          "label": "S Corporation"
+        },
+        {
+          "value": "partnership",
+          "label": "Partnership"
+        },
+        {
+          "value": "trust",
+          "label": "Trust or Estate"
+        },
+        {
+          "value": "other",
+          "label": "Something else"
+        }
       ]
     },
     {
@@ -24,7 +45,12 @@
       "label": "What is your full legal name?",
       "placeholder": "Joe Williams",
       "helpText": "Your name exactly as it shows on your tax return. First and last name.",
-      "visible_when": { "tax_class": ["individual", "llc"] }
+      "visible_when": {
+        "tax_class": [
+          "individual",
+          "llc"
+        ]
+      }
     },
     {
       "key": "company_name",
@@ -33,7 +59,15 @@
       "label": "What is your company or organization's official name?",
       "placeholder": "Williams Consulting Inc.",
       "helpText": "The legal name of your business as registered.",
-      "visible_when": { "tax_class": ["c_corp", "s_corp", "partnership", "trust", "other"] }
+      "visible_when": {
+        "tax_class": [
+          "c_corp",
+          "s_corp",
+          "partnership",
+          "trust",
+          "other"
+        ]
+      }
     },
     {
       "key": "llc_name",
@@ -42,7 +76,11 @@
       "label": "What is the name of your LLC?",
       "placeholder": "Williams Services LLC",
       "helpText": "The official name of your LLC as registered with the state.",
-      "visible_when": { "tax_class": ["llc"] }
+      "visible_when": {
+        "tax_class": [
+          "llc"
+        ]
+      }
     },
     {
       "key": "taxpayer_classification",
@@ -50,11 +88,24 @@
       "required": true,
       "label": "How is your LLC taxed?",
       "helpText": "Not sure? Most single-member LLCs are taxed as sole proprietors — pick C if your accountant said C-corp, S if S-corp, P if partnership.",
-      "visible_when": { "tax_class": ["llc"] },
+      "visible_when": {
+        "tax_class": [
+          "llc"
+        ]
+      },
       "options": [
-        { "value": "C", "label": "As a C Corporation" },
-        { "value": "S", "label": "As an S Corporation" },
-        { "value": "P", "label": "As a Partnership" }
+        {
+          "value": "C",
+          "label": "As a C Corporation"
+        },
+        {
+          "value": "S",
+          "label": "As an S Corporation"
+        },
+        {
+          "value": "P",
+          "label": "As a Partnership"
+        }
       ]
     },
     {
@@ -64,7 +115,11 @@
       "label": "What type of organization are you?",
       "placeholder": "e.g., Non-profit, Government entity",
       "helpText": "Just describe it in a few words.",
-      "visible_when": { "tax_class": ["other"] }
+      "visible_when": {
+        "tax_class": [
+          "other"
+        ]
+      }
     },
     {
       "key": "has_exemptions",
@@ -74,8 +129,14 @@
       "label": "Do you have any exemption codes?",
       "helpText": "Most people don't. Exemption codes are for specific types of companies and organizations — not for regular individuals. If you're not sure, pick 'No'.",
       "options": [
-        { "value": "no", "label": "No (most people)" },
-        { "value": "yes", "label": "Yes, I have exemption codes" }
+        {
+          "value": "no",
+          "label": "No (most people)"
+        },
+        {
+          "value": "yes",
+          "label": "Yes, I have exemption codes"
+        }
       ]
     },
     {
@@ -85,7 +146,11 @@
       "label": "Exempt payee code?",
       "placeholder": "e.g., 1",
       "helpText": "A number between 1 and 13. Your accountant or the company requesting this form should know which one applies to you.",
-      "visible_when": { "has_exemptions": ["yes"] }
+      "visible_when": {
+        "has_exemptions": [
+          "yes"
+        ]
+      }
     },
     {
       "key": "fatca_exemption",
@@ -94,7 +159,11 @@
       "label": "FATCA exemption code?",
       "placeholder": "e.g., A",
       "helpText": "A letter between A and M. This is for organizations exempt from foreign account reporting. If you don't know it, leave it blank.",
-      "visible_when": { "has_exemptions": ["yes"] }
+      "visible_when": {
+        "has_exemptions": [
+          "yes"
+        ]
+      }
     },
     {
       "key": "broker_exempt",
@@ -126,10 +195,20 @@
       "routing": true,
       "label": "Which tax ID number do you want to use?",
       "helpText": "If your LLC has its own EIN (Employer ID Number), use that. If not, you can use your personal Social Security Number.",
-      "visible_when": { "tax_class": ["llc"] },
+      "visible_when": {
+        "tax_class": [
+          "llc"
+        ]
+      },
       "options": [
-        { "value": "ssn", "label": "My Social Security Number (SSN)" },
-        { "value": "ein", "label": "My LLC's Employer ID Number (EIN)" }
+        {
+          "value": "ssn",
+          "label": "My Social Security Number (SSN)"
+        },
+        {
+          "value": "ein",
+          "label": "My LLC's Employer ID Number (EIN)"
+        }
       ]
     },
     {
@@ -140,9 +219,22 @@
       "placeholder": "123-45-6789",
       "helpText": "Your 9-digit SSN. We need this for tax reporting. It will not be shared with anyone.",
       "visible_when_any": [
-        { "tax_class": ["individual"] },
-        { "tax_class": ["llc"], "tin_type": ["ssn"] }
-      ]
+        {
+          "tax_class": [
+            "individual"
+          ]
+        },
+        {
+          "tax_class": [
+            "llc"
+          ],
+          "tin_type": [
+            "ssn"
+          ]
+        }
+      ],
+      "inputMask": "DDD-DD-DDDD",
+      "maxLength": 11
     },
     {
       "key": "ein",
@@ -152,9 +244,26 @@
       "placeholder": "12-3456789",
       "helpText": "Your 9-digit EIN. This is the tax ID the IRS gave your business.",
       "visible_when_any": [
-        { "tax_class": ["c_corp", "s_corp", "partnership", "trust", "other"] },
-        { "tax_class": ["llc"], "tin_type": ["ein"] }
-      ]
+        {
+          "tax_class": [
+            "c_corp",
+            "s_corp",
+            "partnership",
+            "trust",
+            "other"
+          ]
+        },
+        {
+          "tax_class": [
+            "llc"
+          ],
+          "tin_type": [
+            "ein"
+          ]
+        }
+      ],
+      "inputMask": "DD-DDDDDDD",
+      "maxLength": 10
     },
     {
       "key": "signature",
@@ -162,6 +271,51 @@
       "required": true,
       "label": "Sign your name",
       "helpText": "By signing, you confirm that the information above is correct. You can type your name or draw your signature."
+    }
+  ],
+  "transforms": [
+    {
+      "type": "copy",
+      "from": "person_name",
+      "to": "legal_name",
+      "when": {
+        "tax_class": [
+          "individual",
+          "llc"
+        ]
+      }
+    },
+    {
+      "type": "copy",
+      "from": "company_name",
+      "to": "legal_name",
+      "when": {
+        "tax_class": [
+          "c_corp",
+          "s_corp",
+          "partnership",
+          "trust",
+          "other"
+        ]
+      }
+    },
+    {
+      "type": "copy",
+      "from": "llc_name",
+      "to": "business_name",
+      "when": {
+        "tax_class": "llc"
+      }
+    },
+    {
+      "type": "copy",
+      "from": "citystatezip",
+      "to": "city_state_zip"
+    },
+    {
+      "type": "auto_date",
+      "field": "sign_date",
+      "format": "MM/DD/YYYY"
     }
   ]
 }

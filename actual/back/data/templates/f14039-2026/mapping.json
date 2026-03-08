@@ -118,6 +118,7 @@
     "type": "value_to_checkboxes",
     "all_fields": [
       "form1[0].Page2[0].section_f[0].q1[0]",
+      "form1[0].Page2[0].section_f[0].q2[0]",
       "form1[0].Page2[0].section_f[0].q3[0]",
       "form1[0].Page2[0].section_f[0].q5[0]",
       "form1[0].Page2[0].section_f[0].list_5[0].item1[0].q5_parent_legal_guardian[0]",
@@ -154,5 +155,33 @@
       }
     }
   },
-  "rep_relationship_other": "form1[0].Page2[0].section_f[0].list_5[0].item1[0].q5_other_explain[0]"
+  "rep_relationship_other": "form1[0].Page2[0].section_f[0].list_5[0].item1[0].q5_other_explain[0]",
+
+  "has_court_acceptance": {
+    "type": "checkbox",
+    "field": "form1[0].Page2[0].section_f[0].q4[0]",
+    "checked_value": "/1",
+    "unchecked_value": "/Off"
+  },
+  "court_appointed_for": {
+    "type": "value_to_checkboxes",
+    "all_fields": [
+      "form1[0].Page2[0].section_f[0].list_3[0].item2[0].q3_child[0]",
+      "form1[0].Page2[0].section_f[0].list_3[0].item2[0].q3_parent_legal_guardian[0]",
+      "form1[0].Page2[0].section_f[0].list_3[0].item2[0].q3_other[0]"
+    ],
+    "off_value": "/Off",
+    "mapping": {
+      "child": {
+        "form1[0].Page2[0].section_f[0].list_3[0].item2[0].q3_child[0]": "/1"
+      },
+      "parent_guardian": {
+        "form1[0].Page2[0].section_f[0].list_3[0].item2[0].q3_parent_legal_guardian[0]": "/1"
+      },
+      "other_court": {
+        "form1[0].Page2[0].section_f[0].list_3[0].item2[0].q3_other[0]": "/1"
+      }
+    }
+  },
+  "court_appointed_other_explain": "form1[0].Page2[0].section_f[0].list_3[0].item2[0].q3_other_explain[0]"
 }

@@ -21,7 +21,9 @@
       "required": true,
       "label": "What is your Social Security Number?",
       "placeholder": "123-45-6789",
-      "helpText": "Your 9-digit SSN. This stays private — your employer needs it for tax reporting."
+      "helpText": "Your 9-digit SSN. This stays private — your employer needs it for tax reporting.",
+      "inputMask": "DDD-DD-DDDD",
+      "maxLength": 11
     },
     {
       "key": "address",
@@ -45,17 +47,155 @@
       "label": "How do you file your taxes?",
       "helpText": "Not sure? Most single people pick the first option. Married couples usually pick the second.",
       "options": [
-        { "value": "single_mfs", "label": "Single (or married but filing separately)" },
-        { "value": "mfj_qss", "label": "Married filing together" },
-        { "value": "hoh", "label": "Head of household (single parent or sole provider)" }
+        {
+          "value": "single_mfs",
+          "label": "Single (or married but filing separately)"
+        },
+        {
+          "value": "mfj_qss",
+          "label": "Married filing together"
+        },
+        {
+          "value": "hoh",
+          "label": "Head of household (single parent or sole provider)"
+        }
+      ]
+    },
+    {
+      "key": "has_multiple_jobs",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Do you have more than one job, or does your spouse also work?",
+      "helpText": "If you and/or your spouse work multiple jobs at the same time, your taxes need to be calculated differently so too little isn't withheld.",
+      "options": [
+        {
+          "value": "no",
+          "label": "No, just one job"
+        },
+        {
+          "value": "two_jobs",
+          "label": "Yes, exactly 2 jobs total between us"
+        },
+        {
+          "value": "three_plus",
+          "label": "Yes, 3 or more jobs total"
+        }
       ]
     },
     {
       "key": "two_jobs_checkbox",
       "type": "checkbox",
       "required": false,
-      "label": "Do you and/or your spouse have two jobs total?",
-      "helpText": "Check this if you and your spouse together have exactly 2 jobs. This helps calculate the right amount of taxes."
+      "label": "Check here if there are only 2 jobs total (most accurate withholding)",
+      "helpText": "The IRS recommends checking this box if you and your spouse have exactly 2 jobs total. Do the same on the W-4 for the other job.",
+      "visible_when": {
+        "has_multiple_jobs": [
+          "two_jobs"
+        ]
+      }
+    },
+    {
+      "key": "use_worksheet",
+      "type": "radio",
+      "required": false,
+      "routing": true,
+      "label": "Do you want to use the Multiple Jobs Worksheet for more accurate withholding?",
+      "helpText": "The worksheet gives a more precise result. If you don't want to fill it out, you can skip it — the checkbox above is a simpler option.",
+      "visible_when": {
+        "has_multiple_jobs": [
+          "two_jobs",
+          "three_plus"
+        ]
+      },
+      "options": [
+        {
+          "value": "no",
+          "label": "No, skip the worksheet"
+        },
+        {
+          "value": "yes",
+          "label": "Yes, fill out the worksheet"
+        }
+      ]
+    },
+    {
+      "key": "ws_mj_1",
+      "type": "text",
+      "required": false,
+      "label": "Worksheet Line 1: Two highest-paying jobs annual wages",
+      "placeholder": "55000",
+      "helpText": "Using the tables on page 3 of the W-4, find the value at the intersection of the two highest-paying jobs.",
+      "visible_when": {
+        "use_worksheet": [
+          "yes"
+        ]
+      }
+    },
+    {
+      "key": "ws_mj_2a",
+      "type": "text",
+      "required": false,
+      "label": "Worksheet Line 2a: First job annual wages",
+      "placeholder": "50000",
+      "helpText": "Enter the annual wages for your highest-paying job.",
+      "visible_when": {
+        "use_worksheet": [
+          "yes"
+        ]
+      }
+    },
+    {
+      "key": "ws_mj_2b",
+      "type": "text",
+      "required": false,
+      "label": "Worksheet Line 2b: Second job annual wages",
+      "placeholder": "30000",
+      "helpText": "Enter the annual wages for your second highest-paying job.",
+      "visible_when": {
+        "use_worksheet": [
+          "yes"
+        ]
+      }
+    },
+    {
+      "key": "ws_mj_2c",
+      "type": "text",
+      "required": false,
+      "label": "Worksheet Line 2c: Third job annual wages (if applicable)",
+      "placeholder": "0",
+      "helpText": "If you have a third job, enter its annual wages. Otherwise leave blank.",
+      "visible_when": {
+        "use_worksheet": [
+          "yes"
+        ]
+      }
+    },
+    {
+      "key": "ws_mj_3",
+      "type": "text",
+      "required": false,
+      "label": "Worksheet Line 3: Number of pay periods",
+      "placeholder": "26",
+      "helpText": "How many pay periods per year at the highest-paying job? Weekly=52, Bi-weekly=26, Semi-monthly=24, Monthly=12.",
+      "visible_when": {
+        "use_worksheet": [
+          "yes"
+        ]
+      }
+    },
+    {
+      "key": "ws_mj_4",
+      "type": "text",
+      "required": false,
+      "label": "Worksheet Line 4: Extra withholding per paycheck",
+      "placeholder": "100",
+      "helpText": "Divide Line 1 by Line 3. This is the extra amount to withhold each paycheck. Enter this in Step 4c.",
+      "visible_when": {
+        "use_worksheet": [
+          "yes"
+        ]
+      }
     },
     {
       "key": "qualifying_children_count",
@@ -82,12 +222,99 @@
       "helpText": "Money from interest, dividends, rental property, side gigs, retirement, etc. Enter the yearly amount. Put 0 or leave blank if none."
     },
     {
+      "key": "use_deductions_worksheet",
+      "type": "radio",
+      "required": false,
+      "routing": true,
+      "label": "Do you plan to itemize deductions instead of taking the standard deduction?",
+      "helpText": "Most people take the standard deduction and can skip this. You'd itemize if your mortgage interest, charity, state/local taxes, medical expenses, etc. add up to more than the standard deduction ($15,000 single / $30,000 married).",
+      "options": [
+        {
+          "value": "no",
+          "label": "No, I'll take the standard deduction (most people)"
+        },
+        {
+          "value": "yes",
+          "label": "Yes, I want to fill out the Deductions Worksheet"
+        }
+      ]
+    },
+    {
+      "key": "ws_ded_1",
+      "type": "text",
+      "required": false,
+      "label": "Deductions Worksheet Line 1: Estimated itemized deductions this year",
+      "placeholder": "20000",
+      "helpText": "Add up your expected mortgage interest, charity, state/local tax (up to $10,000), medical expenses over 7.5% of income, etc.",
+      "visible_when": {
+        "use_deductions_worksheet": [
+          "yes"
+        ]
+      }
+    },
+    {
+      "key": "ws_ded_2",
+      "type": "text",
+      "required": false,
+      "label": "Deductions Worksheet Line 2: Standard deduction",
+      "helpText": "Single or Married Filing Separately: $15,000. Married Filing Jointly: $30,000. Head of Household: $22,500.",
+      "visible_when": {
+        "use_deductions_worksheet": [
+          "yes"
+        ]
+      }
+    },
+    {
+      "key": "ws_ded_3",
+      "type": "text",
+      "required": false,
+      "label": "Deductions Worksheet Line 3: Line 1 minus Line 2 (if more than zero)",
+      "placeholder": "0",
+      "helpText": "Subtract the standard deduction from your itemized deductions. If the result is zero or less, enter 0.",
+      "visible_when": {
+        "use_deductions_worksheet": [
+          "yes"
+        ]
+      }
+    },
+    {
+      "key": "ws_ded_4",
+      "type": "text",
+      "required": false,
+      "label": "Deductions Worksheet Line 4: Student loan interest, IRA deductions, other adjustments",
+      "placeholder": "0",
+      "helpText": "Include student loan interest deduction, deductible IRA contributions, and certain other adjustments. Enter 0 if none.",
+      "visible_when": {
+        "use_deductions_worksheet": [
+          "yes"
+        ]
+      }
+    },
+    {
+      "key": "ws_ded_5",
+      "type": "text",
+      "required": false,
+      "label": "Deductions Worksheet Line 5: Total (add Lines 3 and 4) → enter in Step 4(b)",
+      "placeholder": "0",
+      "helpText": "This total goes into Step 4(b) as your deductions amount.",
+      "visible_when": {
+        "use_deductions_worksheet": [
+          "yes"
+        ]
+      }
+    },
+    {
       "key": "deductions",
       "type": "text",
       "required": false,
-      "label": "Do you have extra deductions? How much?",
+      "label": "Step 4(b): Deductions amount",
       "placeholder": "0",
-      "helpText": "Only if you itemize deductions (mortgage interest, charity, etc.) and they're more than the standard deduction. Most people leave this at 0."
+      "helpText": "If you filled the Deductions Worksheet, enter Line 5 here. Otherwise enter your extra deductions beyond the standard deduction, or 0.",
+      "visible_when": {
+        "use_deductions_worksheet": [
+          "no"
+        ]
+      }
     },
     {
       "key": "extra_withholding",
@@ -103,6 +330,75 @@
       "required": false,
       "label": "I'm exempt from taxes",
       "helpText": "Only check this if: (1) you got back ALL your taxes last year, AND (2) you expect the same this year. Most people do NOT check this."
+    },
+    {
+      "key": "employer_name_address",
+      "type": "text",
+      "required": false,
+      "label": "Employer's name and address (if you know it)",
+      "placeholder": "Acme Corp, 100 Industry Blvd, Dallas TX 75201",
+      "helpText": "Your employer usually fills this in, but you can enter it if you want."
+    },
+    {
+      "key": "first_date_employment",
+      "type": "text",
+      "required": false,
+      "label": "First date of employment (if applicable)",
+      "placeholder": "03/15/2026",
+      "helpText": "The date you started or will start this job. Your employer may fill this in."
+    },
+    {
+      "key": "ein",
+      "type": "text",
+      "required": false,
+      "label": "Employer's EIN (if you know it)",
+      "placeholder": "12-3456789",
+      "helpText": "Employer Identification Number. Your employer usually fills this in.",
+      "inputMask": "DD-DDDDDDD",
+      "maxLength": 10
+    }
+  ],
+  "transforms": [
+    {
+      "type": "compute",
+      "operation": "multiply",
+      "input": "qualifying_children_count",
+      "factor": 2000,
+      "output": "qualifying_children_amount"
+    },
+    {
+      "type": "compute",
+      "operation": "multiply",
+      "input": "other_dependents_count",
+      "factor": 500,
+      "output": "other_dependents_amount"
+    },
+    {
+      "type": "compute",
+      "operation": "sum",
+      "inputs": [
+        "qualifying_children_amount",
+        "other_dependents_amount"
+      ],
+      "output": "total_dependents_amount"
+    },
+    {
+      "type": "copy",
+      "from": "ws_ded_5",
+      "to": "deductions",
+      "if_empty": true,
+      "when": {
+        "use_deductions_worksheet": "yes"
+      }
+    },
+    {
+      "type": "copy",
+      "from": "ws_mj_4",
+      "to": "extra_withholding",
+      "if_empty": true,
+      "when": {
+        "use_worksheet": "yes"
+      }
     }
   ]
 }

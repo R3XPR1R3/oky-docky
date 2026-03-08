@@ -36,13 +36,33 @@ export interface SchemaField {
   label: string;
   placeholder?: string;
   helpText?: string;
+  inputMask?: string;
+  maxLength?: number;
   options?: { value: string; label: string }[];
   visible_when?: Record<string, string[]>;
   visible_when_any?: Record<string, string[]>[];
 }
 
+export interface SchemaTransform {
+  type: 'derive' | 'compute' | 'copy' | 'auto_date' | 'set_value';
+  when?: Record<string, string | string[] | boolean>;
+  set?: Record<string, any>;
+  operation?: string;
+  input?: string;
+  inputs?: string[];
+  factor?: number;
+  output?: string;
+  from?: string;
+  to?: string;
+  if_empty?: boolean;
+  field?: string;
+  format?: string;
+  value?: any;
+}
+
 export interface Schema {
   fields: SchemaField[];
+  transforms?: SchemaTransform[];
 }
 
 function AppInner() {
@@ -154,7 +174,7 @@ function AppInner() {
         <AnimatePresence mode="wait">
           {currentStep === 'landing' && (
             <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
-              <LandingPage onGetStarted={handleGetStarted} onHowItWorks={() => setCurrentStep('how-it-works')} onPricing={() => setCurrentStep('pricing')} onDisclaimer={() => setCurrentStep('disclaimer')} />
+              <LandingPage onGetStarted={handleGetStarted} onHowItWorks={() => setCurrentStep('how-it-works')} onPricing={() => setCurrentStep('pricing')} onDisclaimer={() => setCurrentStep('disclaimer')} onBuilder={() => { window.location.hash = 'builder'; setCurrentStep('builder'); }} />
             </motion.div>
           )}
           {currentStep === 'how-it-works' && (

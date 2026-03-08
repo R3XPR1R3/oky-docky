@@ -17,6 +17,7 @@ from pypdf import PdfReader
 
 from .core.mapping import build_pdf_field_values
 from .core.template_store import load_template, list_templates, load_template_meta
+from .core.transforms import apply_transforms
 from .engines.acroform import fill_acroform_pdf
 
 app = FastAPI()
@@ -194,6 +195,16 @@ def enrich_form_data(template_id: str, data: dict) -> dict:
         enriched["qualifying_children_amount"] = str(children_amount)
         enriched["other_dependents_amount"] = str(dependents_amount)
         enriched["total_dependents_amount"] = str(total_amount)
+
+        # If worksheet deductions were filled, copy Line 5 into the main deductions field
+        ws_ded_5 = enriched.get("ws_ded_5", "").strip()
+        if ws_ded_5 and enriched.get("use_deductions_worksheet") == "yes":
+            enriched.setdefault("deductions", ws_ded_5)
+
+        # If worksheet extra withholding was calculated, copy into main field
+        ws_mj_4 = enriched.get("ws_mj_4", "").strip()
+        if ws_mj_4 and enriched.get("use_worksheet") == "yes":
+            enriched.setdefault("extra_withholding", ws_mj_4)
 
     elif template_id == "f14039-2026":
         # Derive Section A checkboxes from conversational radio "how_discovered"
@@ -479,7 +490,12 @@ def api_render(template_id: str, payload: dict):
     if bundle.engine != "acroform":
         raise HTTPException(400, f"Unsupported engine for now: {bundle.engine}")
 
-    prepared_data = enrich_form_data(template_id, data)
+    # Use declarative transforms from schema if available, else legacy enrichment
+    schema_transforms = bundle.schema.get("transforms")
+    if schema_transforms:
+        prepared_data = apply_transforms(data, schema_transforms)
+    else:
+        prepared_data = enrich_form_data(template_id, data)
     pdf_field_values, sig_overlays = build_pdf_field_values(prepared_data, bundle.mapping)
 
     request_id = uuid.uuid4().hex[:12]

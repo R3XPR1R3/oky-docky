@@ -8,10 +8,22 @@
       "label": "How did you find out someone used your identity?",
       "helpText": "Pick the main reason you're filing this form. If more than one applies, pick the one that happened first.",
       "options": [
-        { "value": "irs_letter", "label": "The IRS sent me a letter or notice about it" },
-        { "value": "rejected", "label": "I tried to file my taxes and they got rejected — someone already filed using my info" },
-        { "value": "other_agency", "label": "Social Security, a state agency, or another organization told me" },
-        { "value": "self_discovered", "label": "I discovered it myself (credit report, strange mail, etc.)" }
+        {
+          "value": "irs_letter",
+          "label": "The IRS sent me a letter or notice about it"
+        },
+        {
+          "value": "rejected",
+          "label": "I tried to file my taxes and they got rejected — someone already filed using my info"
+        },
+        {
+          "value": "other_agency",
+          "label": "Social Security, a state agency, or another organization told me"
+        },
+        {
+          "value": "self_discovered",
+          "label": "I discovered it myself (credit report, strange mail, etc.)"
+        }
       ]
     },
     {
@@ -21,7 +33,11 @@
       "label": "What was the IRS letter or notice number?",
       "placeholder": "CP01A, LTR 5071C, etc.",
       "helpText": "Look at the top-right corner of the IRS letter. It should have a number. If you can't find it, just skip this.",
-      "visible_when": { "how_discovered": ["irs_letter"] }
+      "visible_when": {
+        "how_discovered": [
+          "irs_letter"
+        ]
+      }
     },
     {
       "key": "what_they_did",
@@ -31,10 +47,22 @@
       "label": "What did the thief do with your information?",
       "helpText": "Pick the main thing that happened. If multiple things happened, pick the biggest one and describe the rest later.",
       "options": [
-        { "value": "fake_return", "label": "Filed a fake tax return to steal my refund" },
-        { "value": "used_ssn_job", "label": "Used my Social Security Number to get a job" },
-        { "value": "claimed_dependent", "label": "Claimed me or my child as a dependent on their taxes" },
-        { "value": "other_theft", "label": "Something else or multiple things" }
+        {
+          "value": "fake_return",
+          "label": "Filed a fake tax return to steal my refund"
+        },
+        {
+          "value": "used_ssn_job",
+          "label": "Used my Social Security Number to get a job"
+        },
+        {
+          "value": "claimed_dependent",
+          "label": "Claimed me or my child as a dependent on their taxes"
+        },
+        {
+          "value": "other_theft",
+          "label": "Something else or multiple things"
+        }
       ]
     },
     {
@@ -51,7 +79,8 @@
       "required": true,
       "label": "What tax year was affected?",
       "placeholder": "2025",
-      "helpText": "The most recent year when someone messed with your taxes. Usually last year."
+      "helpText": "The most recent year when someone messed with your taxes. Usually last year.",
+      "maxLength": 4
     },
     {
       "key": "additional_years",
@@ -96,7 +125,9 @@
       "type": "text",
       "required": false,
       "label": "Middle initial? (optional)",
-      "placeholder": "M"
+      "placeholder": "M",
+      "inputMask": "L",
+      "maxLength": 1
     },
     {
       "key": "tin",
@@ -104,7 +135,9 @@
       "required": true,
       "label": "What is the SSN or ITIN that was misused?",
       "placeholder": "123-45-6789",
-      "helpText": "The 9-digit number that belongs to you — the one the thief used."
+      "helpText": "The 9-digit number that belongs to you — the one the thief used.",
+      "inputMask": "DDD-DD-DDDD",
+      "maxLength": 11
     },
     {
       "key": "current_mailing_address",
@@ -127,14 +160,18 @@
       "required": true,
       "label": "State? (2 letters)",
       "placeholder": "OK",
-      "helpText": "Two-letter state code, like TX, NY, CA, OK."
+      "helpText": "Two-letter state code, like TX, NY, CA, OK.",
+      "inputMask": "LL",
+      "maxLength": 2
     },
     {
       "key": "zip_first5",
       "type": "text",
       "required": true,
       "label": "ZIP code?",
-      "placeholder": "73102"
+      "placeholder": "73102",
+      "inputMask": "DDDDD",
+      "maxLength": 5
     },
     {
       "key": "zip_last4",
@@ -142,7 +179,9 @@
       "required": false,
       "label": "ZIP+4? (optional)",
       "placeholder": "0002",
-      "helpText": "The extra 4 digits after your ZIP. Skip if you don't know."
+      "helpText": "The extra 4 digits after your ZIP. Skip if you don't know.",
+      "inputMask": "DDDD",
+      "maxLength": 4
     },
     {
       "key": "has_previous_address",
@@ -152,8 +191,14 @@
       "label": "Did you recently move?",
       "helpText": "If your address was different when the identity theft happened, we need that old address too.",
       "options": [
-        { "value": "no", "label": "No, same address" },
-        { "value": "yes", "label": "Yes, I moved" }
+        {
+          "value": "no",
+          "label": "No, same address"
+        },
+        {
+          "value": "yes",
+          "label": "Yes, I moved"
+        }
       ]
     },
     {
@@ -162,7 +207,11 @@
       "required": true,
       "label": "What was your old street address?",
       "placeholder": "456 Oak Avenue",
-      "visible_when": { "has_previous_address": ["yes"] }
+      "visible_when": {
+        "has_previous_address": [
+          "yes"
+        ]
+      }
     },
     {
       "key": "prev_city",
@@ -170,7 +219,11 @@
       "required": true,
       "label": "Old city?",
       "placeholder": "Dallas",
-      "visible_when": { "has_previous_address": ["yes"] }
+      "visible_when": {
+        "has_previous_address": [
+          "yes"
+        ]
+      }
     },
     {
       "key": "prev_state",
@@ -178,7 +231,13 @@
       "required": true,
       "label": "Old state? (2 letters)",
       "placeholder": "TX",
-      "visible_when": { "has_previous_address": ["yes"] }
+      "visible_when": {
+        "has_previous_address": [
+          "yes"
+        ]
+      },
+      "inputMask": "LL",
+      "maxLength": 2
     },
     {
       "key": "prev_zip_first5",
@@ -186,7 +245,13 @@
       "required": true,
       "label": "Old ZIP code?",
       "placeholder": "75201",
-      "visible_when": { "has_previous_address": ["yes"] }
+      "visible_when": {
+        "has_previous_address": [
+          "yes"
+        ]
+      },
+      "inputMask": "DDDDD",
+      "maxLength": 5
     },
     {
       "key": "prev_zip_last4",
@@ -194,15 +259,29 @@
       "required": false,
       "label": "Old ZIP+4? (optional)",
       "placeholder": "0003",
-      "visible_when": { "has_previous_address": ["yes"] }
+      "visible_when": {
+        "has_previous_address": [
+          "yes"
+        ]
+      },
+      "inputMask": "DDDD",
+      "maxLength": 4
+    },
+    {
+      "key": "phone_home",
+      "type": "text",
+      "required": false,
+      "label": "Home phone number? (optional)",
+      "placeholder": "(405) 555-1234",
+      "helpText": "A landline number where the IRS can reach you."
     },
     {
       "key": "phone_cell",
       "type": "text",
       "required": false,
-      "label": "Your phone number? (optional)",
+      "label": "Cell phone number? (optional)",
       "placeholder": "(405) 555-5678",
-      "helpText": "A number where the IRS can reach you if they have questions."
+      "helpText": "A mobile number where the IRS can reach you."
     },
     {
       "key": "best_time",
@@ -219,9 +298,18 @@
       "label": "What language do you prefer?",
       "helpText": "The IRS will try to communicate with you in this language.",
       "options": [
-        { "value": "english", "label": "English" },
-        { "value": "spanish", "label": "Spanish" },
-        { "value": "other", "label": "Another language" }
+        {
+          "value": "english",
+          "label": "English"
+        },
+        {
+          "value": "spanish",
+          "label": "Spanish"
+        },
+        {
+          "value": "other",
+          "label": "Another language"
+        }
       ]
     },
     {
@@ -230,7 +318,11 @@
       "required": true,
       "label": "Which language?",
       "placeholder": "Mandarin, Vietnamese, Korean, etc.",
-      "visible_when": { "language": ["other"] }
+      "visible_when": {
+        "language": [
+          "other"
+        ]
+      }
     },
     {
       "key": "signature",
@@ -247,8 +339,14 @@
       "label": "Who is filling out this form?",
       "helpText": "If a lawyer, enrolled agent, parent, or guardian is doing this for you, pick the second option.",
       "options": [
-        { "value": "myself", "label": "I'm doing it myself" },
-        { "value": "representative", "label": "Someone else is doing it for me (attorney, EA, parent, etc.)" }
+        {
+          "value": "myself",
+          "label": "I'm doing it myself"
+        },
+        {
+          "value": "representative",
+          "label": "Someone else is doing it for me (attorney, EA, parent, etc.)"
+        }
       ]
     },
     {
@@ -257,7 +355,11 @@
       "required": true,
       "label": "Their first name?",
       "placeholder": "John",
-      "visible_when": { "filing_for": ["representative"] }
+      "visible_when": {
+        "filing_for": [
+          "representative"
+        ]
+      }
     },
     {
       "key": "rep_last_name",
@@ -265,7 +367,11 @@
       "required": true,
       "label": "Their last name?",
       "placeholder": "Smith",
-      "visible_when": { "filing_for": ["representative"] }
+      "visible_when": {
+        "filing_for": [
+          "representative"
+        ]
+      }
     },
     {
       "key": "rep_middle_initial",
@@ -273,21 +379,110 @@
       "required": false,
       "label": "Their middle initial? (optional)",
       "placeholder": "A",
-      "visible_when": { "filing_for": ["representative"] }
+      "visible_when": {
+        "filing_for": [
+          "representative"
+        ]
+      },
+      "inputMask": "L",
+      "maxLength": 1
     },
     {
       "key": "rep_relationship",
       "type": "radio",
       "required": true,
+      "routing": true,
       "label": "What is this person to you?",
-      "visible_when": { "filing_for": ["representative"] },
+      "visible_when": {
+        "filing_for": [
+          "representative"
+        ]
+      },
       "options": [
-        { "value": "parent_guardian", "label": "My parent or legal guardian" },
-        { "value": "fiduciary", "label": "Trustee, executor, or fiduciary" },
-        { "value": "power_of_attorney", "label": "My attorney (Power of Attorney)" },
-        { "value": "court_appointed", "label": "Court-appointed representative" },
-        { "value": "other", "label": "Someone else" }
+        {
+          "value": "parent_guardian",
+          "label": "My parent or legal guardian"
+        },
+        {
+          "value": "fiduciary",
+          "label": "Trustee, executor, or fiduciary"
+        },
+        {
+          "value": "power_of_attorney",
+          "label": "My attorney (Power of Attorney)"
+        },
+        {
+          "value": "court_appointed",
+          "label": "Court-appointed representative"
+        },
+        {
+          "value": "other",
+          "label": "Someone else"
+        }
       ]
+    },
+    {
+      "key": "court_appointed_for",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Who was the court appointment for?",
+      "helpText": "The court may have appointed this person for a specific reason.",
+      "visible_when": {
+        "filing_for": [
+          "representative"
+        ],
+        "rep_relationship": [
+          "court_appointed"
+        ]
+      },
+      "options": [
+        {
+          "value": "child",
+          "label": "For my child (minor)"
+        },
+        {
+          "value": "parent_guardian",
+          "label": "As my parent or legal guardian"
+        },
+        {
+          "value": "other_court",
+          "label": "Other court-appointed reason"
+        }
+      ]
+    },
+    {
+      "key": "court_appointed_other_explain",
+      "type": "text",
+      "required": true,
+      "label": "Describe the court appointment",
+      "placeholder": "Conservator, legal guardian of estate, etc.",
+      "visible_when": {
+        "filing_for": [
+          "representative"
+        ],
+        "rep_relationship": [
+          "court_appointed"
+        ],
+        "court_appointed_for": [
+          "other_court"
+        ]
+      }
+    },
+    {
+      "key": "has_court_acceptance",
+      "type": "checkbox",
+      "required": false,
+      "label": "Court has accepted responsibility for this person's affairs",
+      "helpText": "Check this if the court order specifically grants authority to manage tax matters.",
+      "visible_when": {
+        "filing_for": [
+          "representative"
+        ],
+        "rep_relationship": [
+          "court_appointed"
+        ]
+      }
     },
     {
       "key": "rep_relationship_other",
@@ -295,7 +490,14 @@
       "required": true,
       "label": "Describe who they are",
       "placeholder": "Enrolled Agent, Tax Preparer, CPA, etc.",
-      "visible_when": { "filing_for": ["representative"], "rep_relationship": ["other"] }
+      "visible_when": {
+        "filing_for": [
+          "representative"
+        ],
+        "rep_relationship": [
+          "other"
+        ]
+      }
     },
     {
       "key": "rep_address",
@@ -303,7 +505,11 @@
       "required": true,
       "label": "Their address?",
       "placeholder": "789 Attorney Ave, Suite 100, Chicago, IL 60601",
-      "visible_when": { "filing_for": ["representative"] }
+      "visible_when": {
+        "filing_for": [
+          "representative"
+        ]
+      }
     },
     {
       "key": "rep_phone",
@@ -311,7 +517,11 @@
       "required": true,
       "label": "Their phone number?",
       "placeholder": "(312) 555-9999",
-      "visible_when": { "filing_for": ["representative"] }
+      "visible_when": {
+        "filing_for": [
+          "representative"
+        ]
+      }
     },
     {
       "key": "rep_caf",
@@ -320,7 +530,87 @@
       "label": "Their CAF number? (optional)",
       "placeholder": "1234567890",
       "helpText": "Centralized Authorization File number. Your tax preparer or attorney will know this. Skip if they don't have one.",
-      "visible_when": { "filing_for": ["representative"] }
+      "visible_when": {
+        "filing_for": [
+          "representative"
+        ]
+      }
+    }
+  ],
+  "transforms": [
+    {
+      "type": "derive",
+      "when": {
+        "how_discovered": "irs_letter"
+      },
+      "set": {
+        "reason_notice": true
+      }
+    },
+    {
+      "type": "derive",
+      "when": {
+        "how_discovered": "rejected"
+      },
+      "set": {
+        "reason_rejected": true
+      }
+    },
+    {
+      "type": "derive",
+      "when": {
+        "how_discovered": "other_agency"
+      },
+      "set": {
+        "reason_other_agency": true
+      }
+    },
+    {
+      "type": "derive",
+      "when": {
+        "how_discovered": "self_discovered"
+      },
+      "set": {
+        "reason_other": true
+      }
+    },
+    {
+      "type": "derive",
+      "when": {
+        "what_they_did": "fake_return"
+      },
+      "set": {
+        "theft_tax_return": true
+      }
+    },
+    {
+      "type": "derive",
+      "when": {
+        "what_they_did": "used_ssn_job"
+      },
+      "set": {
+        "theft_ssn_work": true
+      }
+    },
+    {
+      "type": "derive",
+      "when": {
+        "what_they_did": "claimed_dependent"
+      },
+      "set": {
+        "theft_dependent": true
+      }
+    },
+    {
+      "type": "copy",
+      "from": "phone_cell",
+      "to": "phone_home",
+      "if_empty": true
+    },
+    {
+      "type": "auto_date",
+      "field": "date_signed",
+      "format": "MM/DD/YYYY"
     }
   ]
 }
