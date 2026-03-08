@@ -28,6 +28,17 @@
 #      a builder container rebuilds the static files and nginx
 #      serves them immediately — no container restart needed.
 #
+#  CLOUDFLARE TUNNEL (access from anywhere):
+#    By default, a free quick tunnel is created automatically.
+#    You'll see a public URL like https://random-words.trycloudflare.com
+#
+#    For a PERMANENT domain, set the TUNNEL_TOKEN env var:
+#      1. Sign up at https://dash.cloudflare.com (free)
+#      2. Go to Zero Trust → Networks → Tunnels → Create
+#      3. Copy the tunnel token
+#      4. export TUNNEL_TOKEN="your-token-here"
+#      5. Re-run ./deploy-pi.sh
+#
 # ============================================================
 set -euo pipefail
 
@@ -37,10 +48,74 @@ cd "$SCRIPT_DIR"
 BRANCH="${DEPLOY_BRANCH:-main}"
 CHECK_INTERVAL="${CHECK_INTERVAL:-20}"
 LOG_FILE="${SCRIPT_DIR}/deploy.log"
+TUNNEL_TOKEN="${TUNNEL_TOKEN:-}"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
 
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOG_FILE"
+}
+
+# ------------------------------------------------------------------
+#  Cloudflare Tunnel: expose Pi to the internet
+# ------------------------------------------------------------------
+CLOUDFLARED_BIN="${SCRIPT_DIR}/.cloudflared/cloudflared"
+
+install_cloudflared() {
+  if [ -f "$CLOUDFLARED_BIN" ]; then
+    return 0
+  fi
+
+  log "Installing cloudflared..."
+  mkdir -p "${SCRIPT_DIR}/.cloudflared"
+
+  ARCH=$(uname -m)
+  case "$ARCH" in
+    aarch64|arm64) CF_ARCH="arm64" ;;
+    armv7l|armhf)  CF_ARCH="arm"   ;;
+    x86_64)        CF_ARCH="amd64" ;;
+    *)             log "Unsupported architecture: $ARCH"; return 1 ;;
+  esac
+
+  curl -fsSL "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${CF_ARCH}" \
+    -o "$CLOUDFLARED_BIN"
+  chmod +x "$CLOUDFLARED_BIN"
+  log "cloudflared installed."
+}
+
+start_tunnel() {
+  install_cloudflared || { log "Failed to install cloudflared, skipping tunnel."; return 1; }
+
+  if pgrep -f "cloudflared.*tunnel" > /dev/null 2>&1; then
+    log "Cloudflare tunnel already running."
+    return 0
+  fi
+
+  if [ -n "$TUNNEL_TOKEN" ]; then
+    # Permanent tunnel with a configured domain
+    log "Starting Cloudflare tunnel (permanent, token-based)..."
+    nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate run --token "$TUNNEL_TOKEN" \
+      >> "${SCRIPT_DIR}/tunnel.log" 2>&1 &
+    log "Tunnel started. Check your Cloudflare dashboard for the domain."
+  else
+    # Quick free tunnel — random URL, no registration needed
+    log "Starting Cloudflare quick tunnel (free, temporary URL)..."
+    nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate --url http://localhost:80 \
+      >> "${SCRIPT_DIR}/tunnel.log" 2>&1 &
+
+    # Wait for the URL to appear in the log
+    for i in $(seq 1 15); do
+      sleep 2
+      TUNNEL_URL=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "${SCRIPT_DIR}/tunnel.log" 2>/dev/null | tail -1 || true)
+      if [ -n "$TUNNEL_URL" ]; then
+        log "============================================"
+        log "  PUBLIC URL: ${TUNNEL_URL}"
+        log "============================================"
+        log "Share this link with friends!"
+        return 0
+      fi
+    done
+    log "Tunnel started but URL not yet available. Check tunnel.log"
+  fi
 }
 
 # ------------------------------------------------------------------
@@ -95,6 +170,9 @@ initial_deploy() {
 
   log "Initial deploy complete!"
   $COMPOSE ps
+
+  # Start Cloudflare tunnel for external access
+  start_tunnel
 }
 
 # ------------------------------------------------------------------
@@ -102,6 +180,8 @@ initial_deploy() {
 # ------------------------------------------------------------------
 watch_loop() {
   log "=== Watch mode started (every ${CHECK_INTERVAL}s, branch: ${BRANCH}) ==="
+  # Make sure tunnel is running
+  start_tunnel || true
   while true; do
     hot_update || true
     sleep "$CHECK_INTERVAL"
@@ -128,6 +208,7 @@ User=$(whoami)
 WorkingDirectory=${SCRIPT_DIR}
 Environment=DEPLOY_BRANCH=${BRANCH}
 Environment=CHECK_INTERVAL=${CHECK_INTERVAL}
+Environment=TUNNEL_TOKEN=${TUNNEL_TOKEN}
 ExecStart=${SCRIPT_DIR}/deploy-pi.sh --watch
 Restart=always
 RestartSec=10
@@ -157,17 +238,24 @@ case "${1:-}" in
   --hot-update)
     hot_update || log "Already up to date."
     ;;
+  --tunnel)
+    start_tunnel
+    echo "Press Ctrl+C to stop."
+    wait
+    ;;
   --help|-h)
     echo "Usage: ./deploy-pi.sh [OPTION]"
     echo ""
-    echo "  (no args)          First-time build, start, and install autostart service"
+    echo "  (no args)          First-time build, start, install autostart + tunnel"
     echo "  --watch            Poll for git changes every ${CHECK_INTERVAL}s and hot-update"
     echo "  --hot-update       One-shot: pull & hot-update if changes found"
+    echo "  --tunnel           Start Cloudflare tunnel only"
     echo "  --install-service  (Re-)install systemd service only"
     echo ""
     echo "Environment variables:"
     echo "  DEPLOY_BRANCH      Git branch to track (default: main)"
     echo "  CHECK_INTERVAL     Seconds between checks (default: 20)"
+    echo "  TUNNEL_TOKEN       Cloudflare tunnel token for permanent domain (optional)"
     ;;
   *)
     initial_deploy
