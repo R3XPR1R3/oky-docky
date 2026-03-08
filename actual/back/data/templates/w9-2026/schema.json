@@ -1,66 +1,69 @@
 {
   "fields": [
     {
-      "key": "entity_type",
-      "type": "radio",
-      "required": true,
-      "routing": true,
-      "label": "Who is this W-9 for?",
-      "helpText": "This determines which fields you'll need to fill out",
-      "options": [
-        { "value": "individual", "label": "Individual / Sole proprietor" },
-        { "value": "business", "label": "Business or organization" }
-      ]
-    },
-    {
-      "key": "legal_name",
-      "type": "text",
-      "required": true,
-      "label": "Full legal name",
-      "placeholder": "e.g., John Smith",
-      "helpText": "As shown on your income tax return"
-    },
-    {
-      "key": "business_name",
-      "type": "text",
-      "required": true,
-      "label": "Business name or disregarded entity name",
-      "placeholder": "e.g., Smith Consulting LLC",
-      "helpText": "Your official business or DBA name",
-      "visible_when": { "entity_type": ["business"] }
-    },
-    {
       "key": "tax_class",
       "type": "radio",
       "required": true,
-      "label": "Federal tax classification",
-      "helpText": "Check the appropriate box for your federal tax classification",
+      "routing": true,
+      "label": "What best describes you?",
+      "helpText": "Pick the one that fits you best. Most regular people pick the first option.",
       "options": [
-        { "value": "individual", "label": "Individual / Sole proprietor" },
+        { "value": "individual", "label": "Just me — I'm a regular person, freelancer, or self-employed" },
+        { "value": "llc", "label": "My single-member LLC" },
         { "value": "c_corp", "label": "C Corporation" },
         { "value": "s_corp", "label": "S Corporation" },
         { "value": "partnership", "label": "Partnership" },
-        { "value": "trust", "label": "Trust / Estate" },
-        { "value": "llc", "label": "Limited Liability Company (LLC)" },
-        { "value": "other", "label": "Other (see instructions)" }
+        { "value": "trust", "label": "Trust or Estate" },
+        { "value": "other", "label": "Something else" }
       ]
     },
     {
-      "key": "taxpayer_classification",
+      "key": "person_name",
       "type": "text",
       "required": true,
-      "label": "LLC tax classification letter",
-      "placeholder": "C, S, or P",
-      "helpText": "Enter the tax classification: C = C corporation, S = S corporation, P = Partnership",
+      "label": "What is your full legal name?",
+      "placeholder": "Joe Williams",
+      "helpText": "Your name exactly as it shows on your tax return. First and last name.",
+      "visible_when": { "tax_class": ["individual", "llc"] }
+    },
+    {
+      "key": "company_name",
+      "type": "text",
+      "required": true,
+      "label": "What is your company or organization's official name?",
+      "placeholder": "Williams Consulting Inc.",
+      "helpText": "The legal name of your business as registered.",
+      "visible_when": { "tax_class": ["c_corp", "s_corp", "partnership", "trust", "other"] }
+    },
+    {
+      "key": "llc_name",
+      "type": "text",
+      "required": true,
+      "label": "What is the name of your LLC?",
+      "placeholder": "Williams Services LLC",
+      "helpText": "The official name of your LLC as registered with the state.",
       "visible_when": { "tax_class": ["llc"] }
+    },
+    {
+      "key": "taxpayer_classification",
+      "type": "radio",
+      "required": true,
+      "label": "How is your LLC taxed?",
+      "helpText": "Not sure? Most single-member LLCs are taxed as sole proprietors — pick C if your accountant said C-corp, S if S-corp, P if partnership.",
+      "visible_when": { "tax_class": ["llc"] },
+      "options": [
+        { "value": "C", "label": "As a C Corporation" },
+        { "value": "S", "label": "As an S Corporation" },
+        { "value": "P", "label": "As a Partnership" }
+      ]
     },
     {
       "key": "other_taxpayer_classification",
       "type": "text",
       "required": true,
-      "label": "Other federal tax classification",
-      "placeholder": "e.g., Non-profit organization",
-      "helpText": "Describe your tax classification",
+      "label": "What type of organization are you?",
+      "placeholder": "e.g., Non-profit, Government entity",
+      "helpText": "Just describe it in a few words.",
       "visible_when": { "tax_class": ["other"] }
     },
     {
@@ -69,9 +72,9 @@
       "required": true,
       "routing": true,
       "label": "Do you have any exemption codes?",
-      "helpText": "Exemption codes apply only to certain entities, not individuals. See W-9 instructions for details.",
+      "helpText": "Most people don't. Exemption codes are for specific types of companies and organizations — not for regular individuals. If you're not sure, pick 'No'.",
       "options": [
-        { "value": "no", "label": "No, I don't have exemptions" },
+        { "value": "no", "label": "No (most people)" },
         { "value": "yes", "label": "Yes, I have exemption codes" }
       ]
     },
@@ -79,95 +82,86 @@
       "key": "exempt_payee_code",
       "type": "text",
       "required": false,
-      "label": "Exempt payee code",
+      "label": "Exempt payee code?",
       "placeholder": "e.g., 1",
-      "helpText": "Enter the applicable exempt payee code (1–13). See W-9 instructions.",
+      "helpText": "A number between 1 and 13. Your accountant or the company requesting this form should know which one applies to you.",
       "visible_when": { "has_exemptions": ["yes"] }
     },
     {
       "key": "fatca_exemption",
       "type": "text",
       "required": false,
-      "label": "Exemption from FATCA reporting code",
+      "label": "FATCA exemption code?",
       "placeholder": "e.g., A",
-      "helpText": "Enter the applicable FATCA exemption code (A–M). See W-9 instructions.",
+      "helpText": "A letter between A and M. This is for organizations exempt from foreign account reporting. If you don't know it, leave it blank.",
       "visible_when": { "has_exemptions": ["yes"] }
     },
     {
       "key": "broker_exempt",
       "type": "checkbox",
       "required": false,
-      "label": "Exempt broker transaction",
-      "helpText": "Check if you are a broker that only processes transactions and is not required to report income from those transactions"
+      "label": "I'm a broker exempt from reporting certain transactions",
+      "helpText": "Only check this if you're a securities broker who only processes transactions and doesn't report income from them. Most people skip this."
     },
     {
       "key": "address",
       "type": "text",
       "required": true,
-      "label": "Street address",
+      "label": "What is your street address?",
       "placeholder": "123 Main Street, Apt 4",
-      "helpText": "Number, street, and apartment or suite number"
+      "helpText": "Where you get your mail. Include apartment or suite number if you have one."
     },
     {
       "key": "citystatezip",
       "type": "text",
       "required": true,
-      "label": "City, state, and ZIP code",
-      "placeholder": "New York, NY 10001"
+      "label": "City, state, and ZIP code?",
+      "placeholder": "Oklahoma City, OK 73102",
+      "helpText": "Example: Dallas, TX 75201"
     },
     {
       "key": "tin_type",
       "type": "radio",
       "required": true,
       "routing": true,
-      "label": "Which identification number will you provide?",
-      "helpText": "SSN for individuals, EIN for businesses. Choose the one that applies to you.",
+      "label": "Which tax ID number do you want to use?",
+      "helpText": "If your LLC has its own EIN (Employer ID Number), use that. If not, you can use your personal Social Security Number.",
+      "visible_when": { "tax_class": ["llc"] },
       "options": [
-        { "value": "ssn", "label": "Social Security Number (SSN)" },
-        { "value": "ein", "label": "Employer Identification Number (EIN)" }
+        { "value": "ssn", "label": "My Social Security Number (SSN)" },
+        { "value": "ein", "label": "My LLC's Employer ID Number (EIN)" }
       ]
     },
     {
       "key": "ssn",
       "type": "text",
       "required": true,
-      "label": "Social Security Number (SSN)",
+      "label": "What is your Social Security Number?",
       "placeholder": "123-45-6789",
-      "helpText": "Enter your 9-digit Social Security Number",
-      "visible_when": { "tin_type": ["ssn"] }
+      "helpText": "Your 9-digit SSN. We need this for tax reporting. It will not be shared with anyone.",
+      "visible_when_any": [
+        { "tax_class": ["individual"] },
+        { "tax_class": ["llc"], "tin_type": ["ssn"] }
+      ]
     },
     {
       "key": "ein",
       "type": "text",
       "required": true,
-      "label": "Employer Identification Number (EIN)",
+      "label": "What is your Employer Identification Number (EIN)?",
       "placeholder": "12-3456789",
-      "helpText": "Enter your 9-digit Employer Identification Number",
-      "visible_when": { "tin_type": ["ein"] }
+      "helpText": "Your 9-digit EIN. This is the tax ID the IRS gave your business.",
+      "visible_when_any": [
+        { "tax_class": ["c_corp", "s_corp", "partnership", "trust", "other"] },
+        { "tax_class": ["llc"], "tin_type": ["ein"] }
+      ]
     },
     {
-      "key": "requester_name",
-      "type": "text",
-      "required": false,
-      "label": "Requester's name and address",
-      "placeholder": "Company name, address",
-      "helpText": "Name and address of the person or company requesting this form (optional)"
-    },
-    {
-      "key": "account_number",
-      "type": "text",
-      "required": false,
-      "label": "Account number(s)",
-      "placeholder": "e.g., 12345678",
-      "helpText": "Optional account number(s)"
-    },
-    {
-      "key": "sign_date",
-      "type": "text",
+      "key": "signature",
+      "type": "signature",
       "required": true,
-      "label": "Date (signature date)",
-      "placeholder": "03/06/2026",
-      "helpText": "Enter today's date in MM/DD/YYYY format"
+      "label": "Sign your name",
+      "helpText": "By signing, you confirm that the information above is correct. You can type your name or draw your signature."
     }
   ]
 }

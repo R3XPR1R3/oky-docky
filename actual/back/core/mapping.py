@@ -295,6 +295,15 @@ def build_pdf_field_values(form_data: Dict[str, Any], mapping: Dict[str, Any]) -
             else:
                 if field:
                     out[field] = raw
+                elif raw.strip():
+                    # No PDF form field — render typed name as text overlay
+                    sig_overlays.append({
+                        "value": raw.strip(),
+                        "page": rule.get("page", 0),
+                        "rect": rule.get("rect", [0, 0, 200, 50]),
+                        "field": "",
+                        "text_mode": True,
+                    })
 
         elif rtype == "tin_split":
             raw = "" if value is None else str(value)

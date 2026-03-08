@@ -44,6 +44,22 @@ def _apply_signature_overlays(writer: PdfWriter, overlays: List[Dict[str, Any]])
         data_url = overlay.get("value", "")
         page_idx = overlay.get("page", 0)
         rect = overlay.get("rect", [0, 0, 200, 50])
+        text_mode = overlay.get("text_mode", False)
+
+        if page_idx >= len(writer.pages):
+            continue
+
+        x1, y1, x2, y2 = rect
+        w = x2 - x1
+        h = y2 - y1
+
+        if text_mode and data_url.strip():
+            # Render typed text directly onto the PDF page
+            try:
+                _stamp_text_with_fpdf2(writer, page_idx, data_url.strip(), x1, y1, w, h)
+            except Exception:
+                pass
+            continue
 
         if not data_url.startswith("data:image"):
             continue
@@ -54,19 +70,36 @@ def _apply_signature_overlays(writer: PdfWriter, overlays: List[Dict[str, Any]])
         except Exception:
             continue
 
-        if page_idx >= len(writer.pages):
-            continue
-
-        x1, y1, x2, y2 = rect
-        w = x2 - x1
-        h = y2 - y1
-
         try:
             img = Image.open(io.BytesIO(img_bytes)).convert("RGBA")
             _stamp_with_fpdf2(writer, page_idx, img, x1, y1, w, h)
         except Exception:
             # fpdf2 not available or error — skip image overlay silently
             pass
+
+
+def _stamp_text_with_fpdf2(writer: PdfWriter, page_idx: int, text: str, x: float, y: float, w: float, h: float) -> None:
+    """Use fpdf2 to stamp typed signature text onto the target page."""
+    from fpdf import FPDF
+
+    page = writer.pages[page_idx]
+    media_box = page.mediabox
+    page_w = float(media_box.width)
+    page_h = float(media_box.height)
+
+    # fpdf2 uses top-left origin; PDF uses bottom-left
+    fpdf_y = page_h - y - h
+
+    pdf = FPDF(unit="pt", format=(page_w, page_h))
+    pdf.add_page()
+    pdf.set_auto_page_break(False)
+    pdf.set_font("Courier", "I", size=min(h * 0.8, 12))
+    pdf.set_xy(x, fpdf_y)
+    pdf.cell(w=w, h=h, text=text, align="L")
+
+    stamp_bytes = pdf.output()
+    stamp_reader = PdfReader(io.BytesIO(stamp_bytes))
+    page.merge_page(stamp_reader.pages[0])
 
 
 def _stamp_with_fpdf2(writer: PdfWriter, page_idx: int, img, x: float, y: float, w: float, h: float) -> None:
