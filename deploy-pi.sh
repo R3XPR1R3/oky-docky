@@ -223,6 +223,96 @@ UNIT
   log "Systemd service 'oky-docky' installed, enabled, and started."
   log "  Status:  sudo systemctl status oky-docky"
   log "  Logs:    journalctl -u oky-docky -f"
+
+  # Install autostart terminal that shows Cloudflare URL
+  install_autostart_terminal
+}
+
+# ------------------------------------------------------------------
+#  Autostart terminal: open a terminal on boot showing tunnel URL
+# ------------------------------------------------------------------
+install_autostart_terminal() {
+  local REAL_USER="${SUDO_USER:-$(whoami)}"
+  local REAL_HOME
+  REAL_HOME=$(eval echo "~${REAL_USER}")
+
+  local SHOW_SCRIPT="${SCRIPT_DIR}/show-tunnel-url.sh"
+  local AUTOSTART_DIR="${REAL_HOME}/.config/autostart"
+
+  # Create the helper script that waits for and displays the URL
+  cat > "$SHOW_SCRIPT" <<'URLSCRIPT'
+#!/usr/bin/env bash
+# ── Oky-Docky: show Cloudflare tunnel URL ──
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TUNNEL_LOG="${SCRIPT_DIR}/tunnel.log"
+
+clear
+echo "========================================"
+echo "   Oky-Docky — ожидание запуска...      "
+echo "========================================"
+echo ""
+
+# Wait for the tunnel URL (up to 90 seconds)
+for i in $(seq 1 45); do
+  URL=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
+  if [ -n "$URL" ]; then
+    clear
+    echo "========================================"
+    echo "   Oky-Docky запущен!"
+    echo "========================================"
+    echo ""
+    echo "   Ссылка для доступа:"
+    echo ""
+    echo "   $URL"
+    echo ""
+    echo "========================================"
+    echo ""
+    echo "   Отправьте эту ссылку друзьям!"
+    echo ""
+    echo "   Нажмите Ctrl+C чтобы закрыть окно."
+    echo "========================================"
+    # Keep refreshing URL every 60s in case tunnel restarts
+    while true; do
+      sleep 60
+      NEW_URL=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
+      if [ -n "$NEW_URL" ] && [ "$NEW_URL" != "$URL" ]; then
+        URL="$NEW_URL"
+        clear
+        echo "========================================"
+        echo "   Oky-Docky запущен!"
+        echo "========================================"
+        echo ""
+        echo "   Новая ссылка:"
+        echo ""
+        echo "   $URL"
+        echo ""
+        echo "========================================"
+      fi
+    done
+  fi
+  sleep 2
+done
+
+echo "Не удалось получить ссылку. Проверьте: ${TUNNEL_LOG}"
+echo "Нажмите Enter для выхода."
+read -r
+URLSCRIPT
+  chmod +x "$SHOW_SCRIPT"
+
+  # Create autostart desktop entry
+  mkdir -p "$AUTOSTART_DIR"
+  cat > "${AUTOSTART_DIR}/oky-docky-terminal.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=Oky-Docky Tunnel URL
+Comment=Shows Cloudflare tunnel URL on startup
+Exec=lxterminal --title="Oky-Docky" -e "${SHOW_SCRIPT}"
+Terminal=false
+X-GNOME-Autostart-enabled=true
+DESKTOP
+
+  log "Autostart terminal installed: ${AUTOSTART_DIR}/oky-docky-terminal.desktop"
+  log "A terminal with the Cloudflare URL will open on every boot."
 }
 
 # ------------------------------------------------------------------
