@@ -17,6 +17,7 @@ from pypdf import PdfReader
 
 from .core.mapping import build_pdf_field_values
 from .core.template_store import load_template, list_templates, load_template_meta
+from .core.transforms import apply_transforms
 from .engines.acroform import fill_acroform_pdf
 
 app = FastAPI()
@@ -489,7 +490,12 @@ def api_render(template_id: str, payload: dict):
     if bundle.engine != "acroform":
         raise HTTPException(400, f"Unsupported engine for now: {bundle.engine}")
 
-    prepared_data = enrich_form_data(template_id, data)
+    # Use declarative transforms from schema if available, else legacy enrichment
+    schema_transforms = bundle.schema.get("transforms")
+    if schema_transforms:
+        prepared_data = apply_transforms(data, schema_transforms)
+    else:
+        prepared_data = enrich_form_data(template_id, data)
     pdf_field_values, sig_overlays = build_pdf_field_values(prepared_data, bundle.mapping)
 
     request_id = uuid.uuid4().hex[:12]

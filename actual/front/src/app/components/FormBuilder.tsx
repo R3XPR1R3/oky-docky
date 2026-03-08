@@ -20,17 +20,50 @@ import {
   SelectValue,
 } from './ui/select';
 import { toast } from 'sonner';
-import type { SchemaField, Schema } from '../App';
+import type { SchemaField, Schema, SchemaTransform } from '../App';
 import { QuestionFlow } from './QuestionFlow';
 
 interface FormBuilderProps {
   onBack: () => void;
 }
 
+const TRANSFORM_TYPE_COLORS: Record<string, string> = {
+  derive: 'bg-orange-100 text-orange-700',
+  compute: 'bg-cyan-100 text-cyan-700',
+  copy: 'bg-emerald-100 text-emerald-700',
+  auto_date: 'bg-rose-100 text-rose-700',
+  set_value: 'bg-violet-100 text-violet-700',
+};
+
+function createEmptyTransform(): SchemaTransform {
+  return { type: 'derive', when: {}, set: {} };
+}
+
+function transformSummary(t: SchemaTransform): string {
+  switch (t.type) {
+    case 'derive': {
+      const keys = Object.keys(t.when || {});
+      const setKeys = Object.keys(t.set || {});
+      return `when ${keys.join(', ')} → set ${setKeys.join(', ')}`;
+    }
+    case 'compute':
+      return `${t.operation || 'multiply'}(${t.input || t.inputs?.join(', ') || '?'}) → ${t.output || '?'}`;
+    case 'copy':
+      return `copy ${t.from || '?'} → ${t.to || '?'}${t.if_empty ? ' (if empty)' : ''}`;
+    case 'auto_date':
+      return `auto_date → ${t.field || '?'} (${t.format || 'MM/DD/YYYY'})`;
+    case 'set_value':
+      return `set ${t.field || '?'} = ${JSON.stringify(t.value)}`;
+    default:
+      return JSON.stringify(t);
+  }
+}
+
 const FIELD_TYPE_COLORS: Record<string, string> = {
   text: 'bg-blue-100 text-blue-700',
   radio: 'bg-purple-100 text-purple-700',
   checkbox: 'bg-green-100 text-green-700',
+  signature: 'bg-amber-100 text-amber-700',
 };
 
 function generateKey(label: string): string {
@@ -61,6 +94,64 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
   const [showJson, setShowJson] = useState(false);
   const [jsonImport, setJsonImport] = useState('');
   const [showImport, setShowImport] = useState(false);
+  const [transforms, setTransforms] = useState<SchemaTransform[]>([]);
+  const [expandedTransform, setExpandedTransform] = useState<number | null>(null);
+  const [showTransforms, setShowTransforms] = useState(false);
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
+  const [showLoadTemplate, setShowLoadTemplate] = useState(false);
+
+  // --- Load templates list ---
+  const loadTemplateList = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/templates');
+      if (res.ok) {
+        const data = await res.json();
+        setTemplates(data.templates || []);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  const loadTemplateSchema = useCallback(async (templateId: string) => {
+    try {
+      const res = await fetch(`/api/admin/templates/${templateId}/bundle`);
+      if (res.ok) {
+        const data = await res.json();
+        const schema = data.schema;
+        if (schema?.fields) {
+          setFields(schema.fields);
+          setTransforms(schema.transforms || []);
+          setSelectedTemplate(templateId);
+          setShowLoadTemplate(false);
+          toast.success(`Loaded ${schema.fields.length} fields from ${templateId}`);
+        }
+      }
+    } catch { toast.error('Failed to load template'); }
+  }, []);
+
+  const saveToTemplate = useCallback(async () => {
+    if (!selectedTemplate) {
+      toast.error('Load a template first before saving');
+      return;
+    }
+    try {
+      const res = await fetch(`/api/admin/templates/${selectedTemplate}/bundle`);
+      if (!res.ok) throw new Error('Failed to fetch current bundle');
+      const bundle = await res.json();
+
+      const updatedSchema = { ...bundle.schema, fields, transforms: transforms.length > 0 ? transforms : undefined };
+      const saveRes = await fetch(`/api/admin/templates/${selectedTemplate}/bundle`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ template: bundle.template, schema: updatedSchema, mapping: bundle.mapping }),
+      });
+      if (saveRes.ok) {
+        toast.success(`Saved to ${selectedTemplate}`);
+      } else {
+        toast.error('Failed to save');
+      }
+    } catch { toast.error('Failed to save template'); }
+  }, [selectedTemplate, fields]);
 
   // --- Field CRUD ---
 
@@ -156,7 +247,10 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
 
   // --- JSON Export / Import ---
 
-  const schemaJson = JSON.stringify({ fields }, null, 2);
+  const schemaJson = JSON.stringify(
+    transforms.length > 0 ? { fields, transforms } : { fields },
+    null, 2
+  );
 
   const handleCopyJson = () => {
     navigator.clipboard.writeText(schemaJson);
@@ -179,6 +273,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
       const parsed = JSON.parse(jsonImport);
       if (parsed.fields && Array.isArray(parsed.fields)) {
         setFields(parsed.fields);
+        setTransforms(parsed.transforms || []);
         setShowImport(false);
         setJsonImport('');
         toast.success(`Imported ${parsed.fields.length} fields`);
@@ -195,7 +290,10 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
   const getPrecedingFields = (index: number) => fields.slice(0, index).filter((f) => f.key);
 
   // Preview schema
-  const previewSchema: Schema = { fields: fields.filter((f) => f.key && f.label) };
+  const previewSchema: Schema = {
+    fields: fields.filter((f) => f.key && f.label),
+    ...(transforms.length > 0 ? { transforms } : {}),
+  };
 
   return (
     <div className="min-h-screen">
@@ -265,11 +363,14 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
             animate={{ y: 0, opacity: 1 }}
             className="flex flex-wrap items-center gap-3 mb-8"
           >
+            <Button variant="outline" size="sm" onClick={() => { loadTemplateList(); setShowLoadTemplate(true); }} className="gap-2">
+              <FileText className="w-4 h-4" /> Load Template
+            </Button>
+            <Button variant="outline" size="sm" onClick={saveToTemplate} className="gap-2" disabled={!selectedTemplate || fields.length === 0}>
+              <Download className="w-4 h-4" /> Save{selectedTemplate ? ` → ${selectedTemplate}` : ''}
+            </Button>
             <Button variant="outline" size="sm" onClick={() => setShowImport(true)} className="gap-2">
               <Upload className="w-4 h-4" /> Import JSON
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleExportJson} className="gap-2" disabled={fields.length === 0}>
-              <Download className="w-4 h-4" /> Export JSON
             </Button>
             <Button variant="outline" size="sm" onClick={handleCopyJson} className="gap-2" disabled={fields.length === 0}>
               <Copy className="w-4 h-4" /> Copy JSON
@@ -317,6 +418,50 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                   <div className="flex justify-end gap-2 mt-4">
                     <Button variant="outline" onClick={() => setShowImport(false)}>Cancel</Button>
                     <Button onClick={handleImportJson} disabled={!jsonImport.trim()}>Import</Button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Load Template Modal */}
+          <AnimatePresence>
+            {showLoadTemplate && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+                onClick={() => setShowLoadTemplate(false)}
+              >
+                <motion.div
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0.95 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold">Load Template</h3>
+                    <Button variant="ghost" size="icon" onClick={() => setShowLoadTemplate(false)}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {templates.length === 0 ? (
+                      <p className="text-sm text-slate-500 py-4 text-center">No templates found</p>
+                    ) : (
+                      templates.map((t) => (
+                        <button
+                          key={t.id}
+                          onClick={() => loadTemplateSchema(t.id)}
+                          className="w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition-colors"
+                        >
+                          <div className="font-medium">{t.title || t.id}</div>
+                          {t.description && <div className="text-sm text-slate-500 mt-1">{t.description}</div>}
+                        </button>
+                      ))
+                    )}
                   </div>
                 </motion.div>
               </motion.div>
@@ -460,6 +605,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                   <SelectItem value="text">Text Input</SelectItem>
                                   <SelectItem value="radio">Radio / Choice</SelectItem>
                                   <SelectItem value="checkbox">Checkbox</SelectItem>
+                                  <SelectItem value="signature">Signature</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
@@ -518,6 +664,39 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                               placeholder="Additional instructions shown below the question"
                             />
                           </div>
+
+                          {/* Row 5: Input Mask + Max Length (text only) */}
+                          {field.type === 'text' && (
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-1.5">
+                                <Label className="text-xs font-medium text-slate-500">
+                                  Input Mask
+                                  <span className="ml-1 text-slate-400">(D=digit, L=letter, A=any)</span>
+                                </Label>
+                                <Input
+                                  value={field.inputMask || ''}
+                                  onChange={(e) => {
+                                    const mask = e.target.value || undefined;
+                                    const updates: Partial<SchemaField> = { inputMask: mask };
+                                    if (mask) updates.maxLength = mask.length;
+                                    updateField(index, updates);
+                                  }}
+                                  placeholder="e.g. DDD-DD-DDDD"
+                                  className="font-mono text-sm"
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <Label className="text-xs font-medium text-slate-500">Max Length</Label>
+                                <Input
+                                  type="number"
+                                  value={field.maxLength ?? ''}
+                                  onChange={(e) => updateField(index, { maxLength: e.target.value ? parseInt(e.target.value) : undefined })}
+                                  placeholder="auto"
+                                  className="text-sm"
+                                />
+                              </div>
+                            </div>
+                          )}
 
                           {/* Options Editor (radio only) */}
                           {field.type === 'radio' && (
@@ -654,6 +833,347 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
               );
             })}
           </div>
+
+          {/* Transforms Section */}
+          {fields.length > 0 && (
+            <div className="mt-8">
+              <div
+                className="flex items-center justify-between cursor-pointer px-2 py-3"
+                onClick={() => setShowTransforms(!showTransforms)}
+              >
+                <div className="flex items-center gap-2">
+                  <ChevronRight className={`w-4 h-4 text-slate-500 transition-transform ${showTransforms ? 'rotate-90' : ''}`} />
+                  <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
+                    Transform Rules
+                  </h3>
+                  <Badge variant="secondary" className="text-xs">{transforms.length}</Badge>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs gap-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setTransforms((prev) => [...prev, createEmptyTransform()]);
+                    setExpandedTransform(transforms.length);
+                    setShowTransforms(true);
+                  }}
+                >
+                  <Plus className="w-3 h-3" /> Add Rule
+                </Button>
+              </div>
+
+              <AnimatePresence>
+                {showTransforms && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden space-y-3"
+                  >
+                    {transforms.length === 0 && (
+                      <p className="text-sm text-slate-400 py-4 text-center">
+                        No transform rules. Add rules to compute, derive, or copy field values automatically.
+                      </p>
+                    )}
+
+                    {transforms.map((tr, ti) => {
+                      const isExpTr = expandedTransform === ti;
+                      return (
+                        <div key={ti} className="bg-white rounded-xl border-2 border-slate-200 overflow-hidden shadow-sm">
+                          {/* Collapsed header */}
+                          <div
+                            className="flex items-center gap-3 px-5 py-3 cursor-pointer select-none"
+                            onClick={() => setExpandedTransform(isExpTr ? null : ti)}
+                          >
+                            <span className="text-sm font-mono text-slate-400 w-6">{ti + 1}</span>
+                            <Badge className={`${TRANSFORM_TYPE_COLORS[tr.type] || 'bg-slate-100 text-slate-700'} text-xs`}>
+                              {tr.type}
+                            </Badge>
+                            <span className="text-sm text-slate-600 truncate flex-1">
+                              {transformSummary(tr)}
+                            </span>
+                            <Button
+                              variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setTransforms((prev) => prev.filter((_, i) => i !== ti));
+                                if (expandedTransform === ti) setExpandedTransform(null);
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                            <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isExpTr ? 'rotate-90' : ''}`} />
+                          </div>
+
+                          {/* Expanded editor */}
+                          <AnimatePresence>
+                            {isExpTr && (
+                              <motion.div
+                                initial={{ height: 0 }}
+                                animate={{ height: 'auto' }}
+                                exit={{ height: 0 }}
+                                className="overflow-hidden"
+                              >
+                                <Separator />
+                                <div className="p-5 space-y-4 bg-slate-50/50">
+                                  {/* Transform type */}
+                                  <div className="space-y-1.5">
+                                    <Label className="text-xs font-medium text-slate-500">Transform Type</Label>
+                                    <Select
+                                      value={tr.type}
+                                      onValueChange={(v) => {
+                                        setTransforms((prev) => prev.map((t, i) => {
+                                          if (i !== ti) return t;
+                                          const base: SchemaTransform = { type: v as SchemaTransform['type'] };
+                                          if (v === 'derive') return { ...base, when: {}, set: {} };
+                                          if (v === 'compute') return { ...base, operation: 'multiply', input: '', factor: 1, output: '' };
+                                          if (v === 'copy') return { ...base, from: '', to: '', if_empty: false };
+                                          if (v === 'auto_date') return { ...base, field: '', format: 'MM/DD/YYYY' };
+                                          if (v === 'set_value') return { ...base, field: '', value: '' };
+                                          return base;
+                                        }));
+                                      }}
+                                    >
+                                      <SelectTrigger><SelectValue /></SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="derive">Derive (conditional set)</SelectItem>
+                                        <SelectItem value="compute">Compute (math)</SelectItem>
+                                        <SelectItem value="copy">Copy (field to field)</SelectItem>
+                                        <SelectItem value="auto_date">Auto Date</SelectItem>
+                                        <SelectItem value="set_value">Set Value</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+
+                                  {/* Type-specific editors */}
+                                  {tr.type === 'derive' && (
+                                    <>
+                                      <div className="space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-500">When (JSON condition)</Label>
+                                        <Input
+                                          value={JSON.stringify(tr.when || {})}
+                                          onChange={(e) => {
+                                            try {
+                                              const parsed = JSON.parse(e.target.value);
+                                              setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, when: parsed } : t));
+                                            } catch { /* ignore bad json while typing */ }
+                                          }}
+                                          placeholder='{"field_key": "value"}'
+                                          className="font-mono text-sm"
+                                        />
+                                      </div>
+                                      <div className="space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-500">Set (JSON fields to set)</Label>
+                                        <Input
+                                          value={JSON.stringify(tr.set || {})}
+                                          onChange={(e) => {
+                                            try {
+                                              const parsed = JSON.parse(e.target.value);
+                                              setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, set: parsed } : t));
+                                            } catch { /* ignore */ }
+                                          }}
+                                          placeholder='{"derived_field": true}'
+                                          className="font-mono text-sm"
+                                        />
+                                      </div>
+                                    </>
+                                  )}
+
+                                  {tr.type === 'compute' && (
+                                    <>
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                          <Label className="text-xs font-medium text-slate-500">Operation</Label>
+                                          <Select
+                                            value={tr.operation || 'multiply'}
+                                            onValueChange={(v) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, operation: v } : t))}
+                                          >
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="multiply">Multiply</SelectItem>
+                                              <SelectItem value="sum">Sum</SelectItem>
+                                              <SelectItem value="subtract">Subtract</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                          <Label className="text-xs font-medium text-slate-500">Output Field</Label>
+                                          <Input
+                                            value={tr.output || ''}
+                                            onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, output: e.target.value } : t))}
+                                            placeholder="output_field_key"
+                                            className="font-mono text-sm"
+                                          />
+                                        </div>
+                                      </div>
+                                      {tr.operation === 'multiply' ? (
+                                        <div className="grid grid-cols-2 gap-4">
+                                          <div className="space-y-1.5">
+                                            <Label className="text-xs font-medium text-slate-500">Input Field</Label>
+                                            <Input
+                                              value={tr.input || ''}
+                                              onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, input: e.target.value } : t))}
+                                              placeholder="source_field_key"
+                                              className="font-mono text-sm"
+                                            />
+                                          </div>
+                                          <div className="space-y-1.5">
+                                            <Label className="text-xs font-medium text-slate-500">Factor</Label>
+                                            <Input
+                                              type="number"
+                                              value={tr.factor ?? ''}
+                                              onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, factor: e.target.value ? parseInt(e.target.value) : undefined } : t))}
+                                              placeholder="1"
+                                            />
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="space-y-1.5">
+                                          <Label className="text-xs font-medium text-slate-500">Input Fields (comma-separated)</Label>
+                                          <Input
+                                            value={(tr.inputs || []).join(', ')}
+                                            onChange={(e) => {
+                                              const inputs = e.target.value.split(',').map((s) => s.trim()).filter(Boolean);
+                                              setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, inputs } : t));
+                                            }}
+                                            placeholder="field_a, field_b"
+                                            className="font-mono text-sm"
+                                          />
+                                        </div>
+                                      )}
+                                    </>
+                                  )}
+
+                                  {tr.type === 'copy' && (
+                                    <>
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                          <Label className="text-xs font-medium text-slate-500">From Field</Label>
+                                          <Input
+                                            value={tr.from || ''}
+                                            onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, from: e.target.value } : t))}
+                                            placeholder="source_field"
+                                            className="font-mono text-sm"
+                                          />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                          <Label className="text-xs font-medium text-slate-500">To Field</Label>
+                                          <Input
+                                            value={tr.to || ''}
+                                            onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, to: e.target.value } : t))}
+                                            placeholder="target_field"
+                                            className="font-mono text-sm"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-4 items-end">
+                                        <div className="space-y-1.5">
+                                          <Label className="text-xs font-medium text-slate-500">When (optional JSON condition)</Label>
+                                          <Input
+                                            value={tr.when ? JSON.stringify(tr.when) : ''}
+                                            onChange={(e) => {
+                                              if (!e.target.value) {
+                                                setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, when: undefined } : t));
+                                                return;
+                                              }
+                                              try {
+                                                const parsed = JSON.parse(e.target.value);
+                                                setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, when: parsed } : t));
+                                              } catch { /* ignore */ }
+                                            }}
+                                            placeholder='{"field": "value"}'
+                                            className="font-mono text-sm"
+                                          />
+                                        </div>
+                                        <div className="flex items-center gap-2 pb-1">
+                                          <Switch
+                                            checked={!!tr.if_empty}
+                                            onCheckedChange={(v) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, if_empty: v } : t))}
+                                          />
+                                          <Label className="text-sm">Only if target is empty</Label>
+                                        </div>
+                                      </div>
+                                    </>
+                                  )}
+
+                                  {tr.type === 'auto_date' && (
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div className="space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-500">Target Field</Label>
+                                        <Input
+                                          value={tr.field || ''}
+                                          onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, field: e.target.value } : t))}
+                                          placeholder="date_signed"
+                                          className="font-mono text-sm"
+                                        />
+                                      </div>
+                                      <div className="space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-500">Format</Label>
+                                        <Input
+                                          value={tr.format || 'MM/DD/YYYY'}
+                                          onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, format: e.target.value } : t))}
+                                          placeholder="MM/DD/YYYY"
+                                          className="font-mono text-sm"
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {tr.type === 'set_value' && (
+                                    <>
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                          <Label className="text-xs font-medium text-slate-500">Target Field</Label>
+                                          <Input
+                                            value={tr.field || ''}
+                                            onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, field: e.target.value } : t))}
+                                            placeholder="field_key"
+                                            className="font-mono text-sm"
+                                          />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                          <Label className="text-xs font-medium text-slate-500">Value</Label>
+                                          <Input
+                                            value={typeof tr.value === 'string' ? tr.value : JSON.stringify(tr.value ?? '')}
+                                            onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, value: e.target.value } : t))}
+                                            placeholder="value"
+                                            className="font-mono text-sm"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-500">When (optional JSON condition)</Label>
+                                        <Input
+                                          value={tr.when ? JSON.stringify(tr.when) : ''}
+                                          onChange={(e) => {
+                                            if (!e.target.value) {
+                                              setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, when: undefined } : t));
+                                              return;
+                                            }
+                                            try {
+                                              const parsed = JSON.parse(e.target.value);
+                                              setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, when: parsed } : t));
+                                            } catch { /* ignore */ }
+                                          }}
+                                          placeholder='{"field": "value"} or leave empty for unconditional'
+                                          className="font-mono text-sm"
+                                        />
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
 
           {/* Add Field Button */}
           {fields.length > 0 && (

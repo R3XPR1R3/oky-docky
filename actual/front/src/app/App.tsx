@@ -36,13 +36,33 @@ export interface SchemaField {
   label: string;
   placeholder?: string;
   helpText?: string;
+  inputMask?: string;
+  maxLength?: number;
   options?: { value: string; label: string }[];
   visible_when?: Record<string, string[]>;
   visible_when_any?: Record<string, string[]>[];
 }
 
+export interface SchemaTransform {
+  type: 'derive' | 'compute' | 'copy' | 'auto_date' | 'set_value';
+  when?: Record<string, string | string[] | boolean>;
+  set?: Record<string, any>;
+  operation?: string;
+  input?: string;
+  inputs?: string[];
+  factor?: number;
+  output?: string;
+  from?: string;
+  to?: string;
+  if_empty?: boolean;
+  field?: string;
+  format?: string;
+  value?: any;
+}
+
 export interface Schema {
   fields: SchemaField[];
+  transforms?: SchemaTransform[];
 }
 
 function AppInner() {
