@@ -112,17 +112,29 @@ def _apply_locale_to_schema(
 # Visibility resolver
 # ---------------------------------------------------------------------------
 
-def _is_field_visible(field: dict, answers: dict) -> bool:
-    visible_when = field.get("visible_when")
-    if not visible_when:
-        return True
-
-    for dep_key, allowed_values in visible_when.items():
+def _check_condition_group(group: dict, answers: dict) -> bool:
+    """Check if ALL conditions in a group match (AND logic)."""
+    for dep_key, allowed_values in group.items():
         current_value = answers.get(dep_key)
         if current_value in (None, ""):
             return False
         if str(current_value) not in [str(v) for v in allowed_values]:
             return False
+    return True
+
+
+def _is_field_visible(field: dict, answers: dict) -> bool:
+    visible_when = field.get("visible_when")
+    visible_when_any = field.get("visible_when_any")
+
+    # visible_when_any: list of condition groups, ANY group can match (OR logic)
+    if visible_when_any and isinstance(visible_when_any, list):
+        return any(_check_condition_group(group, answers) for group in visible_when_any)
+
+    # visible_when: single condition group, ALL must match (AND logic)
+    if visible_when:
+        return _check_condition_group(visible_when, answers)
+
     return True
 
 
@@ -152,9 +164,26 @@ def _to_non_negative_int(value: object) -> int:
 
 def enrich_form_data(template_id: str, data: dict) -> dict:
     """Derive UX-friendly inputs into PDF-ready values."""
+    from datetime import date as _date
+
     enriched = dict(data)
 
-    if template_id == "w4-2026":
+    if template_id == "w9-2026":
+        # Derive legal_name from person_name (individuals/LLC) or company_name (entities)
+        tax_class = enriched.get("tax_class", "")
+        if tax_class in ("individual", "llc"):
+            enriched["legal_name"] = enriched.get("person_name", "")
+        else:
+            enriched["legal_name"] = enriched.get("company_name", "")
+
+        # Derive business_name from llc_name for LLC entities
+        if tax_class == "llc":
+            enriched["business_name"] = enriched.get("llc_name", "")
+
+        # Auto-fill signature date as today
+        enriched.setdefault("sign_date", _date.today().strftime("%m/%d/%Y"))
+
+    elif template_id == "w4-2026":
         children_count = _to_non_negative_int(enriched.get("qualifying_children_count"))
         dependents_count = _to_non_negative_int(enriched.get("other_dependents_count"))
 
@@ -165,6 +194,10 @@ def enrich_form_data(template_id: str, data: dict) -> dict:
         enriched["qualifying_children_amount"] = str(children_amount)
         enriched["other_dependents_amount"] = str(dependents_amount)
         enriched["total_dependents_amount"] = str(total_amount)
+
+    elif template_id == "f14039-2026":
+        # Auto-fill signature date as today
+        enriched.setdefault("date_signed", _date.today().strftime("%m/%d/%Y"))
 
     return enriched
 

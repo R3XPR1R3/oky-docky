@@ -4,105 +4,105 @@
       "key": "first_middle_names",
       "type": "text",
       "required": true,
-      "label": "First name and middle initial",
-      "placeholder": "e.g., John A",
-      "helpText": "Your first name and middle initial as shown on your tax return"
+      "label": "What is your first name?",
+      "placeholder": "Joe A",
+      "helpText": "Your first name and middle initial. Example: Joe A"
     },
     {
       "key": "last_name",
       "type": "text",
       "required": true,
-      "label": "Last name",
-      "placeholder": "e.g., Smith"
+      "label": "What is your last name?",
+      "placeholder": "Williams"
     },
     {
       "key": "ssn",
       "type": "text",
       "required": true,
-      "label": "Social security number",
+      "label": "What is your Social Security Number?",
       "placeholder": "123-45-6789",
-      "helpText": "Your SSN will be kept secure and private"
+      "helpText": "Your 9-digit SSN. This stays private — your employer needs it for tax reporting."
     },
     {
       "key": "address",
       "type": "text",
       "required": true,
-      "label": "Home address",
+      "label": "What is your home address?",
       "placeholder": "123 Main Street, Apt 4",
-      "helpText": "Number, street, and apartment or suite number"
+      "helpText": "Street address, apartment, or suite number."
     },
     {
       "key": "city_state_zip",
       "type": "text",
       "required": true,
-      "label": "City, state, and ZIP code",
-      "placeholder": "New York, NY 10001"
+      "label": "City, state, and ZIP code?",
+      "placeholder": "Oklahoma City, OK 73102"
     },
     {
       "key": "filing_status",
       "type": "radio",
       "required": true,
-      "label": "Filing status",
-      "helpText": "Choose your filing status for tax withholding",
+      "label": "How do you file your taxes?",
+      "helpText": "Not sure? Most single people pick the first option. Married couples usually pick the second.",
       "options": [
-        { "value": "single_mfs", "label": "Single or Married filing separately" },
-        { "value": "mfj_qss", "label": "Married filing jointly or Qualifying surviving spouse" },
-        { "value": "hoh", "label": "Head of household" }
+        { "value": "single_mfs", "label": "Single (or married but filing separately)" },
+        { "value": "mfj_qss", "label": "Married filing together" },
+        { "value": "hoh", "label": "Head of household (single parent or sole provider)" }
       ]
     },
     {
       "key": "two_jobs_checkbox",
       "type": "checkbox",
       "required": false,
-      "label": "Two jobs total",
-      "helpText": "Check if you and your spouse have only two jobs total (Step 2c)"
+      "label": "Do you and/or your spouse have two jobs total?",
+      "helpText": "Check this if you and your spouse together have exactly 2 jobs. This helps calculate the right amount of taxes."
     },
     {
       "key": "qualifying_children_count",
       "type": "text",
       "required": false,
-      "label": "How many qualifying children under 17 do you have?",
-      "placeholder": "e.g., 2",
-      "helpText": "We calculate Step 3 automatically: children × $2,000"
+      "label": "How many kids under 17 do you have?",
+      "placeholder": "0",
+      "helpText": "Children you support who are under 17. Each child gets you a $2,000 tax credit. Put 0 if none."
     },
     {
       "key": "other_dependents_count",
       "type": "text",
       "required": false,
-      "label": "How many other dependents do you have?",
-      "placeholder": "e.g., 1",
-      "helpText": "We calculate Step 3 automatically: other dependents × $500"
+      "label": "Do you support anyone else? (elderly parents, adult children, etc.)",
+      "placeholder": "0",
+      "helpText": "Other people who depend on you financially. Each one gets a $500 credit. Put 0 if none."
     },
     {
       "key": "other_income",
       "type": "text",
       "required": false,
-      "label": "Other income",
-      "placeholder": "e.g., 1000",
-      "helpText": "Step 4(a): Income not from jobs (interest, dividends, retirement)"
+      "label": "Do you have other income besides your job? How much per year?",
+      "placeholder": "0",
+      "helpText": "Money from interest, dividends, rental property, side gigs, retirement, etc. Enter the yearly amount. Put 0 or leave blank if none."
     },
     {
       "key": "deductions",
       "type": "text",
       "required": false,
-      "label": "Deductions",
-      "placeholder": "e.g., 0",
-      "helpText": "Step 4(b): Deductions other than the standard deduction"
+      "label": "Do you have extra deductions? How much?",
+      "placeholder": "0",
+      "helpText": "Only if you itemize deductions (mortgage interest, charity, etc.) and they're more than the standard deduction. Most people leave this at 0."
     },
     {
       "key": "extra_withholding",
       "type": "text",
       "required": false,
-      "label": "Extra withholding",
-      "placeholder": "e.g., 50",
-      "helpText": "Step 4(c): Additional amount to withhold each pay period"
+      "label": "Want extra tax taken out of each paycheck?",
+      "placeholder": "0",
+      "helpText": "Some people like to have extra money withheld so they get a bigger refund. Enter a dollar amount per paycheck, or 0."
     },
     {
       "key": "exempt_checkbox",
       "type": "checkbox",
       "required": false,
-      "label": "Claim exemption from withholding",
-      "helpText": "Check if you had no federal income tax liability last year AND expect none this year. See W-4 instructions."
+      "label": "I'm exempt from taxes",
+      "helpText": "Only check this if: (1) you got back ALL your taxes last year, AND (2) you expect the same this year. Most people do NOT check this."
     }
   ]
 }

@@ -38,6 +38,7 @@ export interface SchemaField {
   helpText?: string;
   options?: { value: string; label: string }[];
   visible_when?: Record<string, string[]>;
+  visible_when_any?: Record<string, string[]>[];
 }
 
 export interface Schema {
