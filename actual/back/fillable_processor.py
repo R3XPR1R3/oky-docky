@@ -467,6 +467,70 @@ def api_admin_create_template(payload: CreateTemplatePayload):
     }
 
 
+@app.post("/api/admin/templates/sync-to-repo")
+def api_admin_sync_to_repo():
+    """Commit and push all template changes in data/templates/ to the git repo."""
+    import subprocess
+
+    repo_root = BASE_DIR.parent.parent  # oky-docky root
+    templates_rel = str(TEMPLATES_ROOT.relative_to(repo_root))
+
+    try:
+        # Stage all template changes
+        subprocess.run(
+            ["git", "add", templates_rel],
+            cwd=str(repo_root), check=True, capture_output=True, text=True,
+        )
+
+        # Check if there's anything to commit
+        status = subprocess.run(
+            ["git", "diff", "--cached", "--name-only"],
+            cwd=str(repo_root), capture_output=True, text=True,
+        )
+        changed_files = [f for f in status.stdout.strip().split("\n") if f]
+        if not changed_files:
+            return {"status": "nothing_to_sync", "message": "No template changes to commit"}
+
+        # Commit
+        subprocess.run(
+            ["git", "commit", "-m", f"sync: update templates ({len(changed_files)} files changed)"],
+            cwd=str(repo_root), check=True, capture_output=True, text=True,
+        )
+
+        # Get current branch
+        branch_result = subprocess.run(
+            ["git", "branch", "--show-current"],
+            cwd=str(repo_root), capture_output=True, text=True,
+        )
+        branch = branch_result.stdout.strip()
+
+        # Push
+        push_result = subprocess.run(
+            ["git", "push", "-u", "origin", branch],
+            cwd=str(repo_root), capture_output=True, text=True,
+            timeout=30,
+        )
+
+        if push_result.returncode != 0:
+            return {
+                "status": "committed_not_pushed",
+                "message": f"Committed {len(changed_files)} files but push failed: {push_result.stderr}",
+                "files": changed_files,
+            }
+
+        return {
+            "status": "synced",
+            "message": f"Committed and pushed {len(changed_files)} files",
+            "branch": branch,
+            "files": changed_files,
+        }
+
+    except subprocess.CalledProcessError as e:
+        raise HTTPException(500, f"Git operation failed: {e.stderr or str(e)}")
+    except Exception as e:
+        raise HTTPException(500, f"Sync failed: {e}")
+
+
 # ---------------------------------------------------------------------------
 # i18n endpoints
 # ---------------------------------------------------------------------------

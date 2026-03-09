@@ -305,6 +305,21 @@ def build_pdf_field_values(form_data: Dict[str, Any], mapping: Dict[str, Any]) -
                         "text_mode": True,
                     })
 
+        elif rtype == "text_overlay":
+            # Overlay text at specific coordinates on a PDF page (no AcroForm field needed)
+            raw = "" if value is None else str(value).strip()
+            if raw:
+                sig_overlays.append({
+                    "value": raw,
+                    "page": rule.get("page", 0),
+                    "rect": rule.get("rect", [0, 0, 200, 20]),
+                    "field": "",
+                    "text_mode": True,
+                    "font_size": rule.get("font_size"),
+                    "font": rule.get("font", "Helvetica"),
+                    "align": rule.get("align", "L"),
+                })
+
         elif rtype == "tin_split":
             raw = "" if value is None else str(value)
             digits = "".join(ch for ch in raw if ch.isdigit())
