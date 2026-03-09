@@ -14,7 +14,7 @@ import re
 import httpx
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from pydantic import BaseModel, Field
 from pypdf import PdfReader
 
@@ -464,6 +464,174 @@ def api_admin_create_template(payload: CreateTemplatePayload):
         "status": "created",
         "template_id": template_id,
         "pdf_fields": pdf_fields,
+    }
+
+
+@app.post("/api/admin/templates/sync-to-repo")
+def api_admin_sync_to_repo():
+    """Commit and push all template changes in data/templates/ to the git repo."""
+    import subprocess
+
+    repo_root = BASE_DIR.parent.parent  # oky-docky root
+    templates_rel = str(TEMPLATES_ROOT.relative_to(repo_root))
+
+    try:
+        # Stage all template changes
+        subprocess.run(
+            ["git", "add", templates_rel],
+            cwd=str(repo_root), check=True, capture_output=True, text=True,
+        )
+
+        # Check if there's anything to commit
+        status = subprocess.run(
+            ["git", "diff", "--cached", "--name-only"],
+            cwd=str(repo_root), capture_output=True, text=True,
+        )
+        changed_files = [f for f in status.stdout.strip().split("\n") if f]
+        if not changed_files:
+            return {"status": "nothing_to_sync", "message": "No template changes to commit"}
+
+        # Commit
+        subprocess.run(
+            ["git", "commit", "-m", f"sync: update templates ({len(changed_files)} files changed)"],
+            cwd=str(repo_root), check=True, capture_output=True, text=True,
+        )
+
+        # Get current branch
+        branch_result = subprocess.run(
+            ["git", "branch", "--show-current"],
+            cwd=str(repo_root), capture_output=True, text=True,
+        )
+        branch = branch_result.stdout.strip()
+
+        # Push
+        push_result = subprocess.run(
+            ["git", "push", "-u", "origin", branch],
+            cwd=str(repo_root), capture_output=True, text=True,
+            timeout=30,
+        )
+
+        if push_result.returncode != 0:
+            return {
+                "status": "committed_not_pushed",
+                "message": f"Committed {len(changed_files)} files but push failed: {push_result.stderr}",
+                "files": changed_files,
+            }
+
+        return {
+            "status": "synced",
+            "message": f"Committed and pushed {len(changed_files)} files",
+            "branch": branch,
+            "files": changed_files,
+        }
+
+    except subprocess.CalledProcessError as e:
+        raise HTTPException(500, f"Git operation failed: {e.stderr or str(e)}")
+    except Exception as e:
+        raise HTTPException(500, f"Sync failed: {e}")
+
+
+# ---------------------------------------------------------------------------
+# SEO endpoints
+# ---------------------------------------------------------------------------
+
+BASE_SITE_URL = os.getenv("SITE_URL", "https://oky-docky.com")
+
+STATIC_PAGES = [
+    {"path": "/", "priority": "1.0", "changefreq": "weekly"},
+    {"path": "/templates", "priority": "0.9", "changefreq": "weekly"},
+    {"path": "/how-it-works", "priority": "0.6", "changefreq": "monthly"},
+    {"path": "/pricing", "priority": "0.6", "changefreq": "monthly"},
+    {"path": "/disclaimer", "priority": "0.3", "changefreq": "yearly"},
+]
+
+
+@app.get("/sitemap.xml")
+def sitemap_xml():
+    """Generate sitemap.xml with all template pages and static pages."""
+    template_ids = list_templates(TEMPLATES_ROOT)
+
+    urls = []
+    for page in STATIC_PAGES:
+        urls.append(
+            f'  <url>\n    <loc>{BASE_SITE_URL}{page["path"]}</loc>\n'
+            f'    <changefreq>{page["changefreq"]}</changefreq>\n'
+            f'    <priority>{page["priority"]}</priority>\n  </url>'
+        )
+
+    for tid in template_ids:
+        try:
+            meta = load_template_meta(TEMPLATES_ROOT, tid)
+            urls.append(
+                f'  <url>\n    <loc>{BASE_SITE_URL}/{tid}</loc>\n'
+                f'    <changefreq>monthly</changefreq>\n'
+                f'    <priority>0.8</priority>\n  </url>'
+            )
+        except Exception:
+            continue
+
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "\n".join(urls)
+        + "\n</urlset>\n"
+    )
+    return Response(content=xml, media_type="application/xml")
+
+
+@app.get("/robots.txt")
+def robots_txt():
+    """Serve robots.txt with sitemap reference."""
+    content = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /builder\n"
+        "Disallow: /api/admin/\n"
+        f"\nSitemap: {BASE_SITE_URL}/sitemap.xml\n"
+    )
+    return Response(content=content, media_type="text/plain")
+
+
+@app.get("/api/seo/{template_id}")
+def api_seo_meta(template_id: str):
+    """Return SEO metadata for a template — used by SSR/prerender."""
+    try:
+        meta = load_template_meta(TEMPLATES_ROOT, template_id)
+    except Exception:
+        raise HTTPException(404, f"Template '{template_id}' not found")
+
+    title = f"{meta.get('title', template_id)} — Free Online Form | Oky-Docky"
+    description = (
+        f"Fill out {meta.get('title', '')} online for free. "
+        f"{meta.get('description', '')} "
+        f"Guided step-by-step Q&A with instant PDF download."
+    )
+
+    return {
+        "title": title,
+        "description": description,
+        "canonical": f"{BASE_SITE_URL}/{template_id}",
+        "og": {
+            "type": "website",
+            "title": title,
+            "description": description,
+            "url": f"{BASE_SITE_URL}/{template_id}",
+            "site_name": "Oky-Docky",
+        },
+        "structured_data": {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": meta.get("title", template_id),
+            "description": description,
+            "url": f"{BASE_SITE_URL}/{template_id}",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD",
+            },
+        },
     }
 
 

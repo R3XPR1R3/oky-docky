@@ -4,7 +4,7 @@ import {
   FileText, ArrowLeft, Plus, Trash2, ChevronUp, ChevronDown,
   ChevronRight, Copy, Download, Upload, Eye, EyeOff, GripVertical,
   Settings2, X, Code2, EyeOff as EyeOffIcon, Hash, AlertTriangle,
-  FilePlus2
+  FilePlus2, GitBranch
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -212,6 +212,25 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
     } catch { toast.error('Failed to create template'); }
     finally { setCreating(false); }
   }, [newTemplate, newPdfFile]);
+
+  const syncToRepo = useCallback(async () => {
+    try {
+      toast.info('Syncing templates to repo...');
+      const res = await fetch('/api/admin/templates/sync-to-repo', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        if (data.status === 'nothing_to_sync') {
+          toast.info('No changes to sync');
+        } else if (data.status === 'committed_not_pushed') {
+          toast.warning(`Committed but push failed: ${data.message}`);
+        } else {
+          toast.success(`Synced ${data.files?.length || 0} files to ${data.branch || 'repo'}`);
+        }
+      } else {
+        toast.error(data.detail || 'Sync failed');
+      }
+    } catch { toast.error('Failed to sync to repo'); }
+  }, []);
 
   // --- Field CRUD ---
 
@@ -510,6 +529,9 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
             </Button>
             <Button variant="outline" size="sm" onClick={handleCopyJson} className="gap-2" disabled={fields.length === 0}>
               <Copy className="w-4 h-4" /> Copy JSON
+            </Button>
+            <Button variant="outline" size="sm" onClick={syncToRepo} className="gap-2 text-emerald-700 hover:text-emerald-800 hover:border-emerald-400">
+              <GitBranch className="w-4 h-4" /> Sync to Repo
             </Button>
             <Button
               variant="outline"

@@ -242,7 +242,12 @@ def _apply_signature_overlays(writer: PdfWriter, overlays: List[Dict[str, Any]])
         if text_mode and data_url.strip():
             # Render typed text directly onto the PDF page
             try:
-                _stamp_text_with_fpdf2(writer, page_idx, data_url.strip(), x1, y1, w, h)
+                _stamp_text_with_fpdf2(
+                    writer, page_idx, data_url.strip(), x1, y1, w, h,
+                    font_size=overlay.get("font_size"),
+                    font=overlay.get("font", "Helvetica"),
+                    align=overlay.get("align", "L"),
+                )
             except Exception:
                 pass
             continue
@@ -264,8 +269,20 @@ def _apply_signature_overlays(writer: PdfWriter, overlays: List[Dict[str, Any]])
             pass
 
 
-def _stamp_text_with_fpdf2(writer: PdfWriter, page_idx: int, text: str, x: float, y: float, w: float, h: float) -> None:
-    """Use fpdf2 to stamp typed signature text onto the target page."""
+def _stamp_text_with_fpdf2(
+    writer: PdfWriter,
+    page_idx: int,
+    text: str,
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+    font_size: Optional[float] = None,
+    font: str = "Helvetica",
+    font_style: str = "",
+    align: str = "L",
+) -> None:
+    """Use fpdf2 to stamp text onto the target page at given coordinates."""
     from fpdf import FPDF
 
     page = writer.pages[page_idx]
@@ -276,12 +293,14 @@ def _stamp_text_with_fpdf2(writer: PdfWriter, page_idx: int, text: str, x: float
     # fpdf2 uses top-left origin; PDF uses bottom-left
     fpdf_y = page_h - y - h
 
+    size = font_size if font_size else min(h * 0.8, 18)
+
     pdf = FPDF(unit="pt", format=(page_w, page_h))
     pdf.add_page()
     pdf.set_auto_page_break(False)
-    pdf.set_font("Helvetica", "I", size=min(h * 0.8, 18))
+    pdf.set_font(font, font_style, size=size)
     pdf.set_xy(x, fpdf_y)
-    pdf.cell(w=w, h=h, text=text, align="L")
+    pdf.cell(w=w, h=h, text=text, align=align)
 
     stamp_bytes = pdf.output()
     stamp_reader = PdfReader(io.BytesIO(stamp_bytes))
@@ -343,6 +362,9 @@ def fill_acroform_pdf(
     # Ensure viewers regenerate field appearances
     acroform = writer._root_object.get("/AcroForm")
     if acroform is None:
+        # No AcroForm — still apply text/signature overlays for flat PDFs
+        if signature_overlays:
+            _apply_signature_overlays(writer, signature_overlays)
         with out_pdf.open("wb") as f:
             writer.write(f)
         return out_pdf
