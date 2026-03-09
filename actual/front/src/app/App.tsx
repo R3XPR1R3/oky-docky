@@ -82,7 +82,6 @@ function LandingRoute() {
         onHowItWorks={() => navigate('/how-it-works')}
         onPricing={() => navigate('/pricing')}
         onDisclaimer={() => navigate('/disclaimer')}
-        onBuilder={() => navigate('/builder')}
       />
     </motion.div>
   );
