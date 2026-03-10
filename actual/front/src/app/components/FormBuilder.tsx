@@ -4,8 +4,9 @@ import {
   FileText, ArrowLeft, Plus, Trash2, ChevronUp, ChevronDown,
   ChevronRight, Copy, Download, Upload, Eye, EyeOff, GripVertical,
   Settings2, X, Code2, EyeOff as EyeOffIcon, Hash, AlertTriangle,
-  FilePlus2, GitBranch
+  FilePlus2, GitBranch, FileImage
 } from 'lucide-react';
+import PdfFieldPreview from './PdfFieldPreview';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -111,6 +112,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
   });
   const [newPdfFile, setNewPdfFile] = useState<File | null>(null);
   const [creating, setCreating] = useState(false);
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
 
   // --- Load templates list ---
   const loadTemplateList = useCallback(async () => {
@@ -535,6 +537,15 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
             </Button>
             <Button variant="outline" size="sm" onClick={syncToRepo} className="gap-2 text-emerald-700 hover:text-emerald-800 hover:border-emerald-400">
               <GitBranch className="w-4 h-4" /> Sync to Repo
+            </Button>
+            <Button
+              variant={showPdfPreview ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setShowPdfPreview(!showPdfPreview)}
+              className="gap-2"
+              disabled={!selectedTemplate}
+            >
+              <FileImage className="w-4 h-4" /> {showPdfPreview ? 'Hide' : 'Show'} PDF
             </Button>
             <Button
               variant="outline"
@@ -1646,6 +1657,28 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
               </Button>
             </motion.div>
           )}
+
+          {/* PDF Field Preview */}
+          <AnimatePresence>
+            {showPdfPreview && selectedTemplate && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-8 overflow-hidden"
+              >
+                <Separator className="mb-6" />
+                <PdfFieldPreview
+                  templateId={selectedTemplate}
+                  highlightFields={new Set(fields.map((f) => f.key).filter(Boolean))}
+                  onFieldClick={(fieldName) => {
+                    navigator.clipboard.writeText(fieldName);
+                    toast.success(`Copied "${fieldName}" to clipboard`);
+                  }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
     </div>

@@ -759,6 +759,71 @@ def api_pdf_fields(template_id: str):
     return {"count": len(fields), "fields": list(fields.keys())}
 
 
+@app.get("/api/templates/{template_id}/pdf-field-rects")
+def api_pdf_field_rects(template_id: str):
+    """Return field names with their bounding rectangles and page indices."""
+    try:
+        bundle = load_template(TEMPLATES_ROOT, template_id)
+    except Exception as e:
+        raise HTTPException(404, str(e))
+
+    reader = PdfReader(str(bundle.pdf_path))
+    result: list[dict] = []
+
+    for page_idx, page in enumerate(reader.pages):
+        page_box = page.mediabox
+        page_w = float(page_box.width)
+        page_h = float(page_box.height)
+
+        annotations = page.get("/Annots")
+        if not annotations:
+            continue
+        for annot_ref in annotations:
+            annot = annot_ref.get_object()
+            field_name = annot.get("/T")
+            if not field_name:
+                # Walk up parent chain for partial names
+                parent = annot.get("/Parent")
+                parts = []
+                while parent:
+                    parent_obj = parent.get_object() if hasattr(parent, "get_object") else parent
+                    if parent_obj.get("/T"):
+                        parts.append(str(parent_obj["/T"]))
+                    parent = parent_obj.get("/Parent")
+                if parts:
+                    field_name = ".".join(reversed(parts))
+
+            rect = annot.get("/Rect")
+            if not field_name or not rect:
+                continue
+
+            x1, y1, x2, y2 = [float(v) for v in rect]
+            result.append({
+                "name": str(field_name),
+                "page": page_idx,
+                "rect": [x1, y1, x2, y2],
+                "page_width": page_w,
+                "page_height": page_h,
+            })
+
+    return {"count": len(result), "fields": result}
+
+
+@app.get("/api/templates/{template_id}/pdf-file")
+def api_pdf_file(template_id: str):
+    """Serve the raw PDF template file for preview."""
+    try:
+        bundle = load_template(TEMPLATES_ROOT, template_id)
+    except Exception as e:
+        raise HTTPException(404, str(e))
+
+    return FileResponse(
+        str(bundle.pdf_path),
+        media_type="application/pdf",
+        filename=f"{template_id}.pdf",
+    )
+
+
 @app.post("/api/render/{template_id}")
 def api_render(template_id: str, payload: dict):
     data = payload.get("data")
