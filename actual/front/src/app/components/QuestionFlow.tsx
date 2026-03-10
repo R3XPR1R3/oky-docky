@@ -82,7 +82,7 @@ export function QuestionFlow({ apiUrl, templateId, templateTitle, schema, initia
   const handleAnswerChange = (value: any) => {
     if (!currentQuestion) return;
 
-    const nextValue = currentQuestion.type === 'text' && typeof value === 'string'
+    const nextValue = (currentQuestion.type === 'text' || currentQuestion.type === 'text_input') && typeof value === 'string'
       ? formatInputValue(currentQuestion.key, value, currentQuestion.inputMask)
       : value;
 
@@ -93,8 +93,8 @@ export function QuestionFlow({ apiUrl, templateId, templateTitle, schema, initia
     if (!currentQuestion) return false;
     if (!currentQuestion.required) return true;
     const answer = answers[currentQuestion.key];
-    if (currentQuestion.type === 'checkbox') return true;
-    if (currentQuestion.type === 'signature') {
+    if (currentQuestion.type === 'checkbox' || currentQuestion.type === 'checkbox_input') return true;
+    if (currentQuestion.type === 'signature' || currentQuestion.type === 'signature_area') {
       return typeof answer === 'string' && answer.trim() !== '';
     }
     return answer !== undefined && answer !== null && answer.toString().trim() !== '';
@@ -183,6 +183,61 @@ export function QuestionFlow({ apiUrl, templateId, templateTitle, schema, initia
 
                 {currentQuestion.type === 'signature' && (
                   <SignaturePad value={answers[currentQuestion.key] || ''} onChange={handleAnswerChange} />
+                )}
+
+                {currentQuestion.type === 'text_input' && (
+                  <div className="space-y-2">
+                    <Input
+                      value={answers[currentQuestion.key] || ''}
+                      onChange={(e) => handleAnswerChange(e.target.value)}
+                      placeholder={currentQuestion.placeholder}
+                      maxLength={currentQuestion.maxLength}
+                      id={currentQuestion.fieldId || currentQuestion.key}
+                      className="rounded-xl border-2 focus:border-indigo-500 transition-colors"
+                      style={{
+                        width: currentQuestion.style?.width || '100%',
+                        height: currentQuestion.style?.height || undefined,
+                        fontSize: currentQuestion.style?.fontSize || '1.125rem',
+                        fontFamily: currentQuestion.style?.fontFamily || undefined,
+                        padding: '0.75rem 1.5rem',
+                      }}
+                      autoFocus
+                    />
+                  </div>
+                )}
+
+                {currentQuestion.type === 'checkbox_input' && (
+                  <div
+                    className="flex items-center space-x-4 p-5 rounded-xl border-2 border-slate-200"
+                    style={{
+                      width: currentQuestion.style?.width || undefined,
+                      height: currentQuestion.style?.height || undefined,
+                    }}
+                  >
+                    <Checkbox
+                      id={currentQuestion.fieldId || currentQuestion.key}
+                      checked={!!answers[currentQuestion.key]}
+                      onCheckedChange={(checked) => handleAnswerChange(checked)}
+                    />
+                    <Label
+                      htmlFor={currentQuestion.fieldId || currentQuestion.key}
+                      className="flex-1 cursor-pointer text-base"
+                    >
+                      {currentQuestion.helpText || currentQuestion.label}
+                    </Label>
+                  </div>
+                )}
+
+                {currentQuestion.type === 'signature_area' && (
+                  <div
+                    id={currentQuestion.fieldId || currentQuestion.key}
+                    style={{
+                      width: currentQuestion.style?.width || '100%',
+                      height: currentQuestion.style?.height || undefined,
+                    }}
+                  >
+                    <SignaturePad value={answers[currentQuestion.key] || ''} onChange={handleAnswerChange} />
+                  </div>
                 )}
               </div>
             </div>

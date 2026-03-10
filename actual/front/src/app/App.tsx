@@ -27,9 +27,16 @@ export interface TemplateMeta {
   estimated_time: string;
 }
 
+export interface FieldStyle {
+  width?: string;       // e.g. "300px", "100%"
+  height?: string;      // e.g. "40px", "200px"
+  fontSize?: string;    // e.g. "14px", "1.2rem"
+  fontFamily?: string;  // e.g. "Arial", "monospace"
+}
+
 export interface SchemaField {
   key: string;
-  type: 'text' | 'radio' | 'checkbox' | 'signature';
+  type: 'text' | 'radio' | 'checkbox' | 'signature' | 'text_input' | 'checkbox_input' | 'signature_area';
   required?: boolean;
   routing?: boolean;
   hidden?: boolean;
@@ -42,6 +49,8 @@ export interface SchemaField {
   options?: { value: string; label: string }[];
   visible_when?: Record<string, string[]>;
   visible_when_any?: Record<string, string[]>[];
+  fieldId?: string;     // custom ID for document mapping
+  style?: FieldStyle;   // visual styling for document fields
 }
 
 export interface SchemaTransform {

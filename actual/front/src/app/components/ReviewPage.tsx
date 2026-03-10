@@ -36,8 +36,8 @@ export function ReviewPage({ formData, schema, templateTitle, onEdit, onSubmit, 
       const opt = field.options.find((o) => o.value === value);
       if (opt) return opt.label;
     }
-    if (field?.type === 'checkbox') return value ? t('review.yes') : t('review.no');
-    if (field?.type === 'signature') {
+    if (field?.type === 'checkbox' || field?.type === 'checkbox_input') return value ? t('review.yes') : t('review.no');
+    if (field?.type === 'signature' || field?.type === 'signature_area') {
       if (typeof value === 'string' && value.startsWith('data:image')) return '__SIGNATURE_IMAGE__';
       return value ? `${t('review.signed')}: ${value}` : t('review.notSigned');
     }
