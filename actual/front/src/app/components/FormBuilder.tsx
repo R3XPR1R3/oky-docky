@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from './ui/select';
 import { toast } from 'sonner';
-import type { SchemaField, Schema, SchemaTransform } from '../App';
+import type { SchemaField, Schema, SchemaTransform, FieldStyle } from '../App';
 import { QuestionFlow } from './QuestionFlow';
 
 interface FormBuilderProps {
@@ -65,6 +65,9 @@ const FIELD_TYPE_COLORS: Record<string, string> = {
   radio: 'bg-purple-100 text-purple-700',
   checkbox: 'bg-green-100 text-green-700',
   signature: 'bg-amber-100 text-amber-700',
+  text_input: 'bg-sky-100 text-sky-700',
+  checkbox_input: 'bg-teal-100 text-teal-700',
+  signature_area: 'bg-pink-100 text-pink-700',
 };
 
 function generateKey(label: string): string {
@@ -953,6 +956,11 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                   if (v !== 'radio') {
                                     updates.options = undefined;
                                   }
+                                  // Clear style/fieldId when switching away from document types
+                                  if (!['text_input', 'checkbox_input', 'signature_area'].includes(v)) {
+                                    updates.style = undefined;
+                                    updates.fieldId = undefined;
+                                  }
                                   updateField(index, updates);
                                 }}
                               >
@@ -962,6 +970,9 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                   <SelectItem value="radio">Radio / Choice</SelectItem>
                                   <SelectItem value="checkbox">Checkbox</SelectItem>
                                   <SelectItem value="signature">Signature</SelectItem>
+                                  <SelectItem value="text_input">Document Text Field</SelectItem>
+                                  <SelectItem value="checkbox_input">Document Checkbox</SelectItem>
+                                  <SelectItem value="signature_area">Signature Area</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
@@ -1044,6 +1055,70 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                               placeholder="Additional instructions shown below the question"
                             />
                           </div>
+
+                          {/* Field ID for document mapping */}
+                          {(field.type === 'text_input' || field.type === 'checkbox_input' || field.type === 'signature_area') && (
+                            <>
+                              <div className="space-y-1.5">
+                                <Label className="text-xs font-medium text-slate-500">
+                                  Field ID <span className="text-slate-400">(ID in the document)</span>
+                                </Label>
+                                <Input
+                                  value={field.fieldId || ''}
+                                  onChange={(e) => updateField(index, { fieldId: e.target.value || undefined })}
+                                  placeholder="e.g. field_name_1"
+                                  className="font-mono text-sm"
+                                />
+                              </div>
+
+                              {/* Style controls */}
+                              <div className="space-y-2">
+                                <Label className="text-xs font-medium text-slate-500">Styling</Label>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div className="space-y-1">
+                                    <Label className="text-[11px] text-slate-400">Width</Label>
+                                    <Input
+                                      value={field.style?.width || ''}
+                                      onChange={(e) => updateField(index, { style: { ...field.style, width: e.target.value || undefined } })}
+                                      placeholder="e.g. 300px, 100%"
+                                      className="text-sm h-8"
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <Label className="text-[11px] text-slate-400">Height</Label>
+                                    <Input
+                                      value={field.style?.height || ''}
+                                      onChange={(e) => updateField(index, { style: { ...field.style, height: e.target.value || undefined } })}
+                                      placeholder={field.type === 'signature_area' ? 'e.g. 200px' : 'e.g. 40px'}
+                                      className="text-sm h-8"
+                                    />
+                                  </div>
+                                </div>
+                                {field.type !== 'checkbox_input' && (
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1">
+                                      <Label className="text-[11px] text-slate-400">Font Size</Label>
+                                      <Input
+                                        value={field.style?.fontSize || ''}
+                                        onChange={(e) => updateField(index, { style: { ...field.style, fontSize: e.target.value || undefined } })}
+                                        placeholder="e.g. 14px, 1rem"
+                                        className="text-sm h-8"
+                                      />
+                                    </div>
+                                    <div className="space-y-1">
+                                      <Label className="text-[11px] text-slate-400">Font Family</Label>
+                                      <Input
+                                        value={field.style?.fontFamily || ''}
+                                        onChange={(e) => updateField(index, { style: { ...field.style, fontFamily: e.target.value || undefined } })}
+                                        placeholder="e.g. Arial, monospace"
+                                        className="text-sm h-8"
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          )}
 
                           {/* Row 5: Input Mask + Max Length (text only) */}
                           {field.type === 'text' && (
