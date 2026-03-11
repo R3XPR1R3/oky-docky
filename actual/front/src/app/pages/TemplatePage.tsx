@@ -4,13 +4,14 @@ import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { QuestionFlow } from '../components/QuestionFlow';
 import { ReviewPage } from '../components/ReviewPage';
+import { AdInterstitial } from '../components/AdInterstitial';
 import { SuccessPage } from '../components/SuccessPage';
 import { ErrorDialog } from '../components/ErrorDialog';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { useTranslation } from '../i18n/I18nContext';
 import type { TemplateMeta, Schema } from '../App';
 
-type Phase = 'loading' | 'questions' | 'review' | 'success';
+type Phase = 'loading' | 'questions' | 'review' | 'ad' | 'success';
 
 export function TemplatePage() {
   const { templateId } = useParams<{ templateId: string }>();
@@ -89,7 +90,7 @@ export function TemplatePage() {
 
       const blob = await response.blob();
       setPdfUrl(URL.createObjectURL(blob));
-      setPhase('success');
+      setPhase('ad');
       toast.success(t('error.generatedToast'));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate PDF');
@@ -144,6 +145,16 @@ export function TemplatePage() {
         />
         <ErrorDialog isOpen={!!error} message={error || ''} onClose={() => setError(null)} />
       </>
+    );
+  }
+
+  if (phase === 'ad' && pdfUrl && template) {
+    return (
+      <AdInterstitial
+        duration={7}
+        templateTitle={template.title}
+        onComplete={() => setPhase('success')}
+      />
     );
   }
 

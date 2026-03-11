@@ -100,6 +100,15 @@
       "Rivedi con un professionista fiscale se necessario"
     ]
   },
+  "ad": {
+    "preparing": "Preparazione del documento...",
+    "almostReady": "Il tuo documento è quasi pronto!",
+    "subtitle": "Il tuo {template} è stato generato con successo",
+    "sponsored": "Sponsorizzato",
+    "ready": "Pronto!",
+    "continue": "Continua al download",
+    "waitSeconds": "Attendi {seconds}s"
+  },
   "howItWorks": {
     "heroTitle": "Tre Passi.",
     "heroTitleHighlight": "Zero Stress.",

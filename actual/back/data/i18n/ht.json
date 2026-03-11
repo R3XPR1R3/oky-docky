@@ -100,6 +100,15 @@
       "Revize ak yon pwofesyonèl taks si sa nesesè"
     ]
   },
+  "ad": {
+    "preparing": "N ap prepare dokiman ou...",
+    "almostReady": "Dokiman ou prèske pare!",
+    "subtitle": "{template} ou te jenewe avèk siksè",
+    "sponsored": "Piblisite",
+    "ready": "Pare!",
+    "continue": "Kontinye pou telechaje",
+    "waitSeconds": "Tann {seconds}s"
+  },
   "howItWorks": {
     "heroTitle": "Twa Etap.",
     "heroTitleHighlight": "Zewo Strès.",
