@@ -527,6 +527,10 @@ def api_admin_sync_to_repo():
 
     except subprocess.CalledProcessError as e:
         raise HTTPException(500, f"Git operation failed: {e.stderr or str(e)}")
+    except FileNotFoundError:
+        raise HTTPException(500, "git is not installed or not in PATH")
+    except Exception as e:
+        raise HTTPException(500, f"Sync failed: {e}")
     except Exception as e:
         raise HTTPException(500, f"Sync failed: {e}")
 
@@ -872,3 +876,23 @@ def api_feedback(payload: FeedbackPayload):
         _send_feedback_sms(payload)
 
     return {"status": "accepted", "channel": payload.channel}
+
+
+# ---------------------------------------------------------------------------
+# SPA static file serving (dev mode — when running without nginx)
+# ---------------------------------------------------------------------------
+FRONT_DIST = BASE_DIR.parent / "front" / "dist"
+
+if FRONT_DIST.exists():
+    from starlette.staticfiles import StaticFiles
+
+    # Serve /assets/* directly
+    app.mount("/assets", StaticFiles(directory=str(FRONT_DIST / "assets")), name="frontend-assets")
+
+    @app.get("/{full_path:path}")
+    def spa_fallback(full_path: str):
+        """Serve frontend SPA — any non-API route returns index.html."""
+        file_path = FRONT_DIST / full_path
+        if file_path.is_file() and ".." not in full_path:
+            return FileResponse(str(file_path))
+        return FileResponse(str(FRONT_DIST / "index.html"))
