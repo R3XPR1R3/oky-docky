@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -9,23 +9,48 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 interface FieldRect {
   name: string;
   page: number;
-  rect: [number, number, number, number]; // [x1,y1,x2,y2] in PDF coords
+  rect: [number, number, number, number];
   page_width: number;
   page_height: number;
 }
 
 interface PdfFieldPreviewProps {
   templateId: string;
-  /** Highlight fields whose name is in this set */
-  highlightFields?: Set<string>;
-  /** Called when user clicks a field label */
-  onFieldClick?: (fieldName: string) => void;
+  /** mapping.json data: schema_key → pdf_field or complex object */
+  mapping?: Record<string, any>;
+  /** Called when user clicks a PDF field to map it */
+  onFieldClick?: (pdfFieldName: string) => void;
+  /** Called when user wants to update mapping: schema_key → pdf_field_name */
+  onMappingChange?: (schemaKey: string, pdfFieldName: string) => void;
+  /** Called when user removes a mapping */
+  onMappingRemove?: (schemaKey: string) => void;
+}
+
+/** Build a reverse index: pdf_field_name → schema_key */
+function buildReverseMapping(mapping: Record<string, any>): Record<string, string> {
+  const reverse: Record<string, string> = {};
+  for (const [schemaKey, value] of Object.entries(mapping)) {
+    if (typeof value === 'string') {
+      reverse[value] = schemaKey;
+    } else if (typeof value === 'object' && value !== null) {
+      // radio_group, checkbox, math — extract field names
+      if (value.field) reverse[value.field] = schemaKey;
+      if (value.choices) {
+        for (const c of value.choices) {
+          if (c.field) reverse[c.field] = schemaKey;
+        }
+      }
+    }
+  }
+  return reverse;
 }
 
 export default function PdfFieldPreview({
   templateId,
-  highlightFields,
+  mapping = {},
   onFieldClick,
+  onMappingChange,
+  onMappingRemove,
 }: PdfFieldPreviewProps) {
   const [fieldRects, setFieldRects] = useState<FieldRect[]>([]);
   const [pageCount, setPageCount] = useState(0);
@@ -33,11 +58,15 @@ export default function PdfFieldPreview({
   const [error, setError] = useState<string | null>(null);
   const [scale, setScale] = useState(1.5);
   const [showLabels, setShowLabels] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'mapped' | 'unmapped'>('all');
+  const [hoveredField, setHoveredField] = useState<string | null>(null);
 
   const canvasRefs = useRef<Map<number, HTMLCanvasElement>>(new Map());
   const pdfDocRef = useRef<pdfjsLib.PDFDocumentProxy | null>(null);
 
-  // Load field rects from backend
+  const reverseMapping = useMemo(() => buildReverseMapping(mapping), [mapping]);
+
+  // Load field rects
   useEffect(() => {
     if (!templateId) return;
     setLoading(true);
@@ -52,14 +81,12 @@ export default function PdfFieldPreview({
       .catch((e) => setError(e.message));
   }, [templateId]);
 
-  // Load and render PDF
+  // Load PDF
   useEffect(() => {
     if (!templateId) return;
 
-    const url = `/api/templates/${templateId}/pdf-file`;
-
     pdfjsLib
-      .getDocument(url)
+      .getDocument(`/api/templates/${templateId}/pdf-file`)
       .promise.then((pdf) => {
         pdfDocRef.current = pdf;
         setPageCount(pdf.numPages);
@@ -76,7 +103,7 @@ export default function PdfFieldPreview({
     };
   }, [templateId]);
 
-  // Render pages to canvas whenever pdf or scale changes
+  // Render pages
   useEffect(() => {
     const pdf = pdfDocRef.current;
     if (!pdf || pageCount === 0) return;
@@ -86,13 +113,10 @@ export default function PdfFieldPreview({
         const viewport = page.getViewport({ scale });
         const canvas = canvasRefs.current.get(i - 1);
         if (!canvas) return;
-
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
-
         page.render({ canvasContext: ctx, viewport });
       });
     }
@@ -106,14 +130,22 @@ export default function PdfFieldPreview({
     [],
   );
 
-  // Group fields by page
-  const fieldsByPage = fieldRects.reduce<Record<number, FieldRect[]>>(
-    (acc, f) => {
+  // Stats
+  const mappedCount = fieldRects.filter((f) => reverseMapping[f.name]).length;
+  const unmappedCount = fieldRects.length - mappedCount;
+
+  // Filtered fields by page
+  const fieldsByPage = useMemo(() => {
+    const filtered = fieldRects.filter((f) => {
+      if (filter === 'mapped') return !!reverseMapping[f.name];
+      if (filter === 'unmapped') return !reverseMapping[f.name];
+      return true;
+    });
+    return filtered.reduce<Record<number, FieldRect[]>>((acc, f) => {
       (acc[f.page] ??= []).push(f);
       return acc;
-    },
-    {},
-  );
+    }, {});
+  }, [fieldRects, filter, reverseMapping]);
 
   if (!templateId) {
     return (
@@ -132,39 +164,61 @@ export default function PdfFieldPreview({
   return (
     <div className="pdf-field-preview">
       {/* Toolbar */}
-      <div className="flex items-center gap-3 mb-3 px-2">
-        <span className="text-sm font-medium text-slate-300">
-          PDF Field Preview
+      <div className="flex items-center gap-3 mb-3 px-2 flex-wrap">
+        <span className="text-sm font-semibold text-slate-700">
+          PDF Field Map
         </span>
+
+        {/* Zoom */}
         <div className="flex items-center gap-1">
           <button
-            className="px-2 py-1 text-xs rounded bg-slate-700 hover:bg-slate-600 text-white"
+            className="px-2 py-1 text-xs rounded bg-slate-200 hover:bg-slate-300 text-slate-700"
             onClick={() => setScale((s) => Math.max(0.5, s - 0.25))}
           >
             −
           </button>
-          <span className="text-xs text-slate-400 w-12 text-center">
+          <span className="text-xs text-slate-500 w-12 text-center">
             {Math.round(scale * 100)}%
           </span>
           <button
-            className="px-2 py-1 text-xs rounded bg-slate-700 hover:bg-slate-600 text-white"
+            className="px-2 py-1 text-xs rounded bg-slate-200 hover:bg-slate-300 text-slate-700"
             onClick={() => setScale((s) => Math.min(3, s + 0.25))}
           >
             +
           </button>
         </div>
-        <label className="flex items-center gap-1 text-xs text-slate-400 cursor-pointer ml-auto">
+
+        {/* Filter */}
+        <div className="flex items-center gap-1 text-xs">
+          <button
+            className={`px-2 py-1 rounded ${filter === 'all' ? 'bg-indigo-100 text-indigo-700 font-medium' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            onClick={() => setFilter('all')}
+          >
+            All ({fieldRects.length})
+          </button>
+          <button
+            className={`px-2 py-1 rounded ${filter === 'mapped' ? 'bg-green-100 text-green-700 font-medium' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            onClick={() => setFilter('mapped')}
+          >
+            Mapped ({mappedCount})
+          </button>
+          <button
+            className={`px-2 py-1 rounded ${filter === 'unmapped' ? 'bg-orange-100 text-orange-700 font-medium' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            onClick={() => setFilter('unmapped')}
+          >
+            Unmapped ({unmappedCount})
+          </button>
+        </div>
+
+        <label className="flex items-center gap-1 text-xs text-slate-500 cursor-pointer ml-auto">
           <input
             type="checkbox"
             checked={showLabels}
             onChange={(e) => setShowLabels(e.target.checked)}
             className="rounded"
           />
-          Show field IDs
+          Labels
         </label>
-        <span className="text-xs text-slate-500">
-          {fieldRects.length} fields
-        </span>
       </div>
 
       {loading && (
@@ -172,42 +226,36 @@ export default function PdfFieldPreview({
       )}
 
       {/* Pages */}
-      <div className="overflow-auto max-h-[70vh] rounded-lg border border-slate-700 bg-slate-900 p-2">
+      <div className="overflow-auto max-h-[75vh] rounded-xl border border-slate-200 bg-slate-50 p-3">
         {Array.from({ length: pageCount }, (_, pageIdx) => (
-          <div key={pageIdx} className="mb-4 last:mb-0">
-            <div className="text-xs text-slate-500 mb-1 px-1">
+          <div key={pageIdx} className="mb-6 last:mb-0">
+            <div className="text-xs text-slate-400 mb-1 px-1 font-medium">
               Page {pageIdx + 1}
             </div>
             <div className="relative inline-block">
               <canvas
                 ref={setCanvasRef(pageIdx)}
-                className="block rounded shadow-lg"
+                className="block rounded-lg shadow-md"
               />
-              {/* Field overlays */}
               {showLabels &&
                 (fieldsByPage[pageIdx] || []).map((field, i) => {
-                  const page = pdfDocRef.current
-                    ? undefined
-                    : undefined;
-                  // PDF coords: origin at bottom-left; canvas: origin at top-left
                   const canvas = canvasRefs.current.get(pageIdx);
                   if (!canvas) return null;
 
                   const canvasW = canvas.width;
                   const canvasH = canvas.height;
-                  const pdfW = field.page_width;
-                  const pdfH = field.page_height;
-                  const sx = canvasW / pdfW;
-                  const sy = canvasH / pdfH;
+                  const sx = canvasW / field.page_width;
+                  const sy = canvasH / field.page_height;
 
                   const [x1, y1, x2, y2] = field.rect;
-                  // Flip Y axis (PDF bottom-left → canvas top-left)
                   const left = Math.min(x1, x2) * sx;
                   const top = canvasH - Math.max(y1, y2) * sy;
                   const width = Math.abs(x2 - x1) * sx;
                   const height = Math.abs(y2 - y1) * sy;
 
-                  const isHighlighted = highlightFields?.has(field.name);
+                  const schemaKey = reverseMapping[field.name];
+                  const isMapped = !!schemaKey;
+                  const isHovered = hoveredField === field.name;
 
                   return (
                     <div
@@ -219,28 +267,69 @@ export default function PdfFieldPreview({
                         width: `${width}px`,
                         height: `${height}px`,
                       }}
+                      onMouseEnter={() => setHoveredField(field.name)}
+                      onMouseLeave={() => setHoveredField(null)}
                     >
-                      {/* Field highlight rectangle */}
+                      {/* Highlight rect */}
                       <div
-                        className={`absolute inset-0 border cursor-pointer transition-colors ${
-                          isHighlighted
-                            ? 'border-green-400 bg-green-400/20'
-                            : 'border-indigo-400/60 bg-indigo-400/10 hover:bg-indigo-400/25'
+                        className={`absolute inset-0 border-2 cursor-pointer transition-all ${
+                          isMapped
+                            ? 'border-green-500 bg-green-400/15 hover:bg-green-400/30'
+                            : 'border-orange-400/70 bg-orange-400/10 hover:bg-orange-400/25'
                         }`}
                         onClick={() => onFieldClick?.(field.name)}
-                        title={field.name}
+                        title={isMapped ? `${field.name} → ${schemaKey}` : `${field.name} (unmapped)`}
                       />
-                      {/* Field ID label */}
+                      {/* Label */}
                       <div
-                        className={`absolute left-0 whitespace-nowrap pointer-events-none text-[9px] leading-tight font-mono px-0.5 rounded-sm ${
-                          isHighlighted
+                        className={`absolute left-0 whitespace-nowrap pointer-events-none text-[9px] leading-tight font-mono px-1 py-0.5 rounded-sm shadow-sm ${
+                          isMapped
                             ? 'bg-green-600 text-white'
-                            : 'bg-indigo-600/90 text-white'
+                            : 'bg-orange-500 text-white'
                         }`}
                         style={{ bottom: '100%', marginBottom: '1px' }}
                       >
-                        {field.name}
+                        {isMapped ? (
+                          <>
+                            <span className="opacity-70">{field.name}</span>
+                            <span className="mx-0.5">→</span>
+                            <span className="font-semibold">{schemaKey}</span>
+                          </>
+                        ) : (
+                          field.name
+                        )}
                       </div>
+                      {/* Hover tooltip with actions */}
+                      {isHovered && (
+                        <div
+                          className="absolute z-10 bg-white rounded-lg shadow-xl border border-slate-200 p-2 min-w-[180px]"
+                          style={{ top: '100%', left: 0, marginTop: '4px' }}
+                        >
+                          <div className="text-[10px] font-mono text-slate-500 mb-1">{field.name}</div>
+                          {isMapped ? (
+                            <div className="space-y-1">
+                              <div className="text-xs text-green-700 font-medium">
+                                Mapped to: <span className="font-mono">{schemaKey}</span>
+                              </div>
+                              {onMappingRemove && (
+                                <button
+                                  className="text-[11px] text-red-500 hover:text-red-700 hover:underline pointer-events-auto"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onMappingRemove(schemaKey);
+                                  }}
+                                >
+                                  Remove mapping
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="text-xs text-orange-600">
+                              Click to map this field
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
