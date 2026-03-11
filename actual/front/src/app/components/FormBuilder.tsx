@@ -1715,7 +1715,24 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                       delete next[schemaKey];
                       return next;
                     });
+                    // Also remove the schema field if it was auto-created
+                    setFields((prev) => prev.filter((f) => f.key !== schemaKey));
                     toast.info(`Removed mapping for "${schemaKey}"`);
+                  }}
+                  onOverlayAdd={(schemaKey, overlayMapping) => {
+                    setMapping((prev) => ({ ...prev, [schemaKey]: overlayMapping }));
+                    // Create a schema field for this overlay
+                    if (!fields.some((f) => f.key === schemaKey)) {
+                      setFields((prev) => [...prev, {
+                        key: schemaKey,
+                        type: 'text',
+                        required: false,
+                        label: schemaKey.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+                        placeholder: '',
+                        helpText: '',
+                      }]);
+                    }
+                    toast.success(`Created overlay field: ${schemaKey}`);
                   }}
                 />
               </motion.div>
