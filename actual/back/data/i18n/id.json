@@ -100,6 +100,15 @@
       "Konsultasikan dengan profesional pajak jika diperlukan"
     ]
   },
+  "ad": {
+    "preparing": "Menyiapkan dokumen Anda...",
+    "almostReady": "Dokumen Anda hampir siap!",
+    "subtitle": "{template} Anda telah berhasil dibuat",
+    "sponsored": "Bersponsor",
+    "ready": "Siap!",
+    "continue": "Lanjutkan ke unduhan",
+    "waitSeconds": "Tunggu {seconds}d"
+  },
   "howItWorks": {
     "heroTitle": "Tiga Langkah.",
     "heroTitleHighlight": "Tanpa Stres.",

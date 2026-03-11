@@ -113,6 +113,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
   const [newPdfFile, setNewPdfFile] = useState<File | null>(null);
   const [creating, setCreating] = useState(false);
   const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [mapping, setMapping] = useState<Record<string, any>>({});
 
   // --- Load templates list ---
   const loadTemplateList = useCallback(async () => {
@@ -134,8 +135,10 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
         if (schema?.fields) {
           setFields(schema.fields);
           setTransforms(schema.transforms || []);
+          setMapping(data.mapping || {});
           setSelectedTemplate(templateId);
           setShowLoadTemplate(false);
+          setShowPdfPreview(true);
           toast.success(`Loaded ${schema.fields.length} fields from ${templateId}`);
         }
       }
@@ -153,10 +156,11 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
       const bundle = await res.json();
 
       const updatedSchema = { ...bundle.schema, fields, transforms: transforms.length > 0 ? transforms : undefined };
+      const updatedMapping = Object.keys(mapping).length > 0 ? mapping : bundle.mapping;
       const saveRes = await fetch(`/api/admin/templates/${selectedTemplate}/bundle`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ template: bundle.template, schema: updatedSchema, mapping: bundle.mapping }),
+        body: JSON.stringify({ template: bundle.template, schema: updatedSchema, mapping: updatedMapping }),
       });
       if (saveRes.ok) {
         toast.success(`Saved to ${selectedTemplate}`);
@@ -164,7 +168,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
         toast.error('Failed to save');
       }
     } catch { toast.error('Failed to save template'); }
-  }, [selectedTemplate, fields, transforms]);
+  }, [selectedTemplate, fields, transforms, mapping]);
 
   const createTemplate = useCallback(async () => {
     if (!newTemplate.id.trim() || !newTemplate.title.trim()) {
@@ -1670,10 +1674,65 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                 <Separator className="mb-6" />
                 <PdfFieldPreview
                   templateId={selectedTemplate}
-                  highlightFields={new Set(fields.map((f) => f.key).filter(Boolean))}
-                  onFieldClick={(fieldName) => {
-                    navigator.clipboard.writeText(fieldName);
-                    toast.success(`Copied "${fieldName}" to clipboard`);
+                  mapping={mapping}
+                  onFieldClick={(pdfFieldName) => {
+                    // Find if any schema field key matches — if not, prompt to map
+                    const existingKey = Object.entries(mapping).find(([, v]) =>
+                      typeof v === 'string' ? v === pdfFieldName : v?.field === pdfFieldName
+                    )?.[0];
+
+                    if (existingKey) {
+                      navigator.clipboard.writeText(existingKey);
+                      toast.info(`Already mapped: ${pdfFieldName} → ${existingKey} (copied key)`);
+                    } else {
+                      // Suggest mapping: use a prompt-like approach via clipboard + toast
+                      const suggestedKey = pdfFieldName
+                        .replace(/\[\d+\]/g, '')
+                        .replace(/[^a-zA-Z0-9]/g, '_')
+                        .replace(/_+/g, '_')
+                        .replace(/^_|_$/g, '')
+                        .toLowerCase();
+
+                      // Auto-create mapping entry
+                      setMapping((prev) => ({ ...prev, [suggestedKey]: pdfFieldName }));
+                      // Also create a schema field if none exists with that key
+                      if (!fields.some((f) => f.key === suggestedKey)) {
+                        setFields((prev) => [...prev, {
+                          key: suggestedKey,
+                          type: 'text',
+                          required: false,
+                          label: suggestedKey.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+                          placeholder: '',
+                          helpText: '',
+                        }]);
+                      }
+                      toast.success(`Mapped: ${suggestedKey} → ${pdfFieldName}`);
+                    }
+                  }}
+                  onMappingRemove={(schemaKey) => {
+                    setMapping((prev) => {
+                      const next = { ...prev };
+                      delete next[schemaKey];
+                      return next;
+                    });
+                    // Also remove the schema field if it was auto-created
+                    setFields((prev) => prev.filter((f) => f.key !== schemaKey));
+                    toast.info(`Removed mapping for "${schemaKey}"`);
+                  }}
+                  onOverlayAdd={(schemaKey, overlayMapping) => {
+                    setMapping((prev) => ({ ...prev, [schemaKey]: overlayMapping }));
+                    // Create a schema field for this overlay
+                    if (!fields.some((f) => f.key === schemaKey)) {
+                      setFields((prev) => [...prev, {
+                        key: schemaKey,
+                        type: 'text',
+                        required: false,
+                        label: schemaKey.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+                        placeholder: '',
+                        helpText: '',
+                      }]);
+                    }
+                    toast.success(`Created overlay field: ${schemaKey}`);
                   }}
                 />
               </motion.div>
