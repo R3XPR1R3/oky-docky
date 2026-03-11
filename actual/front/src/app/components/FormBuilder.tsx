@@ -781,6 +781,70 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
             )}
           </AnimatePresence>
 
+          {/* PDF Field Preview — shown above fields/empty state */}
+          {showPdfPreview && selectedTemplate && (
+            <div className="mb-8">
+              <Separator className="mb-6" />
+              <PdfFieldPreview
+                templateId={selectedTemplate}
+                mapping={mapping}
+                onFieldClick={(pdfFieldName) => {
+                  const existingKey = Object.entries(mapping).find(([, v]) =>
+                    typeof v === 'string' ? v === pdfFieldName : v?.field === pdfFieldName
+                  )?.[0];
+
+                  if (existingKey) {
+                    navigator.clipboard.writeText(existingKey);
+                    toast.info(`Already mapped: ${pdfFieldName} → ${existingKey} (copied key)`);
+                  } else {
+                    const suggestedKey = pdfFieldName
+                      .replace(/\[\d+\]/g, '')
+                      .replace(/[^a-zA-Z0-9]/g, '_')
+                      .replace(/_+/g, '_')
+                      .replace(/^_|_$/g, '')
+                      .toLowerCase();
+
+                    setMapping((prev) => ({ ...prev, [suggestedKey]: pdfFieldName }));
+                    if (!fields.some((f) => f.key === suggestedKey)) {
+                      setFields((prev) => [...prev, {
+                        key: suggestedKey,
+                        type: 'text',
+                        required: false,
+                        label: suggestedKey.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+                        placeholder: '',
+                        helpText: '',
+                      }]);
+                    }
+                    toast.success(`Mapped: ${suggestedKey} → ${pdfFieldName}`);
+                  }
+                }}
+                onMappingRemove={(schemaKey) => {
+                  setMapping((prev) => {
+                    const next = { ...prev };
+                    delete next[schemaKey];
+                    return next;
+                  });
+                  setFields((prev) => prev.filter((f) => f.key !== schemaKey));
+                  toast.info(`Removed mapping for "${schemaKey}"`);
+                }}
+                onOverlayAdd={(schemaKey, overlayMapping) => {
+                  setMapping((prev) => ({ ...prev, [schemaKey]: overlayMapping }));
+                  if (!fields.some((f) => f.key === schemaKey)) {
+                    setFields((prev) => [...prev, {
+                      key: schemaKey,
+                      type: 'text',
+                      required: false,
+                      label: schemaKey.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+                      placeholder: '',
+                      helpText: '',
+                    }]);
+                  }
+                  toast.success(`Created overlay field: ${schemaKey}`);
+                }}
+              />
+            </div>
+          )}
+
           {/* Empty State */}
           {fields.length === 0 && (
             <motion.div
@@ -1662,82 +1726,6 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
             </motion.div>
           )}
 
-          {/* PDF Field Preview */}
-          <AnimatePresence>
-            {showPdfPreview && selectedTemplate && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-8 overflow-hidden"
-              >
-                <Separator className="mb-6" />
-                <PdfFieldPreview
-                  templateId={selectedTemplate}
-                  mapping={mapping}
-                  onFieldClick={(pdfFieldName) => {
-                    // Find if any schema field key matches — if not, prompt to map
-                    const existingKey = Object.entries(mapping).find(([, v]) =>
-                      typeof v === 'string' ? v === pdfFieldName : v?.field === pdfFieldName
-                    )?.[0];
-
-                    if (existingKey) {
-                      navigator.clipboard.writeText(existingKey);
-                      toast.info(`Already mapped: ${pdfFieldName} → ${existingKey} (copied key)`);
-                    } else {
-                      // Suggest mapping: use a prompt-like approach via clipboard + toast
-                      const suggestedKey = pdfFieldName
-                        .replace(/\[\d+\]/g, '')
-                        .replace(/[^a-zA-Z0-9]/g, '_')
-                        .replace(/_+/g, '_')
-                        .replace(/^_|_$/g, '')
-                        .toLowerCase();
-
-                      // Auto-create mapping entry
-                      setMapping((prev) => ({ ...prev, [suggestedKey]: pdfFieldName }));
-                      // Also create a schema field if none exists with that key
-                      if (!fields.some((f) => f.key === suggestedKey)) {
-                        setFields((prev) => [...prev, {
-                          key: suggestedKey,
-                          type: 'text',
-                          required: false,
-                          label: suggestedKey.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-                          placeholder: '',
-                          helpText: '',
-                        }]);
-                      }
-                      toast.success(`Mapped: ${suggestedKey} → ${pdfFieldName}`);
-                    }
-                  }}
-                  onMappingRemove={(schemaKey) => {
-                    setMapping((prev) => {
-                      const next = { ...prev };
-                      delete next[schemaKey];
-                      return next;
-                    });
-                    // Also remove the schema field if it was auto-created
-                    setFields((prev) => prev.filter((f) => f.key !== schemaKey));
-                    toast.info(`Removed mapping for "${schemaKey}"`);
-                  }}
-                  onOverlayAdd={(schemaKey, overlayMapping) => {
-                    setMapping((prev) => ({ ...prev, [schemaKey]: overlayMapping }));
-                    // Create a schema field for this overlay
-                    if (!fields.some((f) => f.key === schemaKey)) {
-                      setFields((prev) => [...prev, {
-                        key: schemaKey,
-                        type: 'text',
-                        required: false,
-                        label: schemaKey.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-                        placeholder: '',
-                        helpText: '',
-                      }]);
-                    }
-                    toast.success(`Created overlay field: ${schemaKey}`);
-                  }}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       )}
     </div>
