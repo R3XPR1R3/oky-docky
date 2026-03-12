@@ -145,6 +145,11 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
     } catch { toast.error('Failed to load template'); }
   }, []);
 
+  const openTemplateInBuilder = useCallback(async (templateId: string) => {
+    await loadTemplateSchema(templateId);
+    setShowPdfPreview(true);
+  }, [loadTemplateSchema]);
+
   const saveToTemplate = useCallback(async () => {
     if (!selectedTemplate) {
       toast.error('Load a template first before saving');
@@ -207,12 +212,16 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
         setShowCreateTemplate(false);
         setNewTemplate({ id: '', title: '', description: '', category: 'tax', tags: '', country: 'US', estimated_time: '5 min' });
         setNewPdfFile(null);
-        // Auto-load the new template for editing
+        // Auto-load the new template for editing and open PDF preview.
         setFields([]);
         setTransforms([]);
         setSelectedTemplate(data.template_id);
+        setMapping({});
+        await openTemplateInBuilder(data.template_id);
         if (data.pdf_fields?.length > 0) {
           toast.info(`Detected ${data.pdf_fields.length} PDF fields`);
+        } else {
+          toast.info('No AcroForm fields found — use "+ Place Field" to add overlay fields.');
         }
       } else {
         const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
@@ -220,7 +229,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
       }
     } catch { toast.error('Failed to create template'); }
     finally { setCreating(false); }
-  }, [newTemplate, newPdfFile]);
+  }, [newTemplate, newPdfFile, openTemplateInBuilder]);
 
   const syncToRepo = useCallback(async () => {
     try {

@@ -408,6 +408,12 @@ export default function PdfFieldPreview({
         </div>
       )}
 
+      {!loading && fieldRects.length === 0 && (
+        <div className="mb-3 px-2 py-2 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-700">
+          This PDF has no built-in AcroForm fields. Use <strong>+ Place Field</strong> to create overlay fields and map them to schema keys.
+        </div>
+      )}
+
       {loading && (
         <div className="text-center text-slate-400 py-8">Loading PDF...</div>
       )}

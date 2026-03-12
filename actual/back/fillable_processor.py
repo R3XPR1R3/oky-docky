@@ -4,6 +4,7 @@ import json
 import os
 import smtplib
 import uuid
+from io import BytesIO
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, Dict, Optional, Literal
@@ -412,6 +413,18 @@ def api_admin_create_template(payload: CreateTemplatePayload):
             if not pdf_bytes.startswith(b"%PDF"):
                 raise HTTPException(400, "Uploaded file is not a valid PDF")
 
+            # Ensure the uploaded document can be parsed and is not encrypted.
+            try:
+                reader = PdfReader(BytesIO(pdf_bytes))
+                if reader.is_encrypted:
+                    raise HTTPException(400, "Encrypted PDFs are not supported")
+                # Touch first page to validate cross-reference and page tree integrity.
+                _ = len(reader.pages)
+            except HTTPException:
+                raise
+            except Exception:
+                raise HTTPException(400, "Uploaded PDF could not be parsed")
+
             (target_dir / pdf_filename).write_bytes(pdf_bytes)
         else:
             # Create a minimal blank PDF placeholder
@@ -464,6 +477,11 @@ def api_admin_create_template(payload: CreateTemplatePayload):
             except Exception:
                 pass
 
+    except HTTPException:
+        # Preserve user-facing validation errors.
+        import shutil
+        shutil.rmtree(target_dir, ignore_errors=True)
+        raise
     except Exception as e:
         # Clean up on failure
         import shutil
