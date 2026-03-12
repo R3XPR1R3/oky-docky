@@ -88,6 +88,14 @@ export default function PdfFieldPreview({
   const [drawing, setDrawing] = useState<{ pageIdx: number; startX: number; startY: number; curX: number; curY: number } | null>(null);
   const [newFieldName, setNewFieldName] = useState('');
   const [pendingRect, setPendingRect] = useState<{ pageIdx: number; rect: [number, number, number, number] } | null>(null);
+  const [overlayDrag, setOverlayDrag] = useState<{
+    schemaKey: string;
+    pageIdx: number;
+    mode: 'move' | 'resize';
+    startX: number;
+    startY: number;
+    initialRect: [number, number, number, number];
+  } | null>(null);
 
   const canvasRefs = useRef<Map<number, HTMLCanvasElement>>(new Map());
   const pdfDocRef = useRef<pdfjsLib.PDFDocumentProxy | null>(null);
@@ -187,14 +195,56 @@ export default function PdfFieldPreview({
   }, [drawMode]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (overlayDrag) {
+      const canvas = canvasRefs.current.get(overlayDrag.pageIdx);
+      const info = pageInfosRef.current.get(overlayDrag.pageIdx);
+      if (!canvas || !info) return;
+
+      const parentRect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - parentRect.left;
+      const y = e.clientY - parentRect.top;
+      const dxPx = x - overlayDrag.startX;
+      const dyPx = y - overlayDrag.startY;
+      const dxPdf = dxPx * (info.width / canvas.width);
+      const dyPdf = -dyPx * (info.height / canvas.height);
+
+      const minWidth = 20;
+      const minHeight = 8;
+      const nextRect: [number, number, number, number] = overlayDrag.mode === 'move'
+        ? [
+          overlayDrag.initialRect[0] + dxPdf,
+          overlayDrag.initialRect[1] + dyPdf,
+          overlayDrag.initialRect[2] + dxPdf,
+          overlayDrag.initialRect[3] + dyPdf,
+        ]
+        : [
+          overlayDrag.initialRect[0],
+          overlayDrag.initialRect[1],
+          Math.max(overlayDrag.initialRect[0] + minWidth, overlayDrag.initialRect[2] + dxPdf),
+          Math.max(overlayDrag.initialRect[1] + minHeight, overlayDrag.initialRect[3] + dyPdf),
+        ];
+
+      onOverlayUpdate?.(overlayDrag.schemaKey, {
+        ...(mapping[overlayDrag.schemaKey] || {}),
+        type: 'text_overlay',
+        page: overlayDrag.pageIdx,
+        rect: nextRect.map((v) => Math.round(v * 10) / 10),
+      });
+      return;
+    }
+
     if (!drawing) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     setDrawing((d) => d ? { ...d, curX: x, curY: y } : null);
-  }, [drawing]);
+  }, [drawing, mapping, onOverlayUpdate, overlayDrag]);
 
   const handleMouseUp = useCallback(() => {
+    if (overlayDrag) {
+      setOverlayDrag(null);
+      return;
+    }
     if (!drawing) return;
     const { pageIdx, startX, startY, curX, curY } = drawing;
     const w = Math.abs(curX - startX);
@@ -216,7 +266,7 @@ export default function PdfFieldPreview({
     setPendingRect({ pageIdx, rect: pdfRect });
     setDrawing(null);
     setNewFieldName('');
-  }, [drawing, canvasToPdf]);
+  }, [drawing, canvasToPdf, overlayDrag]);
 
   const confirmNewField = useCallback(() => {
     if (!pendingRect || !newFieldName.trim()) return;
@@ -468,7 +518,42 @@ export default function PdfFieldPreview({
                       onClick={() => {
                         navigator.clipboard.writeText(overlay.schemaKey);
                       }}
+                      onMouseDown={(e) => {
+                        if (drawMode) return;
+                        e.stopPropagation();
+                        const parent = e.currentTarget.parentElement;
+                        if (!parent) return;
+                        const parentRect = parent.getBoundingClientRect();
+                        setOverlayDrag({
+                          schemaKey: overlay.schemaKey,
+                          pageIdx,
+                          mode: 'move',
+                          startX: e.clientX - parentRect.left,
+                          startY: e.clientY - parentRect.top,
+                          initialRect: [...overlay.rect],
+                        });
+                      }}
                       title={`Text overlay: ${overlay.schemaKey}`}
+                    />
+                    <div
+                      className="absolute w-3 h-3 bg-purple-600 border border-white rounded-sm cursor-nwse-resize"
+                      style={{ right: '-6px', bottom: '-6px' }}
+                      onMouseDown={(e) => {
+                        if (drawMode) return;
+                        e.stopPropagation();
+                        const parent = e.currentTarget.parentElement;
+                        if (!parent) return;
+                        const parentRect = parent.getBoundingClientRect();
+                        setOverlayDrag({
+                          schemaKey: overlay.schemaKey,
+                          pageIdx,
+                          mode: 'resize',
+                          startX: e.clientX - parentRect.left,
+                          startY: e.clientY - parentRect.top,
+                          initialRect: [...overlay.rect],
+                        });
+                      }}
+                      title="Resize overlay"
                     />
                     <div
                       className="absolute left-0 whitespace-nowrap pointer-events-none text-[9px] leading-tight font-mono px-1 py-0.5 rounded-sm shadow-sm bg-purple-600 text-white"

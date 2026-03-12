@@ -747,7 +747,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                           className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                         />
                       </div>
-                      <p className="text-xs text-slate-400 mt-1">Upload a fillable PDF (AcroForm). Optional — you can add it later.</p>
+                      <p className="text-xs text-slate-400 mt-1">Upload any PDF (fillable or flat). You can map existing AcroForm fields or place your own overlay fields.</p>
                     </div>
                   </div>
                   <div className="flex justify-end gap-2 mt-6">
@@ -840,6 +840,9 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                     }]);
                   }
                   toast.success(`Created overlay field: ${schemaKey}`);
+                }}
+                onOverlayUpdate={(schemaKey, overlayMapping) => {
+                  setMapping((prev) => ({ ...prev, [schemaKey]: overlayMapping }));
                 }}
               />
             </div>
