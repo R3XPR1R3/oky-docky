@@ -126,14 +126,32 @@ export default function PdfFieldPreview({
   useEffect(() => {
     if (!templateId) return;
 
-    pdfjsLib
-      .getDocument(`/api/templates/${templateId}/pdf-file`)
-      .promise.then((pdf) => {
+    const pdfUrl = `/api/templates/${templateId}/pdf-file`;
+    const loadingTask = pdfjsLib.getDocument({
+      url: pdfUrl,
+      // Some reverse proxies/CDN setups fail to serve worker .mjs for module import.
+      // Disable worker for builder preview to avoid "Setting up fake worker failed".
+      disableWorker: true,
+    });
+
+    console.info('[PdfFieldPreview] Loading PDF', {
+      templateId,
+      pdfUrl,
+      disableWorker: true,
+      workerSrc: pdfjsLib.GlobalWorkerOptions.workerSrc,
+    });
+
+    loadingTask.promise.then((pdf) => {
         pdfDocRef.current = pdf;
         setPageCount(pdf.numPages);
         setLoading(false);
       })
       .catch((e) => {
+        console.error('[PdfFieldPreview] PDF load failed', {
+          templateId,
+          pdfUrl,
+          error: e,
+        });
         setError(`PDF load error: ${e.message}`);
         setLoading(false);
       });

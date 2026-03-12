@@ -134,19 +134,24 @@ hot_update() {
 
   log "New commits: ${LOCAL:0:8} -> ${REMOTE:0:8}"
   git pull origin "$BRANCH"
+  NEW_HEAD=$(git rev-parse --short HEAD)
+  log "✅ Git update pulled successfully. Current commit: ${NEW_HEAD}"
 
   # Backend: uvicorn --reload picks up changes automatically
   # via the volume mount — nothing to do.
+  if git diff --name-only "$LOCAL" "$REMOTE" | grep -q "^actual/back/"; then
+    log "Backend changes detected — uvicorn reload will apply them automatically."
+  fi
 
   # Frontend: rebuild static files into the shared volume.
   # This runs a throwaway container; nginx serves new files instantly.
   if git diff --name-only "$LOCAL" "$REMOTE" | grep -q "^actual/front/"; then
     log "Frontend changes detected — rebuilding dist..."
     $COMPOSE run --rm frontend-builder
-    log "Frontend dist updated."
+    log "Frontend dist updated and applied by nginx."
   fi
 
-  log "Hot-update complete (no container restart)."
+  log "✅ Update applied successfully (no container restart)."
   return 0
 }
 
@@ -157,6 +162,7 @@ initial_deploy() {
   log "=== Initial deploy ==="
   git checkout "$BRANCH" 2>/dev/null || git checkout -b "$BRANCH" "origin/${BRANCH}"
   git pull origin "$BRANCH"
+  log "✅ Initial git sync complete. Commit: $(git rev-parse --short HEAD)"
 
   log "Building containers (this may take a while on Pi)..."
   $COMPOSE build --parallel
