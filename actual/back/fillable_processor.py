@@ -40,6 +40,7 @@ I18N_DIR = DATA_DIR / "i18n"
 ADMIN_PAGE = BASE_DIR / "static" / "scenario-admin.html"
 
 DEFAULT_LOCALE = "en"
+MAX_TEMPLATE_PDF_BYTES = int(os.getenv("MAX_TEMPLATE_PDF_BYTES", str(20 * 1024 * 1024)))
 
 
 class FeedbackPayload(BaseModel):
@@ -401,7 +402,16 @@ def api_admin_create_template(payload: CreateTemplatePayload):
     try:
         # Write PDF if provided
         if payload.pdf_base64:
-            pdf_bytes = base64.b64decode(payload.pdf_base64)
+            try:
+                pdf_bytes = base64.b64decode(payload.pdf_base64, validate=True)
+            except Exception:
+                raise HTTPException(400, "Invalid PDF base64 payload")
+
+            if len(pdf_bytes) > MAX_TEMPLATE_PDF_BYTES:
+                raise HTTPException(400, f"PDF is too large (>{MAX_TEMPLATE_PDF_BYTES} bytes)")
+            if not pdf_bytes.startswith(b"%PDF"):
+                raise HTTPException(400, "Uploaded file is not a valid PDF")
+
             (target_dir / pdf_filename).write_bytes(pdf_bytes)
         else:
             # Create a minimal blank PDF placeholder
