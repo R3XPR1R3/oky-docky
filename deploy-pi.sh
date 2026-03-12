@@ -169,6 +169,11 @@ hot_update() {
   # Frontend: rebuild static files into the shared volume.
   # This runs a throwaway container; nginx serves new files instantly.
   if git diff --name-only "$LOCAL" "$REMOTE" | grep -q "^actual/front/"; then
+    if git diff --name-only "$LOCAL" "$REMOTE" | grep -Eq '^actual/front/(package\.json|package-lock\.json|pnpm-lock\.yaml|Dockerfile)$'; then
+      log "Frontend dependency/build files changed — rebuilding frontend-builder image..."
+      $COMPOSE build frontend-builder
+    fi
+
     log "Frontend changes detected — rebuilding dist..."
     $COMPOSE run --rm frontend-builder
     log "Frontend dist updated and applied by nginx."
