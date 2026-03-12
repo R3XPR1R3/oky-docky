@@ -34,7 +34,7 @@ const TRANSFORM_TYPE_COLORS: Record<string, string> = {
   compute: 'bg-cyan-100 text-cyan-700',
   copy: 'bg-emerald-100 text-emerald-700',
   auto_date: 'bg-rose-100 text-rose-700',
-  set_value: 'bg-violet-100 text-violet-700',
+  set_value: 'bg-blue-100 text-blue-700',
 };
 
 function createEmptyTransform(): SchemaTransform {
@@ -63,7 +63,7 @@ function transformSummary(t: SchemaTransform): string {
 
 const FIELD_TYPE_COLORS: Record<string, string> = {
   text: 'bg-blue-100 text-blue-700',
-  radio: 'bg-purple-100 text-purple-700',
+  radio: 'bg-blue-100 text-blue-700',
   checkbox: 'bg-green-100 text-green-700',
   signature: 'bg-amber-100 text-amber-700',
   text_input: 'bg-sky-100 text-sky-700',
@@ -459,10 +459,10 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                 <ArrowLeft className="w-5 h-5" />
               </Button>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center">
                   <Settings2 className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-lg font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
                   Form Builder
                 </span>
               </div>
@@ -764,7 +764,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                     <Button
                       onClick={createTemplate}
                       disabled={creating || !newTemplate.id.trim() || !newTemplate.title.trim()}
-                      className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
+                      className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white"
                     >
                       {creating ? 'Creating...' : 'Create Template'}
                     </Button>
@@ -864,13 +864,13 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
               animate={{ y: 0, opacity: 1 }}
               className="text-center py-20"
             >
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center mx-auto mb-6">
-                <FileText className="w-10 h-10 text-indigo-600" />
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center mx-auto mb-6">
+                <FileText className="w-10 h-10 text-blue-600" />
               </div>
               <h2 className="text-2xl font-bold mb-2">Start building your form</h2>
               <p className="text-slate-600 mb-6">Add fields to create a step-by-step Q&A flow</p>
               <div className="flex justify-center gap-3">
-                <Button onClick={addField} className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white gap-2">
+                <Button onClick={addField} className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white gap-2">
                   <Plus className="w-4 h-4" /> Add First Field
                 </Button>
                 <Button variant="outline" onClick={() => setShowImport(true)} className="gap-2">
@@ -913,7 +913,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                               'bg-slate-50/50 border border-dashed border-slate-200'
                             }`}
                           >
-                            <code className="font-mono text-indigo-600 font-medium min-w-[120px]">{key}</code>
+                            <code className="font-mono text-blue-600 font-medium min-w-[120px]">{key}</code>
                             {info.isHidden && (
                               <Badge variant="outline" className="text-xs gap-1 bg-amber-100 text-amber-700 border-amber-300">
                                 <EyeOffIcon className="w-3 h-3" /> hidden
@@ -1324,7 +1324,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                 <div key={depKey} className="bg-white rounded-lg border border-slate-200 p-3 space-y-2">
                                   <div className="flex items-center justify-between">
                                     <span className="text-sm font-medium">
-                                      Show when <span className="font-mono text-indigo-600">{depField.label || depKey}</span> =
+                                      Show when <span className="font-mono text-blue-600">{depField.label || depKey}</span> =
                                     </span>
                                     <Button
                                       variant="ghost" size="icon" className="h-6 w-6 text-red-500"
@@ -1731,7 +1731,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
               <Button
                 onClick={addField}
                 variant="outline"
-                className="w-full py-6 border-dashed border-2 text-slate-500 hover:text-indigo-600 hover:border-indigo-400 gap-2"
+                className="w-full py-6 border-dashed border-2 text-slate-500 hover:text-blue-600 hover:border-indigo-400 gap-2"
               >
                 <Plus className="w-5 h-5" /> Add Field
               </Button>
