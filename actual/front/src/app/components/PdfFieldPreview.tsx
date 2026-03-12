@@ -377,8 +377,8 @@ export default function PdfFieldPreview({
         <button
           className={`px-3 py-1 text-xs rounded font-medium transition-colors ${
             drawMode
-              ? 'bg-purple-600 text-white shadow-md'
-              : 'bg-slate-100 text-slate-600 hover:bg-purple-100 hover:text-purple-700'
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'bg-slate-100 text-slate-600 hover:bg-blue-100 hover:text-blue-700'
           }`}
           onClick={() => { setDrawMode(!drawMode); setPendingRect(null); setDrawing(null); }}
         >
@@ -386,7 +386,7 @@ export default function PdfFieldPreview({
         </button>
 
         {overlayCount > 0 && (
-          <span className="text-xs text-purple-600 font-medium">
+          <span className="text-xs text-blue-600 font-medium">
             {overlayCount} overlay{overlayCount !== 1 ? 's' : ''}
           </span>
         )}
@@ -403,8 +403,14 @@ export default function PdfFieldPreview({
       </div>
 
       {drawMode && (
-        <div className="mb-3 px-2 py-2 bg-purple-50 rounded-lg border border-purple-200 text-xs text-purple-700">
+        <div className="mb-3 px-2 py-2 bg-blue-50 rounded-lg border border-blue-200 text-xs text-blue-700">
           Draw a rectangle on the PDF where you want to place a new text field. The text will be stamped at that position when the form is filled.
+        </div>
+      )}
+
+      {!loading && fieldRects.length === 0 && (
+        <div className="mb-3 px-2 py-2 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-700">
+          This PDF has no built-in AcroForm fields. Use <strong>+ Place Field</strong> to create overlay fields and map them to schema keys.
         </div>
       )}
 
@@ -414,21 +420,21 @@ export default function PdfFieldPreview({
 
       {/* New field name dialog */}
       {pendingRect && (
-        <div className="mb-3 px-3 py-3 bg-purple-50 rounded-xl border-2 border-purple-300 flex items-center gap-3">
-          <span className="text-sm text-purple-700 font-medium whitespace-nowrap">Field key:</span>
+        <div className="mb-3 px-3 py-3 bg-blue-50 rounded-xl border-2 border-blue-300 flex items-center gap-3">
+          <span className="text-sm text-blue-700 font-medium whitespace-nowrap">Field key:</span>
           <input
             type="text"
             value={newFieldName}
             onChange={(e) => setNewFieldName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') confirmNewField(); if (e.key === 'Escape') setPendingRect(null); }}
             placeholder="e.g. full_name, address_line1"
-            className="flex-1 px-3 py-1.5 text-sm border border-purple-300 rounded-lg font-mono focus:outline-none focus:border-purple-500"
+            className="flex-1 px-3 py-1.5 text-sm border border-blue-300 rounded-lg font-mono focus:outline-none focus:border-blue-500"
             autoFocus
           />
           <button
             onClick={confirmNewField}
             disabled={!newFieldName.trim()}
-            className="px-3 py-1.5 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Create
           </button>
@@ -462,7 +468,7 @@ export default function PdfFieldPreview({
               {/* Drawing rectangle preview */}
               {drawing && drawing.pageIdx === pageIdx && (
                 <div
-                  className="absolute border-2 border-purple-500 bg-purple-400/20 pointer-events-none"
+                  className="absolute border-2 border-blue-500 bg-blue-400/20 pointer-events-none"
                   style={{
                     left: `${Math.min(drawing.startX, drawing.curX)}px`,
                     top: `${Math.min(drawing.startY, drawing.curY)}px`,
@@ -486,7 +492,7 @@ export default function PdfFieldPreview({
                 const height = Math.abs(y2 - y1) * sy;
                 return (
                   <div
-                    className="absolute border-2 border-purple-500 bg-purple-400/25 pointer-events-none animate-pulse"
+                    className="absolute border-2 border-blue-500 bg-blue-400/25 pointer-events-none animate-pulse"
                     style={{ left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` }}
                   />
                 );
@@ -514,7 +520,7 @@ export default function PdfFieldPreview({
                     onMouseLeave={() => setHoveredField(null)}
                   >
                     <div
-                      className="absolute inset-0 border-2 border-purple-500 bg-purple-400/15 hover:bg-purple-400/30 cursor-pointer transition-all border-dashed"
+                      className="absolute inset-0 border-2 border-blue-500 bg-blue-400/15 hover:bg-blue-400/30 cursor-pointer transition-all border-dashed"
                       onClick={() => {
                         navigator.clipboard.writeText(overlay.schemaKey);
                       }}
@@ -536,7 +542,7 @@ export default function PdfFieldPreview({
                       title={`Text overlay: ${overlay.schemaKey}`}
                     />
                     <div
-                      className="absolute w-3 h-3 bg-purple-600 border border-white rounded-sm cursor-nwse-resize"
+                      className="absolute w-3 h-3 bg-blue-600 border border-white rounded-sm cursor-nwse-resize"
                       style={{ right: '-6px', bottom: '-6px' }}
                       onMouseDown={(e) => {
                         if (drawMode) return;
@@ -556,7 +562,7 @@ export default function PdfFieldPreview({
                       title="Resize overlay"
                     />
                     <div
-                      className="absolute left-0 whitespace-nowrap pointer-events-none text-[9px] leading-tight font-mono px-1 py-0.5 rounded-sm shadow-sm bg-purple-600 text-white"
+                      className="absolute left-0 whitespace-nowrap pointer-events-none text-[9px] leading-tight font-mono px-1 py-0.5 rounded-sm shadow-sm bg-blue-600 text-white"
                       style={{ bottom: '100%', marginBottom: '1px' }}
                     >
                       <span className="font-semibold">{overlay.schemaKey}</span>
@@ -567,7 +573,7 @@ export default function PdfFieldPreview({
                         className="absolute z-10 bg-white rounded-lg shadow-xl border border-slate-200 p-2 min-w-[180px]"
                         style={{ top: '100%', left: 0, marginTop: '4px' }}
                       >
-                        <div className="text-[10px] font-mono text-purple-600 mb-1">{overlay.schemaKey}</div>
+                        <div className="text-[10px] font-mono text-blue-600 mb-1">{overlay.schemaKey}</div>
                         <div className="text-[10px] text-slate-400 mb-1">
                           Page {overlay.page + 1} | Rect: [{overlay.rect.map(v => Math.round(v)).join(', ')}]
                         </div>
