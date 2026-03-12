@@ -146,17 +146,7 @@ hot_update() {
   fi
 
   log "New commits: ${LOCAL:0:8} -> ${REMOTE:0:8}"
-  if ! git pull --ff-only origin "$BRANCH"; then
-    if [ "$GIT_FORCE_SYNC" != "1" ]; then
-      log "git pull --ff-only failed and GIT_FORCE_SYNC=0. Manual intervention required."
-      return 1
-    fi
-
-    log "Fast-forward pull failed. Forcing repo sync to origin/${BRANCH}."
-    git reset --hard "origin/${BRANCH}"
-    git clean -fd
-  fi
-
+  git pull origin "$BRANCH"
   NEW_HEAD=$(git rev-parse --short HEAD)
   log "✅ Git update pulled successfully. Current commit: ${NEW_HEAD}"
 
@@ -189,17 +179,7 @@ hot_update() {
 initial_deploy() {
   log "=== Initial deploy ==="
   git checkout "$BRANCH" 2>/dev/null || git checkout -b "$BRANCH" "origin/${BRANCH}"
-  if ! git pull --ff-only origin "$BRANCH"; then
-    if [ "$GIT_FORCE_SYNC" != "1" ]; then
-      log "Initial git sync failed (non fast-forward). Set GIT_FORCE_SYNC=1 or sync manually."
-      return 1
-    fi
-
-    log "Initial sync is divergent. Forcing repo sync to origin/${BRANCH}."
-    git fetch origin "$BRANCH"
-    git reset --hard "origin/${BRANCH}"
-    git clean -fd
-  fi
+  git pull origin "$BRANCH"
   log "✅ Initial git sync complete. Commit: $(git rev-parse --short HEAD)"
 
   log "Building containers (this may take a while on Pi)..."
