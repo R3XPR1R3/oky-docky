@@ -49,6 +49,7 @@ BRANCH="${DEPLOY_BRANCH:-main}"
 CHECK_INTERVAL="${CHECK_INTERVAL:-20}"
 LOG_FILE="${SCRIPT_DIR}/deploy.log"
 TUNNEL_TOKEN="${TUNNEL_TOKEN:-}"
+GIT_FORCE_SYNC="${GIT_FORCE_SYNC:-1}"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
 
 log() {
@@ -132,6 +133,18 @@ hot_update() {
     return 1  # nothing changed
   fi
 
+  if [ -n "$(git status --porcelain)" ]; then
+    if [ "$GIT_FORCE_SYNC" = "1" ]; then
+      local stash_name
+      stash_name="okydoky-autostash-$(date '+%Y%m%d-%H%M%S')"
+      log "Local repo changes detected. Saving them to stash: ${stash_name}"
+      git stash push -u -m "$stash_name" >/dev/null || true
+    else
+      log "Local changes detected, and GIT_FORCE_SYNC=0. Skipping update to avoid conflicts."
+      return 1
+    fi
+  fi
+
   log "New commits: ${LOCAL:0:8} -> ${REMOTE:0:8}"
   git pull origin "$BRANCH"
   NEW_HEAD=$(git rev-parse --short HEAD)
@@ -146,6 +159,11 @@ hot_update() {
   # Frontend: rebuild static files into the shared volume.
   # This runs a throwaway container; nginx serves new files instantly.
   if git diff --name-only "$LOCAL" "$REMOTE" | grep -q "^actual/front/"; then
+    if git diff --name-only "$LOCAL" "$REMOTE" | grep -Eq '^actual/front/(package\.json|package-lock\.json|pnpm-lock\.yaml|Dockerfile)$'; then
+      log "Frontend dependency/build files changed — rebuilding frontend-builder image..."
+      $COMPOSE build frontend-builder
+    fi
+
     log "Frontend changes detected — rebuilding dist..."
     $COMPOSE run --rm frontend-builder
     log "Frontend dist updated and applied by nginx."
@@ -215,6 +233,7 @@ WorkingDirectory=${SCRIPT_DIR}
 Environment=DEPLOY_BRANCH=${BRANCH}
 Environment=CHECK_INTERVAL=${CHECK_INTERVAL}
 Environment=TUNNEL_TOKEN=${TUNNEL_TOKEN}
+Environment=GIT_FORCE_SYNC=${GIT_FORCE_SYNC}
 ExecStart=${SCRIPT_DIR}/deploy-pi.sh --watch
 Restart=always
 RestartSec=10
@@ -475,6 +494,7 @@ case "${1:-}" in
     echo "  DEPLOY_BRANCH      Git branch to track (default: main)"
     echo "  CHECK_INTERVAL     Seconds between checks (default: 20)"
     echo "  TUNNEL_TOKEN       Cloudflare tunnel token for permanent domain (optional)"
+    echo "  GIT_FORCE_SYNC     1=auto-resolve local divergence on Pi (default: 1), 0=skip on conflict"
     ;;
   *)
     initial_deploy
