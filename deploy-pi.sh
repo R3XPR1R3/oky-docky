@@ -146,7 +146,17 @@ hot_update() {
   fi
 
   log "New commits: ${LOCAL:0:8} -> ${REMOTE:0:8}"
-  git pull origin "$BRANCH"
+  if ! git pull --ff-only origin "$BRANCH"; then
+    if [ "$GIT_FORCE_SYNC" != "1" ]; then
+      log "git pull --ff-only failed and GIT_FORCE_SYNC=0. Manual intervention required."
+      return 1
+    fi
+
+    log "Fast-forward pull failed. Forcing repo sync to origin/${BRANCH}."
+    git reset --hard "origin/${BRANCH}"
+    git clean -fd
+  fi
+
   NEW_HEAD=$(git rev-parse --short HEAD)
   log "✅ Git update pulled successfully. Current commit: ${NEW_HEAD}"
 
@@ -165,7 +175,7 @@ hot_update() {
     fi
 
     log "Frontend changes detected — rebuilding dist..."
-    $COMPOSE run --rm frontend-builder
+    $COMPOSE run --rm --build frontend-builder
     log "Frontend dist updated and applied by nginx."
   fi
 
@@ -179,7 +189,17 @@ hot_update() {
 initial_deploy() {
   log "=== Initial deploy ==="
   git checkout "$BRANCH" 2>/dev/null || git checkout -b "$BRANCH" "origin/${BRANCH}"
-  git pull origin "$BRANCH"
+  if ! git pull --ff-only origin "$BRANCH"; then
+    if [ "$GIT_FORCE_SYNC" != "1" ]; then
+      log "Initial git sync failed (non fast-forward). Set GIT_FORCE_SYNC=1 or sync manually."
+      return 1
+    fi
+
+    log "Initial sync is divergent. Forcing repo sync to origin/${BRANCH}."
+    git fetch origin "$BRANCH"
+    git reset --hard "origin/${BRANCH}"
+    git clean -fd
+  fi
   log "✅ Initial git sync complete. Commit: $(git rev-parse --short HEAD)"
 
   log "Building containers (this may take a while on Pi)..."
@@ -190,7 +210,7 @@ initial_deploy() {
 
   # Populate the shared frontend-dist volume
   log "Building frontend dist into shared volume..."
-  $COMPOSE run --rm frontend-builder
+  $COMPOSE run --rm --build frontend-builder
 
   log "Initial deploy complete!"
   $COMPOSE ps
@@ -395,7 +415,7 @@ okydoky_cmd() {
   case "$cmd" in
     reboot)
       echo "[okydoky] Полный reload..."
-      (cd "$SCRIPT_DIR" && $COMPOSE down && $COMPOSE up -d --remove-orphans && $COMPOSE run --rm frontend-builder)
+      (cd "$SCRIPT_DIR" && $COMPOSE down && $COMPOSE up -d --remove-orphans && $COMPOSE run --rm --build frontend-builder)
       echo "[okydoky] ✅ Reload завершён."
       ;;
     changecolor)
@@ -406,7 +426,7 @@ okydoky_cmd() {
       fi
       echo "[okydoky] Переключение темы билдера на: $color"
       apply_builder_theme "$color"
-      (cd "$SCRIPT_DIR" && $COMPOSE run --rm frontend-builder)
+      (cd "$SCRIPT_DIR" && $COMPOSE run --rm --build frontend-builder)
       echo "[okydoky] ✅ Тема "$color" применена."
       ;;
     help|"")
