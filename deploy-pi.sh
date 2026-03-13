@@ -48,7 +48,10 @@ cd "$SCRIPT_DIR"
 BRANCH="${DEPLOY_BRANCH:-main}"
 CHECK_INTERVAL="${CHECK_INTERVAL:-20}"
 LOG_FILE="${SCRIPT_DIR}/deploy.log"
+TUNNEL_LOG="${SCRIPT_DIR}/tunnel.log"
+TUNNEL_URL_FILE="${SCRIPT_DIR}/tunnel-url.txt"
 TUNNEL_TOKEN="${TUNNEL_TOKEN:-}"
+GIT_FORCE_SYNC="${GIT_FORCE_SYNC:-1}"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
 
 log() {
@@ -82,31 +85,41 @@ install_cloudflared() {
   log "cloudflared installed."
 }
 
+write_tunnel_url() {
+  local tunnel_url="$1"
+  echo "$tunnel_url" > "$TUNNEL_URL_FILE"
+}
+
 start_tunnel() {
   install_cloudflared || { log "Failed to install cloudflared, skipping tunnel."; return 1; }
 
   if pgrep -f "cloudflared.*tunnel" > /dev/null 2>&1; then
     log "Cloudflare tunnel already running."
+    if [ -f "$TUNNEL_URL_FILE" ]; then
+      log "Current tunnel URL: $(cat "$TUNNEL_URL_FILE")"
+    fi
     return 0
   fi
+
+  : > "$TUNNEL_LOG"
+  rm -f "$TUNNEL_URL_FILE"
 
   if [ -n "$TUNNEL_TOKEN" ]; then
     # Permanent tunnel with a configured domain
     log "Starting Cloudflare tunnel (permanent, token-based)..."
-    nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate run --token "$TUNNEL_TOKEN" \
-      >> "${SCRIPT_DIR}/tunnel.log" 2>&1 &
+    nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate run --token "$TUNNEL_TOKEN"       >> "$TUNNEL_LOG" 2>&1 &
     log "Tunnel started. Check your Cloudflare dashboard for the domain."
   else
     # Quick free tunnel — random URL, no registration needed
     log "Starting Cloudflare quick tunnel (free, temporary URL)..."
-    nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate --url http://localhost:80 \
-      >> "${SCRIPT_DIR}/tunnel.log" 2>&1 &
+    nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate --url http://localhost:80       >> "$TUNNEL_LOG" 2>&1 &
 
-    # Wait for the URL to appear in the log
-    for i in $(seq 1 15); do
+    # Wait for the URL to appear in the fresh log
+    for i in $(seq 1 20); do
       sleep 2
-      TUNNEL_URL=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "${SCRIPT_DIR}/tunnel.log" 2>/dev/null | tail -1 || true)
+      TUNNEL_URL=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
       if [ -n "$TUNNEL_URL" ]; then
+        write_tunnel_url "$TUNNEL_URL"
         log "============================================"
         log "  PUBLIC URL: ${TUNNEL_URL}"
         log "============================================"
@@ -129,24 +142,58 @@ hot_update() {
   REMOTE=$(git rev-parse "origin/${BRANCH}")
 
   if [ "$LOCAL" = "$REMOTE" ]; then
+    log "No updates found on origin/${BRANCH}."
     return 1  # nothing changed
   fi
 
+  if [ -n "$(git status --porcelain)" ]; then
+    if [ "$GIT_FORCE_SYNC" = "1" ]; then
+      local stash_name
+      stash_name="okydoky-autostash-$(date '+%Y%m%d-%H%M%S')"
+      log "Local repo changes detected. Saving them to stash: ${stash_name}"
+      git stash push -u -m "$stash_name" >/dev/null || true
+    else
+      log "Local changes detected, and GIT_FORCE_SYNC=0. Skipping update to avoid conflicts."
+      return 1
+    fi
+  fi
+
   log "New commits: ${LOCAL:0:8} -> ${REMOTE:0:8}"
-  git pull origin "$BRANCH"
+  if ! git pull --ff-only origin "$BRANCH"; then
+    if [ "$GIT_FORCE_SYNC" != "1" ]; then
+      log "git pull --ff-only failed and GIT_FORCE_SYNC=0. Manual intervention required."
+      return 1
+    fi
+
+    log "Fast-forward pull failed. Forcing repo sync to origin/${BRANCH}."
+    git reset --hard "origin/${BRANCH}"
+    git clean -fd
+  fi
+
+  NEW_HEAD=$(git rev-parse --short HEAD)
+  log "✅ Git update pulled successfully. Current commit: ${NEW_HEAD}"
 
   # Backend: uvicorn --reload picks up changes automatically
   # via the volume mount — nothing to do.
+  if git diff --name-only "$LOCAL" "$REMOTE" | grep -q "^actual/back/"; then
+    log "Backend changes detected — uvicorn reload will apply them automatically."
+  fi
 
   # Frontend: rebuild static files into the shared volume.
   # This runs a throwaway container; nginx serves new files instantly.
   if git diff --name-only "$LOCAL" "$REMOTE" | grep -q "^actual/front/"; then
     log "Frontend changes detected — rebuilding dist..."
-    $COMPOSE run --rm frontend-builder
-    log "Frontend dist updated."
+    if git diff --name-only "$LOCAL" "$REMOTE" | grep -Eq '^actual/front/(package\.json|package-lock\.json|pnpm-lock\.yaml|Dockerfile)$'; then
+      log "Frontend deps changed — full rebuild mode."
+      $COMPOSE run --rm --build frontend-builder
+    else
+      log "Frontend source-only changes — fast rebuild mode."
+      $COMPOSE run --rm frontend-builder
+    fi
+    log "Frontend dist updated and applied by nginx."
   fi
 
-  log "Hot-update complete (no container restart)."
+  log "✅ Update applied successfully (no container restart)."
   return 0
 }
 
@@ -156,7 +203,18 @@ hot_update() {
 initial_deploy() {
   log "=== Initial deploy ==="
   git checkout "$BRANCH" 2>/dev/null || git checkout -b "$BRANCH" "origin/${BRANCH}"
-  git pull origin "$BRANCH"
+  if ! git pull --ff-only origin "$BRANCH"; then
+    if [ "$GIT_FORCE_SYNC" != "1" ]; then
+      log "Initial git sync failed (non fast-forward). Set GIT_FORCE_SYNC=1 or sync manually."
+      return 1
+    fi
+
+    log "Initial sync is divergent. Forcing repo sync to origin/${BRANCH}."
+    git fetch origin "$BRANCH"
+    git reset --hard "origin/${BRANCH}"
+    git clean -fd
+  fi
+  log "✅ Initial git sync complete. Commit: $(git rev-parse --short HEAD)"
 
   log "Building containers (this may take a while on Pi)..."
   $COMPOSE build --parallel
@@ -166,7 +224,7 @@ initial_deploy() {
 
   # Populate the shared frontend-dist volume
   log "Building frontend dist into shared volume..."
-  $COMPOSE run --rm frontend-builder
+  $COMPOSE run --rm --build frontend-builder
 
   log "Initial deploy complete!"
   $COMPOSE ps
@@ -184,6 +242,7 @@ watch_loop() {
   start_tunnel || true
   while true; do
     hot_update || true
+    start_tunnel || true
     sleep "$CHECK_INTERVAL"
   done
 }
@@ -209,6 +268,7 @@ WorkingDirectory=${SCRIPT_DIR}
 Environment=DEPLOY_BRANCH=${BRANCH}
 Environment=CHECK_INTERVAL=${CHECK_INTERVAL}
 Environment=TUNNEL_TOKEN=${TUNNEL_TOKEN}
+Environment=GIT_FORCE_SYNC=${GIT_FORCE_SYNC}
 ExecStart=${SCRIPT_DIR}/deploy-pi.sh --watch
 Restart=always
 RestartSec=10
@@ -242,60 +302,204 @@ install_autostart_terminal() {
   # Create the helper script that waits for and displays the URL
   cat > "$SHOW_SCRIPT" <<'URLSCRIPT'
 #!/usr/bin/env bash
-# ── Oky-Docky: show Cloudflare tunnel URL ──
+# ── Oky-Docky: show Cloudflare tunnel URL + local control commands ──
+set -euo pipefail
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TUNNEL_LOG="${SCRIPT_DIR}/tunnel.log"
+TUNNEL_URL_FILE="${SCRIPT_DIR}/tunnel-url.txt"
+DEPLOY_LOG="${SCRIPT_DIR}/deploy.log"
+COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
+URL=""
+LAST_STATUS=""
 
-clear
-echo "========================================"
-echo "   Oky-Docky — ожидание запуска...      "
-echo "========================================"
-echo ""
+print_header() {
+  clear
+  echo "========================================"
+  echo "   Oky-Docky запущен!"
+  echo "========================================"
+  echo ""
+  echo "   Ссылка для доступа:"
+  echo ""
+  echo "   ${URL:-<ожидание ссылки>}"
+  echo ""
+  echo "========================================"
+  echo "Команды в этом же терминале:"
+  echo "  okydoky reboot"
+  echo "  okydoky changecolor blue"
+  echo "  okydoky changecolor purple"
+  echo "  okydoky help"
+  echo "  exit"
+  echo "========================================"
+}
 
-# Wait for the tunnel URL (up to 90 seconds)
-for i in $(seq 1 45); do
-  URL=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
-  if [ -n "$URL" ]; then
-    clear
-    echo "========================================"
-    echo "   Oky-Docky запущен!"
-    echo "========================================"
-    echo ""
-    echo "   Ссылка для доступа:"
-    echo ""
-    echo "   $URL"
-    echo ""
-    echo "========================================"
-    echo ""
-    echo "   Отправьте эту ссылку друзьям!"
-    echo ""
-    echo "   Нажмите Ctrl+C чтобы закрыть окно."
-    echo "========================================"
-    # Keep refreshing URL every 60s in case tunnel restarts
-    while true; do
-      sleep 60
-      NEW_URL=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
-      if [ -n "$NEW_URL" ] && [ "$NEW_URL" != "$URL" ]; then
-        URL="$NEW_URL"
-        clear
-        echo "========================================"
-        echo "   Oky-Docky запущен!"
-        echo "========================================"
-        echo ""
-        echo "   Новая ссылка:"
-        echo ""
-        echo "   $URL"
-        echo ""
-        echo "========================================"
-      fi
-    done
+refresh_url() {
+  local new_url=""
+
+  if [ -f "$TUNNEL_URL_FILE" ]; then
+    new_url=$(cat "$TUNNEL_URL_FILE" 2>/dev/null || true)
   fi
-  sleep 2
-done
 
-echo "Не удалось получить ссылку. Проверьте: ${TUNNEL_LOG}"
-echo "Нажмите Enter для выхода."
-read -r
+  if [ -z "$new_url" ]; then
+    new_url=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
+  fi
+
+  if [ -n "$new_url" ] && [ "$new_url" != "$URL" ]; then
+    URL="$new_url"
+    print_header
+  fi
+}
+
+refresh_update_status() {
+  local status=""
+  status=$(grep -E "No updates found on origin|Git update pulled successfully|Update applied successfully|Frontend dist updated and applied|Local changes detected" "$DEPLOY_LOG" 2>/dev/null | tail -1 || true)
+  if [ -n "$status" ] && [ "$status" != "$LAST_STATUS" ]; then
+    LAST_STATUS="$status"
+    echo "[auto-update] $status"
+  fi
+}
+
+wait_for_initial_url() {
+  clear
+  echo "========================================"
+  echo "   Oky-Docky — ожидание запуска...      "
+  echo "========================================"
+  echo ""
+  for i in $(seq 1 45); do
+    refresh_url
+    if [ -n "$URL" ]; then
+      return 0
+    fi
+    sleep 2
+  done
+  print_header
+  echo "⚠️ Ссылка пока не найдена. Проверьте: ${TUNNEL_LOG}"
+}
+
+apply_builder_theme() {
+  local color="$1"
+  local form="${SCRIPT_DIR}/actual/front/src/app/components/FormBuilder.tsx"
+  local preview="${SCRIPT_DIR}/actual/front/src/app/components/PdfFieldPreview.tsx"
+
+  if [ ! -f "$form" ] || [ ! -f "$preview" ]; then
+    echo "[okydoky] Ошибка: файлы билдера не найдены."
+    return 1
+  fi
+
+  python3 - "$color" "$form" "$preview" <<'PYTHEME'
+import sys
+from pathlib import Path
+
+color, form_path, preview_path = sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3])
+
+maps = {
+    'blue': {
+        'from-indigo-600 to-purple-600': 'from-blue-600 to-cyan-600',
+        'from-indigo-100 to-purple-100': 'from-blue-100 to-cyan-100',
+        'bg-purple-600': 'bg-blue-600',
+        'text-purple-600': 'text-blue-600',
+        'text-purple-700': 'text-blue-700',
+        'bg-purple-50': 'bg-blue-50',
+        'border-purple-200': 'border-blue-200',
+        'border-purple-300': 'border-blue-300',
+        'border-purple-500': 'border-blue-500',
+        'focus:border-purple-500': 'focus:border-blue-500',
+        'hover:bg-purple-700': 'hover:bg-blue-700',
+        'hover:bg-purple-100': 'hover:bg-blue-100',
+        'hover:text-purple-700': 'hover:text-blue-700',
+        'bg-purple-400/20': 'bg-blue-400/20',
+        'bg-purple-400/25': 'bg-blue-400/25',
+        'bg-purple-400/15': 'bg-blue-400/15',
+        'hover:bg-purple-400/30': 'hover:bg-blue-400/30',
+        'bg-violet-100 text-violet-700': 'bg-blue-100 text-blue-700',
+        'bg-purple-100 text-purple-700': 'bg-blue-100 text-blue-700',
+    },
+    'purple': {
+        'from-blue-600 to-cyan-600': 'from-indigo-600 to-purple-600',
+        'from-blue-100 to-cyan-100': 'from-indigo-100 to-purple-100',
+        'bg-blue-600': 'bg-purple-600',
+        'text-blue-600': 'text-purple-600',
+        'text-blue-700': 'text-purple-700',
+        'bg-blue-50': 'bg-purple-50',
+        'border-blue-200': 'border-purple-200',
+        'border-blue-300': 'border-purple-300',
+        'border-blue-500': 'border-purple-500',
+        'focus:border-blue-500': 'focus:border-purple-500',
+        'hover:bg-blue-700': 'hover:bg-purple-700',
+        'hover:bg-blue-100': 'hover:bg-purple-100',
+        'hover:text-blue-700': 'hover:text-purple-700',
+        'bg-blue-400/20': 'bg-purple-400/20',
+        'bg-blue-400/25': 'bg-purple-400/25',
+        'bg-blue-400/15': 'bg-purple-400/15',
+        'hover:bg-blue-400/30': 'hover:bg-purple-400/30',
+        'bg-blue-100 text-blue-700': 'bg-purple-100 text-purple-700',
+    },
+}
+
+rep = maps[color]
+for path in (form_path, preview_path):
+    text = path.read_text()
+    for a,b in rep.items():
+        text = text.replace(a,b)
+    path.write_text(text)
+PYTHEME
+}
+
+okydoky_cmd() {
+  local cmd="${1:-}"
+  case "$cmd" in
+    reboot)
+      echo "[okydoky] Полный reload..."
+      (cd "$SCRIPT_DIR" && $COMPOSE down && $COMPOSE up -d --remove-orphans && $COMPOSE run --rm --build frontend-builder)
+      echo "[okydoky] ✅ Reload завершён."
+      ;;
+    changecolor)
+      local color="${2:-}"
+      if [ "$color" != "blue" ] && [ "$color" != "purple" ]; then
+        echo "[okydoky] Использование: okydoky changecolor blue|purple"
+        return 1
+      fi
+      echo "[okydoky] Переключение темы билдера на: $color"
+      apply_builder_theme "$color"
+      (cd "$SCRIPT_DIR" && $COMPOSE run --rm --build frontend-builder)
+      echo "[okydoky] ✅ Тема "$color" применена."
+      ;;
+    help|"")
+      echo "okydoky reboot"
+      echo "okydoky changecolor blue"
+      echo "okydoky changecolor purple"
+      ;;
+    *)
+      echo "[okydoky] Неизвестная команда: $cmd"
+      echo "[okydoky] Подсказка: okydoky help"
+      return 1
+      ;;
+  esac
+}
+
+wait_for_initial_url
+print_header
+
+while true; do
+  refresh_url
+  refresh_update_status
+  read -r -p "okydoky> " line || break
+  case "$line" in
+    exit|quit)
+      break
+      ;;
+    okydoky*)
+      # shellcheck disable=SC2206
+      parts=($line)
+      okydoky_cmd "${parts[1]:-}" "${parts[2]:-}"
+      ;;
+    "")
+      ;;
+    *)
+      echo "[okydoky] Введите команду вида: okydoky ..."
+      ;;
+  esac
+ done
 URLSCRIPT
   chmod +x "$SHOW_SCRIPT"
 
@@ -313,6 +517,11 @@ DESKTOP
 
   log "Autostart terminal installed: ${AUTOSTART_DIR}/oky-docky-terminal.desktop"
   log "A terminal with the Cloudflare URL will open on every boot."
+
+  if command -v lxterminal >/dev/null 2>&1; then
+    nohup lxterminal --title="Oky-Docky" -e "$SHOW_SCRIPT" >/dev/null 2>&1 &
+    log "Launched Oky-Docky terminal for current session."
+  fi
 }
 
 # ------------------------------------------------------------------
@@ -324,6 +533,9 @@ case "${1:-}" in
     ;;
   --install-service)
     install_service
+    ;;
+  --open-terminal)
+    install_autostart_terminal
     ;;
   --hot-update)
     hot_update || log "Already up to date."
@@ -341,11 +553,13 @@ case "${1:-}" in
     echo "  --hot-update       One-shot: pull & hot-update if changes found"
     echo "  --tunnel           Start Cloudflare tunnel only"
     echo "  --install-service  (Re-)install systemd service only"
+    echo "  --open-terminal    Recreate and launch Oky-Docky terminal UI now"
     echo ""
     echo "Environment variables:"
     echo "  DEPLOY_BRANCH      Git branch to track (default: main)"
     echo "  CHECK_INTERVAL     Seconds between checks (default: 20)"
     echo "  TUNNEL_TOKEN       Cloudflare tunnel token for permanent domain (optional)"
+    echo "  GIT_FORCE_SYNC     1=auto-resolve local divergence on Pi (default: 1), 0=skip on conflict"
     ;;
   *)
     initial_deploy
