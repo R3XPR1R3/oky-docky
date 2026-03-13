@@ -188,13 +188,7 @@ hot_update() {
     fi
 
     log "Frontend changes detected — rebuilding dist..."
-    if git diff --name-only "$LOCAL" "$REMOTE" | grep -Eq '^actual/front/(package\.json|package-lock\.json|pnpm-lock\.yaml|Dockerfile)$'; then
-      log "Frontend deps changed — full rebuild mode."
-      $COMPOSE run --rm --build frontend-builder
-    else
-      log "Frontend source-only changes — fast rebuild mode."
-      $COMPOSE run --rm frontend-builder
-    fi
+    $COMPOSE run --rm --build frontend-builder
     log "Frontend dist updated and applied by nginx."
   fi
 
@@ -312,11 +306,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TUNNEL_LOG="${SCRIPT_DIR}/tunnel.log"
-TUNNEL_URL_FILE="${SCRIPT_DIR}/tunnel-url.txt"
-DEPLOY_LOG="${SCRIPT_DIR}/deploy.log"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
 URL=""
-LAST_STATUS=""
 
 print_header() {
   clear
@@ -339,28 +330,11 @@ print_header() {
 }
 
 refresh_url() {
-  local new_url=""
-
-  if [ -f "$TUNNEL_URL_FILE" ]; then
-    new_url=$(cat "$TUNNEL_URL_FILE" 2>/dev/null || true)
-  fi
-
-  if [ -z "$new_url" ]; then
-    new_url=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
-  fi
-
+  local new_url
+  new_url=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
   if [ -n "$new_url" ] && [ "$new_url" != "$URL" ]; then
     URL="$new_url"
     print_header
-  fi
-}
-
-refresh_update_status() {
-  local status=""
-  status=$(grep -E "No updates found on origin|Git update pulled successfully|Update applied successfully|Frontend dist updated and applied|Local changes detected" "$DEPLOY_LOG" 2>/dev/null | tail -1 || true)
-  if [ -n "$status" ] && [ "$status" != "$LAST_STATUS" ]; then
-    LAST_STATUS="$status"
-    echo "[auto-update] $status"
   fi
 }
 
@@ -487,7 +461,6 @@ print_header
 
 while true; do
   refresh_url
-  refresh_update_status
   read -r -p "okydoky> " line || break
   case "$line" in
     exit|quit)

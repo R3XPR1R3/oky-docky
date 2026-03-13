@@ -121,37 +121,61 @@ export default function PdfFieldPreview({
       .catch((e) => setError(e.message));
   }, [templateId]);
 
-  // Load PDF
+  // Load PDF once per template preview to avoid repeated network/range requests
   useEffect(() => {
     if (!templateId) return;
 
     const pdfUrl = `/api/templates/${templateId}/pdf-file`;
-    const loadingTask = pdfjsLib.getDocument({
-      url: pdfUrl,
-    });
+    let cancelled = false;
+    let loadingTask: pdfjsLib.PDFDocumentLoadingTask | null = null;
 
-    console.info('[PdfFieldPreview] Loading PDF', {
-      templateId,
-      pdfUrl,
-      workerSrc: pdfjsLib.GlobalWorkerOptions.workerSrc,
-    });
+    const loadPdf = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-    loadingTask.promise.then((pdf) => {
+        const response = await fetch(pdfUrl, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const pdfBytes = new Uint8Array(await response.arrayBuffer());
+        loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+
+        console.info('[PdfFieldPreview] Loading PDF from bytes', {
+          templateId,
+          pdfUrl,
+          size: pdfBytes.length,
+          workerSrc: pdfjsLib.GlobalWorkerOptions.workerSrc,
+        });
+
+        const pdf = await loadingTask.promise;
+        if (cancelled) {
+          await pdf.destroy();
+          return;
+        }
+
         pdfDocRef.current = pdf;
         setPageCount(pdf.numPages);
         setLoading(false);
-      })
-      .catch((e) => {
+      } catch (e: any) {
+        if (cancelled) return;
+
         console.error('[PdfFieldPreview] PDF load failed', {
           templateId,
           pdfUrl,
           error: e,
         });
-        setError(`PDF load error: ${e.message}`);
+        setError(`PDF load error: ${e?.message || 'Unknown error'}`);
         setLoading(false);
-      });
+      }
+    };
+
+    loadPdf();
 
     return () => {
+      cancelled = true;
+      loadingTask?.destroy();
       pdfDocRef.current?.destroy();
       pdfDocRef.current = null;
     };
