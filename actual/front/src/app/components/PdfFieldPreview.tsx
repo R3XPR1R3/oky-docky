@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
-// Do not force workerSrc here: on some proxies/static setups `.mjs` may be served
-// with an incorrect MIME type, which breaks fake-worker/module loading.
+import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
 interface FieldRect {
   name: string;
@@ -128,16 +128,12 @@ export default function PdfFieldPreview({
     const pdfUrl = `/api/templates/${templateId}/pdf-file`;
     const loadingTask = pdfjsLib.getDocument({
       url: pdfUrl,
-      // Some reverse proxies/CDN setups fail to serve worker .mjs for module import.
-      // Disable worker for builder preview to avoid "Setting up fake worker failed".
-      disableWorker: true,
     });
 
     console.info('[PdfFieldPreview] Loading PDF', {
       templateId,
       pdfUrl,
-      disableWorker: true,
-      workerSrc: pdfjsLib.GlobalWorkerOptions.workerSrc || '(default)',
+      workerSrc: pdfjsLib.GlobalWorkerOptions.workerSrc,
     });
 
     loadingTask.promise.then((pdf) => {
