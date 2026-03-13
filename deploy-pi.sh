@@ -48,6 +48,8 @@ cd "$SCRIPT_DIR"
 BRANCH="${DEPLOY_BRANCH:-main}"
 CHECK_INTERVAL="${CHECK_INTERVAL:-20}"
 LOG_FILE="${SCRIPT_DIR}/deploy.log"
+TUNNEL_LOG="${SCRIPT_DIR}/tunnel.log"
+TUNNEL_URL_FILE="${SCRIPT_DIR}/tunnel-url.txt"
 TUNNEL_TOKEN="${TUNNEL_TOKEN:-}"
 GIT_FORCE_SYNC="${GIT_FORCE_SYNC:-1}"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
@@ -83,31 +85,41 @@ install_cloudflared() {
   log "cloudflared installed."
 }
 
+write_tunnel_url() {
+  local tunnel_url="$1"
+  echo "$tunnel_url" > "$TUNNEL_URL_FILE"
+}
+
 start_tunnel() {
   install_cloudflared || { log "Failed to install cloudflared, skipping tunnel."; return 1; }
 
   if pgrep -f "cloudflared.*tunnel" > /dev/null 2>&1; then
     log "Cloudflare tunnel already running."
+    if [ -f "$TUNNEL_URL_FILE" ]; then
+      log "Current tunnel URL: $(cat "$TUNNEL_URL_FILE")"
+    fi
     return 0
   fi
+
+  : > "$TUNNEL_LOG"
+  rm -f "$TUNNEL_URL_FILE"
 
   if [ -n "$TUNNEL_TOKEN" ]; then
     # Permanent tunnel with a configured domain
     log "Starting Cloudflare tunnel (permanent, token-based)..."
-    nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate run --token "$TUNNEL_TOKEN" \
-      >> "${SCRIPT_DIR}/tunnel.log" 2>&1 &
+    nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate run --token "$TUNNEL_TOKEN"       >> "$TUNNEL_LOG" 2>&1 &
     log "Tunnel started. Check your Cloudflare dashboard for the domain."
   else
     # Quick free tunnel — random URL, no registration needed
     log "Starting Cloudflare quick tunnel (free, temporary URL)..."
-    nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate --url http://localhost:80 \
-      >> "${SCRIPT_DIR}/tunnel.log" 2>&1 &
+    nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate --url http://localhost:80       >> "$TUNNEL_LOG" 2>&1 &
 
-    # Wait for the URL to appear in the log
-    for i in $(seq 1 15); do
+    # Wait for the URL to appear in the fresh log
+    for i in $(seq 1 20); do
       sleep 2
-      TUNNEL_URL=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "${SCRIPT_DIR}/tunnel.log" 2>/dev/null | tail -1 || true)
+      TUNNEL_URL=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
       if [ -n "$TUNNEL_URL" ]; then
+        write_tunnel_url "$TUNNEL_URL"
         log "============================================"
         log "  PUBLIC URL: ${TUNNEL_URL}"
         log "============================================"
@@ -130,6 +142,7 @@ hot_update() {
   REMOTE=$(git rev-parse "origin/${BRANCH}")
 
   if [ "$LOCAL" = "$REMOTE" ]; then
+    log "No updates found on origin/${BRANCH}."
     return 1  # nothing changed
   fi
 
@@ -175,7 +188,13 @@ hot_update() {
     fi
 
     log "Frontend changes detected — rebuilding dist..."
-    $COMPOSE run --rm --build frontend-builder
+    if git diff --name-only "$LOCAL" "$REMOTE" | grep -Eq '^actual/front/(package\.json|package-lock\.json|pnpm-lock\.yaml|Dockerfile)$'; then
+      log "Frontend deps changed — full rebuild mode."
+      $COMPOSE run --rm --build frontend-builder
+    else
+      log "Frontend source-only changes — fast rebuild mode."
+      $COMPOSE run --rm frontend-builder
+    fi
     log "Frontend dist updated and applied by nginx."
   fi
 
@@ -228,6 +247,7 @@ watch_loop() {
   start_tunnel || true
   while true; do
     hot_update || true
+    start_tunnel || true
     sleep "$CHECK_INTERVAL"
   done
 }
@@ -292,8 +312,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TUNNEL_LOG="${SCRIPT_DIR}/tunnel.log"
+TUNNEL_URL_FILE="${SCRIPT_DIR}/tunnel-url.txt"
+DEPLOY_LOG="${SCRIPT_DIR}/deploy.log"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
 URL=""
+LAST_STATUS=""
 
 print_header() {
   clear
@@ -316,11 +339,28 @@ print_header() {
 }
 
 refresh_url() {
-  local new_url
-  new_url=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
+  local new_url=""
+
+  if [ -f "$TUNNEL_URL_FILE" ]; then
+    new_url=$(cat "$TUNNEL_URL_FILE" 2>/dev/null || true)
+  fi
+
+  if [ -z "$new_url" ]; then
+    new_url=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
+  fi
+
   if [ -n "$new_url" ] && [ "$new_url" != "$URL" ]; then
     URL="$new_url"
     print_header
+  fi
+}
+
+refresh_update_status() {
+  local status=""
+  status=$(grep -E "No updates found on origin|Git update pulled successfully|Update applied successfully|Frontend dist updated and applied|Local changes detected" "$DEPLOY_LOG" 2>/dev/null | tail -1 || true)
+  if [ -n "$status" ] && [ "$status" != "$LAST_STATUS" ]; then
+    LAST_STATUS="$status"
+    echo "[auto-update] $status"
   fi
 }
 
@@ -447,6 +487,7 @@ print_header
 
 while true; do
   refresh_url
+  refresh_update_status
   read -r -p "okydoky> " line || break
   case "$line" in
     exit|quit)
@@ -481,6 +522,11 @@ DESKTOP
 
   log "Autostart terminal installed: ${AUTOSTART_DIR}/oky-docky-terminal.desktop"
   log "A terminal with the Cloudflare URL will open on every boot."
+
+  if command -v lxterminal >/dev/null 2>&1; then
+    nohup lxterminal --title="Oky-Docky" -e "$SHOW_SCRIPT" >/dev/null 2>&1 &
+    log "Launched Oky-Docky terminal for current session."
+  fi
 }
 
 # ------------------------------------------------------------------
@@ -492,6 +538,9 @@ case "${1:-}" in
     ;;
   --install-service)
     install_service
+    ;;
+  --open-terminal)
+    install_autostart_terminal
     ;;
   --hot-update)
     hot_update || log "Already up to date."
@@ -509,6 +558,7 @@ case "${1:-}" in
     echo "  --hot-update       One-shot: pull & hot-update if changes found"
     echo "  --tunnel           Start Cloudflare tunnel only"
     echo "  --install-service  (Re-)install systemd service only"
+    echo "  --open-terminal    Recreate and launch Oky-Docky terminal UI now"
     echo ""
     echo "Environment variables:"
     echo "  DEPLOY_BRANCH      Git branch to track (default: main)"
