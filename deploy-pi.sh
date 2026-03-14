@@ -132,6 +132,41 @@ start_tunnel() {
 }
 
 # ------------------------------------------------------------------
+#  Async frontend rebuild: build dist + reload nginx (runs in bg)
+# ------------------------------------------------------------------
+FRONTEND_BUILD_LOCK="${SCRIPT_DIR}/.frontend-build.lock"
+
+_rebuild_frontend_async() {
+  # Prevent concurrent builds
+  if [ -f "$FRONTEND_BUILD_LOCK" ]; then
+    log "Frontend build already in progress — skipping."
+    return 0
+  fi
+  trap 'rm -f "$FRONTEND_BUILD_LOCK"' EXIT
+  touch "$FRONTEND_BUILD_LOCK"
+
+  # Rebuild the builder image if deps/Dockerfile changed
+  if git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -Eq '^actual/front/(package\.json|package-lock\.json|pnpm-lock\.yaml|Dockerfile)$'; then
+    log "[frontend-async] Dependency files changed — rebuilding image..."
+    $COMPOSE build frontend-builder 2>&1 | tail -5
+  fi
+
+  log "[frontend-async] Building dist..."
+  if $COMPOSE run --rm --build frontend-builder 2>&1 | tail -5; then
+    log "[frontend-async] Build done. Reloading nginx..."
+    # Signal nginx to re-read files from the shared volume
+    docker compose -f docker-compose.yml -f docker-compose.pi.yml exec -T frontend nginx -s reload 2>/dev/null \
+      || log "[frontend-async] nginx reload signal failed (non-critical)."
+    log "[frontend-async] ✅ Frontend updated."
+  else
+    log "[frontend-async] ❌ Frontend build failed. Check logs."
+  fi
+
+  rm -f "$FRONTEND_BUILD_LOCK"
+  trap - EXIT
+}
+
+# ------------------------------------------------------------------
 #  Hot-update: pull and let containers pick up changes live
 # ------------------------------------------------------------------
 hot_update() {
@@ -179,17 +214,11 @@ hot_update() {
     log "Backend changes detected — uvicorn reload will apply them automatically."
   fi
 
-  # Frontend: rebuild static files into the shared volume.
-  # This runs a throwaway container; nginx serves new files instantly.
+  # Frontend: rebuild static files into the shared volume (async).
+  # Runs in background so the watch loop isn't blocked during build.
   if git diff --name-only "$LOCAL" "$REMOTE" | grep -q "^actual/front/"; then
-    if git diff --name-only "$LOCAL" "$REMOTE" | grep -Eq '^actual/front/(package\.json|package-lock\.json|pnpm-lock\.yaml|Dockerfile)$'; then
-      log "Frontend dependency/build files changed — rebuilding frontend-builder image..."
-      $COMPOSE build frontend-builder
-    fi
-
-    log "Frontend changes detected — rebuilding dist..."
-    $COMPOSE run --rm --build frontend-builder
-    log "Frontend dist updated and applied by nginx."
+    log "Frontend changes detected — starting async rebuild..."
+    _rebuild_frontend_async &
   fi
 
   log "✅ Update applied successfully (no container restart)."
