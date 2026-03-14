@@ -32,6 +32,8 @@ services:
     volumes:
       - ./actual/front/src:/app/src
       - ./actual/front/index.html:/app/index.html
+      - ./actual/front/vite.config.ts:/app/vite.config.ts
+      - ./actual/front/postcss.config.mjs:/app/postcss.config.mjs
       - frontend-dist:/output
     command: ["sh", "-c", "npm run build && rm -rf /output/* && cp -r dist/* /output/"]
     profiles: ["build"]
