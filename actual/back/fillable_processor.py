@@ -3,7 +3,9 @@ from __future__ import annotations
 import json
 import os
 import smtplib
+import time
 import uuid
+from collections import defaultdict
 from io import BytesIO
 from email.message import EmailMessage
 from pathlib import Path
@@ -13,9 +15,9 @@ import base64
 import re
 
 import httpx
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, Response, JSONResponse
 from pydantic import BaseModel, Field
 from pypdf import PdfReader
 
@@ -26,12 +28,88 @@ from .engines.acroform import fill_acroform_pdf
 
 app = FastAPI()
 
+# ---------------------------------------------------------------------------
+# Security configuration
+# ---------------------------------------------------------------------------
+
+# CORS: restrict to known origins (comma-separated env var), fallback to "*"
+_allowed_origins = os.getenv("CORS_ALLOWED_ORIGINS", "*")
+CORS_ORIGINS: list[str] = (
+    [o.strip() for o in _allowed_origins.split(",") if o.strip()]
+    if _allowed_origins != "*"
+    else ["*"]
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=CORS_ORIGINS,
+    allow_methods=["GET", "POST", "PUT", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-Admin-Key"],
 )
+
+# Admin API key: set ADMIN_API_KEY env var to protect /api/admin/* endpoints
+ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
+
+# Rate limiting: simple in-memory sliding window
+RATE_LIMIT_WINDOW = int(os.getenv("RATE_LIMIT_WINDOW", "60"))        # seconds
+RATE_LIMIT_MAX = int(os.getenv("RATE_LIMIT_MAX", "30"))              # requests per window
+RATE_LIMIT_RENDER_MAX = int(os.getenv("RATE_LIMIT_RENDER_MAX", "10"))  # PDF renders per window
+
+_rate_buckets: Dict[str, list[float]] = defaultdict(list)
+
+
+def _get_client_ip(request: Request) -> str:
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def _check_rate_limit(ip: str, max_requests: int = RATE_LIMIT_MAX) -> None:
+    """Raise 429 if the IP exceeded its quota in the current window."""
+    now = time.time()
+    bucket = _rate_buckets[ip]
+    # Prune old entries
+    cutoff = now - RATE_LIMIT_WINDOW
+    _rate_buckets[ip] = bucket = [t for t in bucket if t > cutoff]
+    if len(bucket) >= max_requests:
+        raise HTTPException(429, "Too many requests. Please slow down.")
+    bucket.append(now)
+
+
+def _require_admin_key(request: Request) -> None:
+    """Validate admin API key from header or query param."""
+    if not ADMIN_API_KEY:
+        return  # no key configured — open access (dev mode)
+    key = (
+        request.headers.get("x-admin-key")
+        or request.headers.get("authorization", "").removeprefix("Bearer ").strip()
+        or request.query_params.get("admin_key", "")
+    )
+    if key != ADMIN_API_KEY:
+        raise HTTPException(403, "Invalid or missing admin API key")
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    """Global rate limiter — applied to all non-static requests."""
+    path = request.url.path
+    # Skip rate limiting for static assets and health checks
+    if path.startswith("/assets") or path in ("/robots.txt", "/sitemap.xml"):
+        return await call_next(request)
+
+    ip = _get_client_ip(request)
+    try:
+        # Stricter limit for PDF rendering
+        if path.startswith("/api/render/"):
+            _check_rate_limit(f"render:{ip}", RATE_LIMIT_RENDER_MAX)
+        else:
+            _check_rate_limit(ip)
+    except HTTPException as exc:
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+    return await call_next(request)
+
 
 BASE_DIR = Path(__file__).resolve().parent  # actual/back
 DATA_DIR = BASE_DIR / "data"
@@ -312,14 +390,16 @@ def _send_feedback_sms(payload: FeedbackPayload) -> None:
 # ---------------------------------------------------------------------------
 
 @app.get("/admin/scenario-builder", response_class=HTMLResponse)
-def admin_scenario_builder():
+def admin_scenario_builder(request: Request):
+    _require_admin_key(request)
     if not ADMIN_PAGE.exists():
         raise HTTPException(404, "Admin page not found")
     return ADMIN_PAGE.read_text(encoding="utf-8")
 
 
 @app.get("/api/admin/templates")
-def api_admin_list_templates():
+def api_admin_list_templates(request: Request):
+    _require_admin_key(request)
     template_ids = list_templates(TEMPLATES_ROOT)
     templates = []
     for tid in template_ids:
@@ -331,7 +411,8 @@ def api_admin_list_templates():
 
 
 @app.get("/api/admin/templates/{template_id}/bundle")
-def api_admin_get_bundle(template_id: str):
+def api_admin_get_bundle(template_id: str, request: Request):
+    _require_admin_key(request)
     try:
         bundle = load_template(TEMPLATES_ROOT, template_id)
     except Exception as e:
@@ -345,7 +426,8 @@ def api_admin_get_bundle(template_id: str):
 
 
 @app.put("/api/admin/templates/{template_id}/bundle")
-def api_admin_save_bundle(template_id: str, payload: dict):
+def api_admin_save_bundle(template_id: str, payload: dict, request: Request):
+    _require_admin_key(request)
     target_dir = TEMPLATES_ROOT / template_id
     if not target_dir.exists():
         raise HTTPException(404, f"Template folder not found: {template_id}")
@@ -380,8 +462,9 @@ class CreateTemplatePayload(BaseModel):
 
 
 @app.post("/api/admin/templates")
-def api_admin_create_template(payload: CreateTemplatePayload):
+def api_admin_create_template(payload: CreateTemplatePayload, request: Request):
     """Create a brand-new template with directory structure and starter files."""
+    _require_admin_key(request)
     template_id = payload.id.strip()
 
     # Validate template ID format
@@ -496,8 +579,9 @@ def api_admin_create_template(payload: CreateTemplatePayload):
 
 
 @app.post("/api/admin/templates/sync-to-repo")
-def api_admin_sync_to_repo():
+def api_admin_sync_to_repo(request: Request):
     """Commit and push all template changes in data/templates/ to the git repo."""
+    _require_admin_key(request)
     import subprocess
 
     repo_root = BASE_DIR.parent.parent  # oky-docky root
@@ -557,8 +641,6 @@ def api_admin_sync_to_repo():
         raise HTTPException(500, f"Git operation failed: {e.stderr or str(e)}")
     except FileNotFoundError:
         raise HTTPException(500, "git is not installed or not in PATH")
-    except Exception as e:
-        raise HTTPException(500, f"Sync failed: {e}")
     except Exception as e:
         raise HTTPException(500, f"Sync failed: {e}")
 
