@@ -503,7 +503,37 @@ def api_admin_sync_to_repo():
     repo_root = BASE_DIR.parent.parent  # oky-docky root
     templates_rel = str(TEMPLATES_ROOT.relative_to(repo_root))
 
+    # Check if we're inside a git repo
+    git_dir = repo_root / ".git"
+    if not git_dir.exists():
+        raise HTTPException(
+            503,
+            "Not a git repository. If running in Docker, mount .git volume: "
+            "'./.git:/app/.git' in docker-compose.",
+        )
+
     try:
+        # Mark directory as safe (needed inside Docker where uid may differ)
+        subprocess.run(
+            ["git", "config", "--global", "--add", "safe.directory", str(repo_root)],
+            cwd=str(repo_root), capture_output=True, text=True,
+        )
+
+        # Ensure git user is configured for commits
+        user_check = subprocess.run(
+            ["git", "config", "user.email"],
+            cwd=str(repo_root), capture_output=True, text=True,
+        )
+        if not user_check.stdout.strip():
+            subprocess.run(
+                ["git", "config", "user.email", "admin@oky-docky.local"],
+                cwd=str(repo_root), capture_output=True, text=True,
+            )
+            subprocess.run(
+                ["git", "config", "user.name", "Oky-Docky Admin"],
+                cwd=str(repo_root), capture_output=True, text=True,
+            )
+
         # Stage all template changes
         subprocess.run(
             ["git", "add", templates_rel],
@@ -557,8 +587,6 @@ def api_admin_sync_to_repo():
         raise HTTPException(500, f"Git operation failed: {e.stderr or str(e)}")
     except FileNotFoundError:
         raise HTTPException(500, "git is not installed or not in PATH")
-    except Exception as e:
-        raise HTTPException(500, f"Sync failed: {e}")
     except Exception as e:
         raise HTTPException(500, f"Sync failed: {e}")
 

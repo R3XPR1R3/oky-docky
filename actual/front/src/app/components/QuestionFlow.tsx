@@ -13,7 +13,6 @@ import type { Schema, SchemaField } from '../App';
 import { formatInputValue } from '../lib/inputFormatting';
 
 interface QuestionFlowProps {
-  apiUrl: string;
   templateId: string;
   templateTitle: string;
   schema: Schema;
@@ -22,7 +21,7 @@ interface QuestionFlowProps {
   onBack: () => void;
 }
 
-export function QuestionFlow({ apiUrl, templateId, templateTitle, schema, initialData, onComplete, onBack }: QuestionFlowProps) {
+export function QuestionFlow({ templateId, templateTitle, schema, initialData, onComplete, onBack }: QuestionFlowProps) {
   const { t } = useTranslation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>(initialData);
@@ -31,7 +30,7 @@ export function QuestionFlow({ apiUrl, templateId, templateTitle, schema, initia
   useEffect(() => {
     const resolveQuestions = async () => {
       try {
-        const response = await fetch(`${apiUrl}/api/templates/${templateId}/resolve-questions`, {
+        const response = await fetch(`/api/templates/${templateId}/resolve-questions`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ answers }),
@@ -51,7 +50,7 @@ export function QuestionFlow({ apiUrl, templateId, templateTitle, schema, initia
     };
 
     resolveQuestions();
-  }, [apiUrl, templateId, answers, schema.fields, currentQuestionIndex]);
+  }, [templateId, answers, schema.fields, currentQuestionIndex]);
 
   const currentQuestion = visibleQuestions[currentQuestionIndex];
   const progress = visibleQuestions.length > 0

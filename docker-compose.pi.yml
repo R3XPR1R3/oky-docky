@@ -9,6 +9,7 @@ services:
   backend:
     volumes:
       - ./actual/back:/app/actual/back
+      - ./.git:/app/.git
     command:
       [
         "python3", "-m", "uvicorn",
