@@ -53,6 +53,7 @@ TUNNEL_URL_FILE="${SCRIPT_DIR}/tunnel-url.txt"
 TUNNEL_TOKEN="${TUNNEL_TOKEN:-}"
 GIT_FORCE_SYNC="${GIT_FORCE_SYNC:-1}"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
+UPDATE_STATUS_FILE="${SCRIPT_DIR}/.update-status"
 
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOG_FILE"
@@ -208,18 +209,31 @@ hot_update() {
   NEW_HEAD=$(git rev-parse --short HEAD)
   log "✅ Git update pulled successfully. Current commit: ${NEW_HEAD}"
 
+  local changed_parts=""
+
   # Backend: uvicorn --reload picks up changes automatically
   # via the volume mount — nothing to do.
   if git diff --name-only "$LOCAL" "$REMOTE" | grep -q "^actual/back/"; then
     log "Backend changes detected — uvicorn reload will apply them automatically."
+    changed_parts="backend"
   fi
 
   # Frontend: rebuild static files into the shared volume (async).
   # Runs in background so the watch loop isn't blocked during build.
   if git diff --name-only "$LOCAL" "$REMOTE" | grep -q "^actual/front/"; then
     log "Frontend changes detected — starting async rebuild..."
+    changed_parts="${changed_parts:+${changed_parts}+}frontend"
     _rebuild_frontend_async &
   fi
+
+  # Write status for the okydoky terminal to pick up
+  {
+    echo "time=$(date '+%H:%M:%S')"
+    echo "from=${LOCAL:0:8}"
+    echo "to=${NEW_HEAD}"
+    echo "changed=${changed_parts:-other}"
+    echo "summary=$(git log --oneline "${LOCAL}..${REMOTE}" 2>/dev/null | head -3 | tr '\n' '|')"
+  } > "$UPDATE_STATUS_FILE"
 
   log "✅ Update applied successfully (no container restart)."
   return 0
@@ -336,7 +350,10 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TUNNEL_LOG="${SCRIPT_DIR}/tunnel.log"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
+UPDATE_STATUS_FILE="${SCRIPT_DIR}/.update-status"
 URL=""
+LAST_UPDATE_MSG=""
+LAST_UPDATE_MTIME=""
 
 print_header() {
   clear
@@ -348,11 +365,16 @@ print_header() {
   echo ""
   echo "   ${URL:-<ожидание ссылки>}"
   echo ""
+  if [ -n "$LAST_UPDATE_MSG" ]; then
+    echo "   Обновление: $LAST_UPDATE_MSG"
+    echo ""
+  fi
   echo "========================================"
   echo "Команды в этом же терминале:"
   echo "  okydoky reboot"
   echo "  okydoky changecolor blue"
   echo "  okydoky changecolor purple"
+  echo "  okydoky status"
   echo "  okydoky help"
   echo "  exit"
   echo "========================================"
@@ -472,10 +494,31 @@ okydoky_cmd() {
       (cd "$SCRIPT_DIR" && $COMPOSE run --rm --build frontend-builder)
       echo "[okydoky] ✅ Тема "$color" применена."
       ;;
+    status)
+      echo "[okydoky] Текущий коммит: $(cd "$SCRIPT_DIR" && git rev-parse --short HEAD 2>/dev/null || echo 'N/A')"
+      echo "[okydoky] Ветка: $(cd "$SCRIPT_DIR" && git branch --show-current 2>/dev/null || echo 'N/A')"
+      if [ -f "$UPDATE_STATUS_FILE" ]; then
+        echo "[okydoky] Последнее обновление:"
+        while IFS='=' read -r key val; do
+          case "$key" in
+            time) echo "  Время: $val" ;;
+            to) echo "  Коммит: $val" ;;
+            changed) echo "  Изменения: $val" ;;
+          esac
+        done < "$UPDATE_STATUS_FILE"
+      else
+        echo "[okydoky] Обновлений пока не было."
+      fi
+      local backend_status
+      backend_status=$(cd "$SCRIPT_DIR" && $COMPOSE ps --format '{{.Service}}: {{.Status}}' 2>/dev/null | head -5 || echo "N/A")
+      echo "[okydoky] Контейнеры:"
+      echo "$backend_status" | sed 's/^/  /'
+      ;;
     help|"")
       echo "okydoky reboot"
       echo "okydoky changecolor blue"
       echo "okydoky changecolor purple"
+      echo "okydoky status"
       ;;
     *)
       echo "[okydoky] Неизвестная команда: $cmd"
@@ -485,28 +528,75 @@ okydoky_cmd() {
   esac
 }
 
+check_for_updates() {
+  # Check if update status file has changed
+  if [ ! -f "$UPDATE_STATUS_FILE" ]; then
+    return 1
+  fi
+
+  local current_mtime
+  current_mtime=$(stat -c %Y "$UPDATE_STATUS_FILE" 2>/dev/null || echo "")
+  if [ "$current_mtime" = "$LAST_UPDATE_MTIME" ]; then
+    return 1
+  fi
+  LAST_UPDATE_MTIME="$current_mtime"
+
+  # Parse status file
+  local update_time="" update_from="" update_to="" update_changed="" update_summary=""
+  while IFS='=' read -r key val; do
+    case "$key" in
+      time) update_time="$val" ;;
+      from) update_from="$val" ;;
+      to)   update_to="$val" ;;
+      changed) update_changed="$val" ;;
+      summary) update_summary="$val" ;;
+    esac
+  done < "$UPDATE_STATUS_FILE"
+
+  LAST_UPDATE_MSG="${update_time} ${update_from} -> ${update_to} [${update_changed}]"
+
+  # Show inline notification
+  echo ""
+  echo "  ================================================"
+  echo "  Обновление подтянуто! ${update_time}"
+  echo "  ${update_from} -> ${update_to} [${update_changed}]"
+  if [ -n "$update_summary" ]; then
+    IFS='|' read -ra commits <<< "$update_summary"
+    for c in "${commits[@]}"; do
+      [ -n "$c" ] && echo "    $c"
+    done
+  fi
+  echo "  ================================================"
+  echo ""
+  return 0
+}
+
 wait_for_initial_url
 print_header
 
 while true; do
   refresh_url
-  read -r -p "okydoky> " line || break
-  case "$line" in
-    exit|quit)
-      break
-      ;;
-    okydoky*)
-      # shellcheck disable=SC2206
-      parts=($line)
-      okydoky_cmd "${parts[1]:-}" "${parts[2]:-}"
-      ;;
-    "")
-      ;;
-    *)
-      echo "[okydoky] Введите команду вида: okydoky ..."
-      ;;
-  esac
- done
+  check_for_updates || true
+
+  # read with 5s timeout so we can check for updates between inputs
+  if read -r -t 5 -p "okydoky> " line; then
+    case "$line" in
+      exit|quit)
+        break
+        ;;
+      okydoky*)
+        # shellcheck disable=SC2206
+        parts=($line)
+        okydoky_cmd "${parts[1]:-}" "${parts[2]:-}"
+        ;;
+      "")
+        ;;
+      *)
+        echo "[okydoky] Введите команду вида: okydoky ..."
+        ;;
+    esac
+  fi
+done
 URLSCRIPT
   chmod +x "$SHOW_SCRIPT"
 
