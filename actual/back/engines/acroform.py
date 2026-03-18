@@ -224,6 +224,11 @@ def _apply_signature_overlays(writer: PdfWriter, overlays: List[Dict[str, Any]])
     try:
         from PIL import Image
     except ImportError:
+        import logging
+        logging.getLogger(__name__).warning(
+            "Pillow (PIL) is not installed — signature image overlays will be skipped. "
+            "Install with: pip install Pillow"
+        )
         return
 
     for overlay in overlays:
@@ -264,9 +269,9 @@ def _apply_signature_overlays(writer: PdfWriter, overlays: List[Dict[str, Any]])
         try:
             img = Image.open(io.BytesIO(img_bytes)).convert("RGBA")
             _stamp_with_fpdf2(writer, page_idx, img, x1, y1, w, h)
-        except Exception:
-            # fpdf2 not available or error — skip image overlay silently
-            pass
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).warning("Signature overlay failed: %s", exc)
 
 
 def _stamp_text_with_fpdf2(

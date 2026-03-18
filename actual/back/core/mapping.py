@@ -347,6 +347,17 @@ def build_pdf_field_values(form_data: Dict[str, Any], mapping: Dict[str, Any]) -
         else:
             field = rule.get("field")
             if field:
-                out[field] = value
+                raw = "" if value is None else str(value)
+                # Never write data URIs as text — auto-detect as signature overlay
+                if raw.startswith("data:image"):
+                    out[field] = ""
+                    sig_overlays.append({
+                        "value": raw,
+                        "page": rule.get("page", 0),
+                        "rect": rule.get("rect", [0, 0, 200, 50]),
+                        "field": field,
+                    })
+                else:
+                    out[field] = value
 
     return out, sig_overlays
