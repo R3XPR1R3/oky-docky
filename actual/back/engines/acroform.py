@@ -145,6 +145,9 @@ def _fill_xfa_datasets(writer: PdfWriter, field_values: Dict[str, Any]) -> None:
     # Fill values
     filled = 0
     for acro_path, value in field_values.items():
+        # Never write data URIs into XFA XML
+        if isinstance(value, str) and value.startswith("data:image"):
+            continue
         xfa_val = _xfa_value(value)
 
         # Strategy 1: exact path match (strip [0] from acroform path)
@@ -382,6 +385,11 @@ def fill_acroform_pdf(
 
     # name fallbacks (long -> short)
     safe_values = _with_name_fallbacks(reader, field_values)
+
+    # Safety net: never write data URIs as text into PDF form fields
+    for k, v in list(safe_values.items()):
+        if isinstance(v, str) and v.startswith("data:image"):
+            safe_values[k] = ""
 
     # update AcroForm fields on all pages
     for page in writer.pages:

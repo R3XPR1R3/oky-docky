@@ -185,14 +185,36 @@ def build_pdf_field_values(form_data: Dict[str, Any], mapping: Dict[str, Any]) -
 
         value = state.get(key)
 
+        # Guard: never write data URIs as text into PDF fields
+        raw_str = "" if value is None else str(value)
+        is_data_image = raw_str.startswith("data:image")
+
         if isinstance(rule, str):
-            out[rule] = "" if value is None else str(value)
+            if is_data_image:
+                out[rule] = ""
+                sig_overlays.append({
+                    "value": raw_str,
+                    "page": 0,
+                    "rect": [0, 0, 200, 50],
+                    "field": rule,
+                })
+            else:
+                out[rule] = raw_str
             continue
 
         if isinstance(rule, list):
-            v = "" if value is None else str(value)
-            for field_name in rule:
-                out[field_name] = v
+            if is_data_image:
+                for field_name in rule:
+                    out[field_name] = ""
+                sig_overlays.append({
+                    "value": raw_str,
+                    "page": 0,
+                    "rect": [0, 0, 200, 50],
+                    "field": rule[0] if rule else "",
+                })
+            else:
+                for field_name in rule:
+                    out[field_name] = raw_str
             continue
 
         if not isinstance(rule, dict):
