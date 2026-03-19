@@ -651,12 +651,16 @@ check_for_updates() {
 wait_for_initial_url
 print_header
 
+# Show prompt once, then only re-show after a command is entered
+printf "okydoky> "
 while true; do
   refresh_url
-  check_for_updates || true
+  if check_for_updates; then
+    printf "okydoky> "
+  fi
 
-  # read with 5s timeout so we can check for updates between inputs
-  if read -r -t 5 -p "okydoky> " line; then
+  # read with 5s timeout; no -p flag to avoid prompt spam
+  if read -r -t 5 line; then
     case "$line" in
       exit|quit)
         break
@@ -665,11 +669,14 @@ while true; do
         # shellcheck disable=SC2206
         parts=($line)
         okydoky_cmd "${parts[1]:-}" "${parts[2]:-}"
+        printf "okydoky> "
         ;;
       "")
+        printf "okydoky> "
         ;;
       *)
         echo "[okydoky] Введите команду вида: okydoky ..."
+        printf "okydoky> "
         ;;
     esac
   fi
