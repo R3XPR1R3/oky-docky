@@ -159,8 +159,19 @@ _rebuild_frontend_async() {
     docker compose -f docker-compose.yml -f docker-compose.pi.yml exec -T frontend nginx -s reload 2>/dev/null \
       || log "[frontend-async] nginx reload signal failed (non-critical)."
     log "[frontend-async] ✅ Frontend updated."
+    # Notify terminal that frontend is ready
+    {
+      echo "time=$(date '+%H:%M:%S')"
+      echo "event=frontend_ready"
+      echo "message=Frontend пересобран и обновлён"
+    } > "$UPDATE_STATUS_FILE"
   else
     log "[frontend-async] ❌ Frontend build failed. Check logs."
+    {
+      echo "time=$(date '+%H:%M:%S')"
+      echo "event=frontend_failed"
+      echo "message=Ошибка сборки frontend"
+    } > "$UPDATE_STATUS_FILE"
   fi
 
   rm -f "$FRONTEND_BUILD_LOCK"
@@ -620,29 +631,49 @@ check_for_updates() {
 
   # Parse status file
   local update_time="" update_from="" update_to="" update_changed="" update_summary=""
+  local update_event="" update_message=""
   while IFS='=' read -r key val; do
     case "$key" in
-      time) update_time="$val" ;;
-      from) update_from="$val" ;;
-      to)   update_to="$val" ;;
+      time)    update_time="$val" ;;
+      from)    update_from="$val" ;;
+      to)      update_to="$val" ;;
       changed) update_changed="$val" ;;
       summary) update_summary="$val" ;;
+      event)   update_event="$val" ;;
+      message) update_message="$val" ;;
     esac
   done < "$UPDATE_STATUS_FILE"
 
-  LAST_UPDATE_MSG="${update_time} ${update_from} -> ${update_to} [${update_changed}]"
-
-  # Show inline notification
   echo ""
   echo "  ================================================"
-  echo "  Обновление подтянуто! ${update_time}"
-  echo "  ${update_from} -> ${update_to} [${update_changed}]"
-  if [ -n "$update_summary" ]; then
-    IFS='|' read -ra commits <<< "$update_summary"
-    for c in "${commits[@]}"; do
-      [ -n "$c" ] && echo "    $c"
-    done
+
+  if [ "$update_event" = "frontend_ready" ]; then
+    echo "  ✅ ${update_message} (${update_time})"
+  elif [ "$update_event" = "frontend_failed" ]; then
+    echo "  ❌ ${update_message} (${update_time})"
+  elif [ -n "$update_from" ]; then
+    LAST_UPDATE_MSG="${update_time} ${update_from} -> ${update_to} [${update_changed}]"
+    echo "  📦 Обновление подтянуто! (${update_time})"
+    echo "  ${update_from} -> ${update_to}"
+    if [ -n "$update_changed" ]; then
+      echo "  Изменения: ${update_changed}"
+    fi
+    if [ -n "$update_summary" ]; then
+      IFS='|' read -ra commits <<< "$update_summary"
+      for c in "${commits[@]}"; do
+        [ -n "$c" ] && echo "    $c"
+      done
+    fi
+    # Hint about async frontend rebuild
+    case "$update_changed" in
+      *frontend*)
+        echo "  ⏳ Frontend пересобирается..."
+        ;;
+    esac
+  else
+    echo "  ${update_message:-Обновление} (${update_time})"
   fi
+
   echo "  ================================================"
   echo ""
   return 0
