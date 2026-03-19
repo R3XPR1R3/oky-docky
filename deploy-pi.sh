@@ -276,11 +276,71 @@ initial_deploy() {
 }
 
 # ------------------------------------------------------------------
+#  Ensure containers are running and healthy
+# ------------------------------------------------------------------
+ensure_containers_up() {
+  # Check if Docker is ready
+  if ! docker info >/dev/null 2>&1; then
+    log "Waiting for Docker daemon..."
+    for i in $(seq 1 30); do
+      sleep 2
+      if docker info >/dev/null 2>&1; then
+        log "Docker daemon is ready."
+        break
+      fi
+    done
+    if ! docker info >/dev/null 2>&1; then
+      log "❌ Docker daemon not available after 60s."
+      return 1
+    fi
+  fi
+
+  # Check if containers are running
+  local running
+  running=$($COMPOSE ps --format '{{.Service}}:{{.State}}' 2>/dev/null || echo "")
+
+  if ! echo "$running" | grep -q "backend:running"; then
+    log "Backend container not running — starting containers..."
+    $COMPOSE up -d --remove-orphans
+  fi
+
+  if ! echo "$running" | grep -q "frontend:running"; then
+    log "Frontend container not running — starting containers..."
+    $COMPOSE up -d --remove-orphans
+  fi
+
+  # Check if frontend dist volume has content (nginx serves from it)
+  local dist_check
+  dist_check=$(docker compose -f docker-compose.yml -f docker-compose.pi.yml \
+    exec -T frontend ls /usr/share/nginx/html/index.html 2>/dev/null || echo "")
+  if [ -z "$dist_check" ]; then
+    log "Frontend dist volume is empty — rebuilding..."
+    _rebuild_frontend_async &
+  fi
+
+  # Wait for backend to respond
+  log "Waiting for backend to be ready..."
+  for i in $(seq 1 30); do
+    if curl -sf http://localhost:8000/api/meta >/dev/null 2>&1; then
+      log "Backend is ready."
+      return 0
+    fi
+    sleep 2
+  done
+  log "⚠️ Backend not responding after 60s — tunnel may not work immediately."
+  return 0
+}
+
+# ------------------------------------------------------------------
 #  Watch mode: poll for changes every CHECK_INTERVAL seconds
 # ------------------------------------------------------------------
 watch_loop() {
   log "=== Watch mode started (every ${CHECK_INTERVAL}s, branch: ${BRANCH}) ==="
-  # Make sure tunnel is running
+
+  # On boot: make sure everything is up before starting tunnel
+  ensure_containers_up || true
+
+  # Start tunnel after containers are ready
   start_tunnel || true
   while true; do
     hot_update || true
@@ -336,10 +396,27 @@ UNIT
 install_autostart_terminal() {
   local REAL_USER="${SUDO_USER:-$(whoami)}"
   local REAL_HOME
-  REAL_HOME=$(eval echo "~${REAL_USER}")
+  REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6 2>/dev/null || eval echo "~${REAL_USER}")
 
   local SHOW_SCRIPT="${SCRIPT_DIR}/show-tunnel-url.sh"
   local AUTOSTART_DIR="${REAL_HOME}/.config/autostart"
+  local LXDE_AUTOSTART="${REAL_HOME}/.config/lxsession/LXDE-pi/autostart"
+
+  # Detect available terminal emulator
+  local TERM_CMD=""
+  if command -v lxterminal >/dev/null 2>&1; then
+    TERM_CMD="lxterminal --title=Oky-Docky -e"
+  elif command -v xfce4-terminal >/dev/null 2>&1; then
+    TERM_CMD="xfce4-terminal --title=Oky-Docky -e"
+  elif command -v xterm >/dev/null 2>&1; then
+    TERM_CMD="xterm -T Oky-Docky -e"
+  elif command -v x-terminal-emulator >/dev/null 2>&1; then
+    TERM_CMD="x-terminal-emulator -e"
+  else
+    log "⚠️ No terminal emulator found (lxterminal, xfce4-terminal, xterm). Skipping autostart terminal."
+    return 1
+  fi
+  log "Using terminal: ${TERM_CMD%% *}"
 
   # Create the helper script that waits for and displays the URL
   cat > "$SHOW_SCRIPT" <<'URLSCRIPT'
@@ -599,25 +676,55 @@ while true; do
 done
 URLSCRIPT
   chmod +x "$SHOW_SCRIPT"
+  # Make sure the script is owned by the real user (not root from sudo)
+  chown "${REAL_USER}:" "$SHOW_SCRIPT" 2>/dev/null || true
 
-  # Create autostart desktop entry
+  # --- Method 1: XDG autostart (.desktop file) ---
   mkdir -p "$AUTOSTART_DIR"
   cat > "${AUTOSTART_DIR}/oky-docky-terminal.desktop" <<DESKTOP
 [Desktop Entry]
 Type=Application
-Name=Oky-Docky Tunnel URL
+Name=Oky-Docky
 Comment=Shows Cloudflare tunnel URL on startup
-Exec=lxterminal --title="Oky-Docky" -e "${SHOW_SCRIPT}"
+Exec=${TERM_CMD} ${SHOW_SCRIPT}
 Terminal=false
 X-GNOME-Autostart-enabled=true
+StartupNotify=false
 DESKTOP
+  chown "${REAL_USER}:" "${AUTOSTART_DIR}/oky-docky-terminal.desktop" 2>/dev/null || true
 
-  log "Autostart terminal installed: ${AUTOSTART_DIR}/oky-docky-terminal.desktop"
-  log "A terminal with the Cloudflare URL will open on every boot."
+  # --- Method 2: LXDE-pi autostart (Raspberry Pi OS specific) ---
+  # This is the primary autostart mechanism on Pi OS with LXDE desktop
+  local LXDE_DIR
+  LXDE_DIR="$(dirname "$LXDE_AUTOSTART")"
+  if [ -d "$LXDE_DIR" ] || [ -d "${REAL_HOME}/.config/lxsession" ]; then
+    mkdir -p "$LXDE_DIR"
+    # Append our command if not already present
+    if [ -f "$LXDE_AUTOSTART" ]; then
+      if ! grep -q "show-tunnel-url.sh" "$LXDE_AUTOSTART" 2>/dev/null; then
+        echo "@${TERM_CMD} ${SHOW_SCRIPT}" >> "$LXDE_AUTOSTART"
+      fi
+    else
+      # Create new autostart with Pi defaults + our terminal
+      cat > "$LXDE_AUTOSTART" <<LXAUTO
+@lxpanel --profile LXDE-pi
+@pcmanfm --desktop --profile LXDE-pi
+@${TERM_CMD} ${SHOW_SCRIPT}
+LXAUTO
+    fi
+    chown -R "${REAL_USER}:" "$LXDE_DIR" 2>/dev/null || true
+    log "LXDE autostart configured: ${LXDE_AUTOSTART}"
+  fi
 
-  if command -v lxterminal >/dev/null 2>&1; then
-    nohup lxterminal --title="Oky-Docky" -e "$SHOW_SCRIPT" >/dev/null 2>&1 &
+  log "Autostart terminal installed."
+  log "  XDG: ${AUTOSTART_DIR}/oky-docky-terminal.desktop"
+
+  # Launch terminal for the current session
+  if [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]; then
+    nohup ${TERM_CMD} "$SHOW_SCRIPT" >/dev/null 2>&1 &
     log "Launched Oky-Docky terminal for current session."
+  else
+    log "No display detected — terminal will open on next desktop login."
   fi
 }
 
