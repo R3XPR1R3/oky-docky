@@ -95,9 +95,9 @@
     "download": "T\u00e9l\u00e9charger",
     "whatsNext": "Et ensuite\u00a0?",
     "nextSteps": [
-      "T\u00e9l\u00e9chargez et imprimez votre formulaire, ou soumettez-le \u00e9lectroniquement",
+      "T\u00e9l\u00e9chargez et imprimez votre formulaire, ou envoyez-le",
       "Conservez une copie pour vos dossiers",
-      "Consultez un professionnel fiscal si n\u00e9cessaire"
+      "Faites signer toutes les parties si n\u00e9cessaire"
     ]
   },
   "ad": {
@@ -215,9 +215,9 @@
       {
         "title": "1. Description du service",
         "paragraphs": [
-          "Oky-Docky est un produit de Barckhat LLC. Il fournit un service automatis\u00e9 de pr\u00e9paration de documents qui aide les utilisateurs \u00e0 remplir des formulaires fiscaux IRS (tels que W-9, W-4, Form 14039 et autres) via une interface guid\u00e9e de questions-r\u00e9ponses.",
+          "Oky-Docky est un produit de Barckhat LLC. Il fournit un service automatis\u00e9 de pr\u00e9paration de documents qui aide les utilisateurs \u00e0 remplir des formulaires juridiques, commerciaux et d\u2019emploi via une interface guid\u00e9e de questions-r\u00e9ponses.",
           "Le service g\u00e9n\u00e8re des documents PDF pr\u00e9-remplis bas\u00e9s sur les informations fournies par l\u2019utilisateur. Barckhat LLC ne v\u00e9rifie pas, ne valide pas et ne garantit pas l\u2019exactitude, l\u2019exhaustivit\u00e9 ou la suffisance juridique de tout formulaire g\u00e9n\u00e9r\u00e9.",
-          "Barckhat LLC n\u2019est pas un cabinet de pr\u00e9paration fiscale enregistr\u00e9. Nous ne d\u00e9posons pas de formulaires en votre nom, sauf indication explicite dans un contrat de service payant s\u00e9par\u00e9."
+          "Barckhat LLC n\u2019est pas un cabinet d\u2019avocats ni un cabinet de pr\u00e9paration fiscale enregistr\u00e9. Nous ne d\u00e9posons pas de formulaires en votre nom, sauf indication explicite dans un contrat de service payant s\u00e9par\u00e9."
         ]
       },
       {
@@ -225,16 +225,16 @@
         "paragraphs": [
           "VOUS \u00caTES SEUL ET EXCLUSIVEMENT RESPONSABLE de l\u2019exactitude, de l\u2019exhaustivit\u00e9 et de la l\u00e9galit\u00e9 de toutes les informations que vous saisissez dans ce service. Barckhat LLC agit uniquement en tant que fournisseur de technologie et n\u2019assume aucune responsabilit\u00e9 quant au contenu de vos soumissions.",
           "VOUS \u00caTES SEUL RESPONSABLE de la v\u00e9rification, de la signature, du d\u00e9p\u00f4t et de la soumission de tous les documents g\u00e9n\u00e9r\u00e9s. Toute erreur, omission ou inexactitude dans les donn\u00e9es que vous fournissez rel\u00e8ve enti\u00e8rement de votre responsabilit\u00e9.",
-          "VOUS ASSUMEZ TOUS LES RISQUES et la responsabilit\u00e9 de toute p\u00e9nalit\u00e9 fiscale, amende, cons\u00e9quence juridique, audit ou autre r\u00e9sultat d\u00e9coulant de l\u2019utilisation des documents g\u00e9n\u00e9r\u00e9s par ce service. Barckhat LLC ne saurait \u00eatre tenue responsable de toute cons\u00e9quence r\u00e9sultant de votre utilisation des formulaires g\u00e9n\u00e9r\u00e9s.",
-          "Vous reconnaissez que les lois fiscales sont complexes et sujettes \u00e0 modification. Il est de votre responsabilit\u00e9 de vous assurer que les formulaires que vous g\u00e9n\u00e9rez sont conformes aux r\u00e9glementations IRS en vigueur et aux lois f\u00e9d\u00e9rales et \u00e9tatiques applicables.",
-          "Vous acceptez de ne pas utiliser ce service \u00e0 des fins frauduleuses, ill\u00e9gales ou trompeuses, y compris, mais sans s\u2019y limiter, l\u2019usurpation d\u2019identit\u00e9, l\u2019\u00e9vasion fiscale ou le d\u00e9p\u00f4t de faux documents."
+          "VOUS ASSUMEZ TOUS LES RISQUES et la responsabilit\u00e9 de toute p\u00e9nalit\u00e9, amende, cons\u00e9quence juridique ou autre r\u00e9sultat d\u00e9coulant de l\u2019utilisation des documents g\u00e9n\u00e9r\u00e9s par ce service. Barckhat LLC ne saurait \u00eatre tenue responsable de toute cons\u00e9quence r\u00e9sultant de votre utilisation des formulaires g\u00e9n\u00e9r\u00e9s.",
+          "Vous reconnaissez que les lois et r\u00e9glementations sont complexes et sujettes \u00e0 modification. Il est de votre responsabilit\u00e9 de vous assurer que les formulaires que vous g\u00e9n\u00e9rez sont conformes aux lois f\u00e9d\u00e9rales et \u00e9tatiques applicables.",
+          "Vous acceptez de ne pas utiliser ce service \u00e0 des fins frauduleuses, ill\u00e9gales ou trompeuses, y compris, mais sans s\u2019y limiter, l\u2019usurpation d\u2019identit\u00e9 ou le d\u00e9p\u00f4t de faux documents."
         ]
       },
       {
         "title": "3. Limitation de responsabilit\u00e9",
         "paragraphs": [
           "DANS LA MESURE MAXIMALE PERMISE PAR LA LOI, BARCKHAT LLC, SES MEMBRES, DIRIGEANTS, CADRES, EMPLOY\u00c9S ET AGENTS NE SAURAIENT \u00caTRE TENUS RESPONSABLES DE TOUT DOMMAGE DIRECT, INDIRECT, ACCESSOIRE, SP\u00c9CIAL, CONS\u00c9CUTIF OU PUNITIF D\u00c9COULANT DE VOTRE UTILISATION DE CE SERVICE.",
-          "Cela inclut, sans limitation\u00a0: les erreurs dans les formulaires g\u00e9n\u00e9r\u00e9s, les p\u00e9nalit\u00e9s ou amendes impos\u00e9es par l\u2019IRS ou toute agence gouvernementale, les d\u00e9lais de d\u00e9p\u00f4t manqu\u00e9s, les calculs fiscaux incorrects, les d\u00e9clarations rejet\u00e9es, les cons\u00e9quences de vol d\u2019identit\u00e9, ou toute perte financi\u00e8re r\u00e9sultant de la confiance accord\u00e9e aux formulaires g\u00e9n\u00e9r\u00e9s par ce service.",
+          "Cela inclut, sans limitation\u00a0: les erreurs dans les formulaires g\u00e9n\u00e9r\u00e9s, les p\u00e9nalit\u00e9s ou amendes impos\u00e9es par toute agence gouvernementale, les d\u00e9lais manqu\u00e9s, les soumissions rejet\u00e9es, ou toute perte financi\u00e8re r\u00e9sultant de la confiance accord\u00e9e aux formulaires g\u00e9n\u00e9r\u00e9s par ce service.",
           "Barckhat LLC fournit ce service \u00ab\u00a0TEL QUEL\u00a0\u00bb et \u00ab\u00a0SELON DISPONIBILIT\u00c9\u00a0\u00bb, sans garantie d\u2019aucune sorte, expresse ou implicite, y compris, mais sans s\u2019y limiter, les garanties de qualit\u00e9 marchande, d\u2019ad\u00e9quation \u00e0 un usage particulier ou de non-contrefa\u00e7on.",
           "La responsabilit\u00e9 totale de Barckhat LLC pour toute r\u00e9clamation d\u00e9coulant de l\u2019utilisation du service ne saurait exc\u00e9der le montant que vous avez pay\u00e9 pour le service au cours des 12 mois pr\u00e9c\u00e9dant la r\u00e9clamation, ou $100, selon le montant le moins \u00e9lev\u00e9.",
           "En utilisant ce service, vous acceptez d\u2019indemniser et de d\u00e9gager de toute responsabilit\u00e9 Barckhat LLC contre toute r\u00e9clamation, dommage, perte ou d\u00e9pense (y compris les frais d\u2019avocat) d\u00e9coulant de votre utilisation du service ou de tout formulaire g\u00e9n\u00e9r\u00e9 par celui-ci."
@@ -250,11 +250,11 @@
         ]
       },
       {
-        "title": "5. Avertissement IRS et r\u00e9glementaire",
+        "title": "5. Avertissement r\u00e9glementaire",
         "paragraphs": [
-          "Oky-Docky et Barckhat LLC ne sont ni affili\u00e9s, ni approuv\u00e9s, ni li\u00e9s \u00e0 l\u2019Internal Revenue Service (IRS) ou \u00e0 toute agence gouvernementale.",
-          "Les mod\u00e8les de formulaires IRS utilis\u00e9s dans ce service sont bas\u00e9s sur les publications IRS accessibles au public. Les versions des formulaires et les structures de champs peuvent changer\u00a0; nous faisons des efforts raisonnables pour maintenir les mod\u00e8les \u00e0 jour, mais ne garantissons pas qu\u2019ils refl\u00e8tent les derni\u00e8res r\u00e9visions.",
-          "Pour les formulaires, instructions et publications officiels de l\u2019IRS, visitez www.irs.gov."
+          "Oky-Docky et Barckhat LLC ne sont ni affili\u00e9s, ni approuv\u00e9s, ni li\u00e9s \u00e0 aucune agence gouvernementale.",
+          "Les mod\u00e8les de formulaires utilis\u00e9s dans ce service sont bas\u00e9s sur des documents accessibles au public et des formulaires juridiques standard. Les versions des formulaires et les exigences peuvent changer\u00a0; nous faisons des efforts raisonnables pour maintenir les mod\u00e8les \u00e0 jour, mais ne garantissons pas qu\u2019ils refl\u00e8tent les derni\u00e8res r\u00e9visions.",
+          "Pour les formulaires et instructions officiels du gouvernement, visitez le site Web de l\u2019agence gouvernementale concern\u00e9e."
         ]
       },
       {
