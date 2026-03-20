@@ -1,0 +1,386 @@
+{
+  "fields": [
+    {
+      "key": "llc_name",
+      "type": "text",
+      "required": true,
+      "label": "What will your LLC be called?",
+      "placeholder": "Bright Ideas Consulting LLC",
+      "helpText": "Must end with 'LLC', 'L.L.C.', or 'Limited Liability Company'. Check your state's business name database to make sure it's available."
+    },
+    {
+      "key": "name_checked",
+      "type": "radio",
+      "required": true,
+      "label": "Have you checked that this name is available in your state?",
+      "helpText": "Most states have a free online search tool where you can check. Search for '[your state] business name search' to find it.",
+      "options": [
+        {
+          "value": "yes",
+          "label": "Yes, I've checked"
+        },
+        {
+          "value": "not_yet",
+          "label": "Not yet"
+        }
+      ]
+    },
+    {
+      "key": "state_of_formation",
+      "type": "text",
+      "required": true,
+      "label": "Which state are you forming the LLC in?",
+      "placeholder": "California",
+      "helpText": "This is usually the state where you do business or live. You don't have to form in Delaware or Wyoming — your home state is fine for most small businesses."
+    },
+    {
+      "key": "business_purpose",
+      "type": "text",
+      "required": true,
+      "label": "What does your business do?",
+      "placeholder": "General consulting services",
+      "helpText": "Keep it broad. 'Any lawful business' works in most states. You can always change it later."
+    },
+    {
+      "key": "principal_address",
+      "type": "text",
+      "required": true,
+      "label": "What is the main office address?",
+      "placeholder": "100 Business Park Drive, Suite 5",
+      "helpText": "This is where the LLC's primary operations happen. A home address is fine."
+    },
+    {
+      "key": "principal_city",
+      "type": "text",
+      "required": true,
+      "label": "City?",
+      "placeholder": "San Francisco"
+    },
+    {
+      "key": "principal_state",
+      "type": "text",
+      "required": true,
+      "label": "State?",
+      "placeholder": "CA",
+      "maxLength": 2
+    },
+    {
+      "key": "principal_zip",
+      "type": "text",
+      "required": true,
+      "label": "ZIP code?",
+      "placeholder": "94105",
+      "inputMask": "DDDDD",
+      "maxLength": 5
+    },
+    {
+      "key": "mailing_same_as_principal",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Is your mailing address the same as the main office?",
+      "options": [
+        {
+          "value": "yes",
+          "label": "Yes, same address"
+        },
+        {
+          "value": "no",
+          "label": "No, it's different"
+        }
+      ]
+    },
+    {
+      "key": "mailing_address",
+      "type": "text",
+      "required": true,
+      "label": "What is the mailing address?",
+      "placeholder": "PO Box 456",
+      "visible_when": {
+        "mailing_same_as_principal": ["no"]
+      }
+    },
+    {
+      "key": "mailing_city",
+      "type": "text",
+      "required": true,
+      "label": "Mailing city?",
+      "placeholder": "San Francisco",
+      "visible_when": {
+        "mailing_same_as_principal": ["no"]
+      }
+    },
+    {
+      "key": "mailing_state",
+      "type": "text",
+      "required": true,
+      "label": "Mailing state?",
+      "placeholder": "CA",
+      "maxLength": 2,
+      "visible_when": {
+        "mailing_same_as_principal": ["no"]
+      }
+    },
+    {
+      "key": "mailing_zip",
+      "type": "text",
+      "required": true,
+      "label": "Mailing ZIP code?",
+      "placeholder": "94105",
+      "inputMask": "DDDDD",
+      "maxLength": 5,
+      "visible_when": {
+        "mailing_same_as_principal": ["no"]
+      }
+    },
+    {
+      "key": "registered_agent_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Who will be your registered agent?",
+      "helpText": "A registered agent receives legal documents and government mail on behalf of your LLC. They must have a physical address (not a PO Box) in the state where you're forming.",
+      "options": [
+        {
+          "value": "self",
+          "label": "I'll be my own registered agent"
+        },
+        {
+          "value": "member",
+          "label": "A member of the LLC"
+        },
+        {
+          "value": "professional",
+          "label": "A professional registered agent service"
+        }
+      ]
+    },
+    {
+      "key": "registered_agent_name",
+      "type": "text",
+      "required": true,
+      "label": "Registered agent's full name (or company name)?",
+      "placeholder": "John Doe"
+    },
+    {
+      "key": "registered_agent_address",
+      "type": "text",
+      "required": true,
+      "label": "Registered agent's street address?",
+      "placeholder": "200 Legal Avenue, Suite 300",
+      "helpText": "Must be a physical address — PO Boxes are not allowed."
+    },
+    {
+      "key": "registered_agent_city",
+      "type": "text",
+      "required": true,
+      "label": "Registered agent's city?",
+      "placeholder": "San Francisco"
+    },
+    {
+      "key": "registered_agent_state",
+      "type": "text",
+      "required": true,
+      "label": "Registered agent's state?",
+      "placeholder": "CA",
+      "maxLength": 2
+    },
+    {
+      "key": "registered_agent_zip",
+      "type": "text",
+      "required": true,
+      "label": "Registered agent's ZIP code?",
+      "placeholder": "94105",
+      "inputMask": "DDDDD",
+      "maxLength": 5
+    },
+    {
+      "key": "management_structure",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "How will the LLC be managed?",
+      "options": [
+        {
+          "value": "member_managed",
+          "label": "Member-managed",
+          "helpText": "All owners run the business together — good for small LLCs"
+        },
+        {
+          "value": "manager_managed",
+          "label": "Manager-managed",
+          "helpText": "One or more designated managers run the business — good for LLCs with investors"
+        }
+      ]
+    },
+    {
+      "key": "member_count",
+      "type": "text",
+      "required": true,
+      "label": "How many owners (members) will the LLC have?",
+      "placeholder": "1",
+      "helpText": "A single-member LLC has just one owner. Multi-member LLCs have two or more.",
+      "inputMask": "DD",
+      "maxLength": 2
+    },
+    {
+      "key": "member1_name",
+      "type": "text",
+      "required": true,
+      "label": "What is Member 1's full name?",
+      "placeholder": "John Doe"
+    },
+    {
+      "key": "member1_address",
+      "type": "text",
+      "required": true,
+      "label": "Member 1's address?",
+      "placeholder": "123 Main Street, San Francisco, CA 94105"
+    },
+    {
+      "key": "member1_ownership",
+      "type": "text",
+      "required": true,
+      "label": "Member 1's ownership percentage?",
+      "placeholder": "100",
+      "helpText": "As a percentage. For a single-member LLC, enter 100."
+    },
+    {
+      "key": "has_additional_members",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Are there additional members to add?",
+      "options": [
+        {
+          "value": "yes",
+          "label": "Yes"
+        },
+        {
+          "value": "no",
+          "label": "No"
+        }
+      ]
+    },
+    {
+      "key": "member2_name",
+      "type": "text",
+      "required": true,
+      "label": "What is Member 2's full name?",
+      "placeholder": "Jane Smith",
+      "visible_when": {
+        "has_additional_members": ["yes"]
+      }
+    },
+    {
+      "key": "member2_address",
+      "type": "text",
+      "required": true,
+      "label": "Member 2's address?",
+      "placeholder": "456 Oak Avenue, San Francisco, CA 94102",
+      "visible_when": {
+        "has_additional_members": ["yes"]
+      }
+    },
+    {
+      "key": "member2_ownership",
+      "type": "text",
+      "required": true,
+      "label": "Member 2's ownership percentage?",
+      "placeholder": "50",
+      "helpText": "All members' percentages should add up to 100%.",
+      "visible_when": {
+        "has_additional_members": ["yes"]
+      }
+    },
+    {
+      "key": "effective_date_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "When should the LLC become effective?",
+      "options": [
+        {
+          "value": "upon_filing",
+          "label": "As soon as it's filed"
+        },
+        {
+          "value": "specific_date",
+          "label": "On a specific date"
+        }
+      ]
+    },
+    {
+      "key": "effective_date",
+      "type": "text",
+      "required": true,
+      "label": "What date should the LLC become effective?",
+      "placeholder": "04/01/2026",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10,
+      "visible_when": {
+        "effective_date_type": ["specific_date"]
+      }
+    },
+    {
+      "key": "duration",
+      "type": "radio",
+      "required": true,
+      "label": "How long will the LLC exist?",
+      "helpText": "Almost all LLCs choose 'perpetual', meaning it lasts until you decide to close it.",
+      "options": [
+        {
+          "value": "perpetual",
+          "label": "Perpetual (no end date)"
+        },
+        {
+          "value": "specific_end",
+          "label": "Until a specific date"
+        }
+      ]
+    },
+    {
+      "key": "duration_end_date",
+      "type": "text",
+      "required": true,
+      "label": "When should the LLC end?",
+      "placeholder": "12/31/2036",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10,
+      "visible_when": {
+        "duration": ["specific_end"]
+      }
+    },
+    {
+      "key": "organizer_name",
+      "type": "text",
+      "required": true,
+      "label": "Who is filing this document?",
+      "placeholder": "John Doe",
+      "helpText": "The organizer is the person submitting the articles of organization to the state. This is usually one of the members."
+    },
+    {
+      "key": "organizer_signature",
+      "type": "text",
+      "required": true,
+      "label": "Organizer's signature (printed name)",
+      "placeholder": "John Doe"
+    }
+  ],
+  "transforms": [
+    {
+      "type": "auto_date",
+      "output": "sign_date",
+      "format": "MM/DD/YYYY"
+    },
+    {
+      "type": "derive",
+      "output": "manager_name",
+      "from": "member1_name",
+      "when": {
+        "management_structure": "member_managed",
+        "member_count": "1"
+      }
+    }
+  ]
+}

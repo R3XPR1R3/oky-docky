@@ -1,0 +1,101 @@
+{
+  "principal_name": "TODO_principal_name_field",
+  "principal_dob": "TODO_principal_dob_field",
+  "principal_full_address": "TODO_principal_address_field",
+  "principal_street": "TODO_principal_street_field",
+  "principal_city": "TODO_principal_city_field",
+  "principal_state": "TODO_principal_state_field",
+  "principal_zip": "TODO_principal_zip_field",
+
+  "agent_name": "TODO_agent_name_field",
+  "agent_full_address": "TODO_agent_address_field",
+  "agent_street": "TODO_agent_street_field",
+  "agent_city": "TODO_agent_city_field",
+  "agent_state": "TODO_agent_state_field",
+  "agent_zip": "TODO_agent_zip_field",
+  "agent_phone": "TODO_agent_phone_field",
+  "agent_relationship": "TODO_agent_relationship_field",
+  "agent_relationship_other": "TODO_agent_relationship_other_field",
+
+  "authority_financial": {
+    "type": "checkbox",
+    "field": "TODO_authority_financial_field",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_real_estate": {
+    "type": "checkbox",
+    "field": "TODO_authority_real_estate_field",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_legal": {
+    "type": "checkbox",
+    "field": "TODO_authority_legal_field",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_healthcare": {
+    "type": "checkbox",
+    "field": "TODO_authority_healthcare_field",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_business": {
+    "type": "checkbox",
+    "field": "TODO_authority_business_field",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_government": {
+    "type": "checkbox",
+    "field": "TODO_authority_government_field",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_tax": {
+    "type": "checkbox",
+    "field": "TODO_authority_tax_field",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_all": {
+    "type": "checkbox",
+    "field": "TODO_authority_all_field",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+
+  "duration": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "immediately", "field": "TODO_duration_immediately_field", "export_on": "/1" },
+      { "value": "specific_date", "field": "TODO_duration_specific_field", "export_on": "/2" },
+      { "value": "springing", "field": "TODO_duration_springing_field", "export_on": "/3" }
+    ]
+  },
+  "effective_date": "TODO_effective_date_field",
+
+  "termination": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "until_revoked", "field": "TODO_termination_revoked_field", "export_on": "/1" },
+      { "value": "specific_end_date", "field": "TODO_termination_date_field", "export_on": "/2" },
+      { "value": "upon_incapacity", "field": "TODO_termination_incapacity_field", "export_on": "/3" }
+    ]
+  },
+  "end_date": "TODO_end_date_field",
+
+  "successor_name": "TODO_successor_name_field",
+  "successor_contact": "TODO_successor_contact_field",
+
+  "signature": {
+    "type": "signature",
+    "field": null,
+    "page": 1,
+    "rect": "TODO_signature_rect"
+  },
+  "sign_date": "TODO_sign_date_field"
+}

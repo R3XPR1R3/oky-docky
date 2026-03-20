@@ -1,0 +1,14 @@
+{
+  "id": "contractor-agreement",
+  "engine": "acroform",
+  "pdf": "contractor-agreement.pdf",
+  "schema": "schema.json",
+  "mapping": "mapping.json",
+  "title": "Independent Contractor Agreement",
+  "description": "Hire a freelancer or contractor with a clear, professional agreement",
+  "category": "business",
+  "tags": ["contractor", "freelance", "1099", "agreement", "hiring", "independent contractor"],
+  "country": "US",
+  "popular": true,
+  "estimated_time": "10 min"
+}

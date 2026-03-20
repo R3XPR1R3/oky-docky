@@ -1,0 +1,14 @@
+{
+  "id": "nda-mutual",
+  "engine": "acroform",
+  "pdf": "nda-mutual.pdf",
+  "schema": "schema.json",
+  "mapping": "mapping.json",
+  "title": "Mutual Non-Disclosure Agreement",
+  "description": "Protect confidential information shared between two parties",
+  "category": "business",
+  "tags": ["nda", "non-disclosure", "confidentiality", "business", "contract", "agreement"],
+  "country": "US",
+  "popular": true,
+  "estimated_time": "7 min"
+}

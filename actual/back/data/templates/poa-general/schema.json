@@ -1,0 +1,361 @@
+{
+  "fields": [
+    {
+      "key": "principal_name",
+      "type": "text",
+      "required": true,
+      "label": "What is your full legal name?",
+      "placeholder": "Jane A. Williams",
+      "helpText": "This is you — the person granting authority to someone else. Use your name exactly as it appears on your government-issued ID."
+    },
+    {
+      "key": "principal_dob",
+      "type": "text",
+      "required": true,
+      "label": "What is your date of birth?",
+      "placeholder": "01/15/1980",
+      "helpText": "Month, day, and year. This helps verify your identity on the document.",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10
+    },
+    {
+      "key": "principal_street",
+      "type": "text",
+      "required": true,
+      "label": "What is your street address?",
+      "placeholder": "456 Oak Avenue, Apt 2B",
+      "helpText": "Your current home address, including apartment or suite number if applicable."
+    },
+    {
+      "key": "principal_city",
+      "type": "text",
+      "required": true,
+      "label": "City?",
+      "placeholder": "Austin"
+    },
+    {
+      "key": "principal_state",
+      "type": "text",
+      "required": true,
+      "label": "State?",
+      "placeholder": "TX",
+      "maxLength": 2
+    },
+    {
+      "key": "principal_zip",
+      "type": "text",
+      "required": true,
+      "label": "ZIP code?",
+      "placeholder": "78701",
+      "inputMask": "DDDDD",
+      "maxLength": 5
+    },
+    {
+      "key": "agent_name",
+      "type": "text",
+      "required": true,
+      "label": "Who are you giving authority to? Enter their full legal name.",
+      "placeholder": "Robert B. Williams",
+      "helpText": "This person is called your \"agent\" or \"attorney-in-fact.\" They'll be authorized to act on your behalf."
+    },
+    {
+      "key": "agent_street",
+      "type": "text",
+      "required": true,
+      "label": "What is your agent's street address?",
+      "placeholder": "789 Pine Street",
+      "helpText": "Your agent's current home address."
+    },
+    {
+      "key": "agent_city",
+      "type": "text",
+      "required": true,
+      "label": "Agent's city?",
+      "placeholder": "Austin"
+    },
+    {
+      "key": "agent_state",
+      "type": "text",
+      "required": true,
+      "label": "Agent's state?",
+      "placeholder": "TX",
+      "maxLength": 2
+    },
+    {
+      "key": "agent_zip",
+      "type": "text",
+      "required": true,
+      "label": "Agent's ZIP code?",
+      "placeholder": "78702",
+      "inputMask": "DDDDD",
+      "maxLength": 5
+    },
+    {
+      "key": "agent_phone",
+      "type": "text",
+      "required": true,
+      "label": "What is your agent's phone number?",
+      "placeholder": "(512) 555-1234",
+      "helpText": "A phone number where your agent can be reached.",
+      "inputMask": "(DDD) DDD-DDDD",
+      "maxLength": 14
+    },
+    {
+      "key": "agent_relationship",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "What is this person's relationship to you?",
+      "helpText": "This helps identify who you're authorizing.",
+      "options": [
+        {
+          "value": "spouse",
+          "label": "Spouse"
+        },
+        {
+          "value": "child",
+          "label": "Child"
+        },
+        {
+          "value": "parent",
+          "label": "Parent"
+        },
+        {
+          "value": "sibling",
+          "label": "Sibling"
+        },
+        {
+          "value": "friend",
+          "label": "Friend"
+        },
+        {
+          "value": "attorney",
+          "label": "Attorney / Lawyer"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ]
+    },
+    {
+      "key": "agent_relationship_other",
+      "type": "text",
+      "required": true,
+      "label": "How would you describe your relationship?",
+      "placeholder": "e.g., business partner, caregiver, neighbor",
+      "helpText": "Just a brief description so the document is clear.",
+      "visible_when": {
+        "agent_relationship": ["other"]
+      }
+    },
+    {
+      "key": "authority_financial",
+      "type": "checkbox",
+      "required": false,
+      "label": "Financial matters (banking, investments, bill payments)",
+      "helpText": "Your agent can manage bank accounts, make deposits and withdrawals, handle investments, and pay bills on your behalf."
+    },
+    {
+      "key": "authority_real_estate",
+      "type": "checkbox",
+      "required": false,
+      "label": "Real estate transactions (buy, sell, manage property)",
+      "helpText": "Your agent can buy, sell, lease, or manage real property for you."
+    },
+    {
+      "key": "authority_legal",
+      "type": "checkbox",
+      "required": false,
+      "label": "Legal proceedings (lawsuits, contracts, claims)",
+      "helpText": "Your agent can file or defend lawsuits, sign contracts, and settle claims on your behalf."
+    },
+    {
+      "key": "authority_healthcare",
+      "type": "checkbox",
+      "required": false,
+      "label": "Healthcare decisions",
+      "helpText": "Your agent can make medical decisions for you. Note: some states require a separate healthcare power of attorney form."
+    },
+    {
+      "key": "authority_business",
+      "type": "checkbox",
+      "required": false,
+      "label": "Business operations (run your business, sign contracts)",
+      "helpText": "Your agent can operate your business, hire/fire employees, sign business contracts, and make operational decisions."
+    },
+    {
+      "key": "authority_government",
+      "type": "checkbox",
+      "required": false,
+      "label": "Government benefits (Social Security, Medicare, VA)",
+      "helpText": "Your agent can apply for, manage, or collect government benefits on your behalf."
+    },
+    {
+      "key": "authority_tax",
+      "type": "checkbox",
+      "required": false,
+      "label": "Tax matters (file returns, deal with the IRS)",
+      "helpText": "Your agent can prepare and file tax returns, communicate with the IRS, and handle tax disputes."
+    },
+    {
+      "key": "authority_all",
+      "type": "checkbox",
+      "required": false,
+      "label": "All of the above — full general authority",
+      "helpText": "Check this to grant your agent broad authority over all the matters listed above. This is the most common choice for someone you trust completely."
+    },
+    {
+      "key": "duration",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "When should this power of attorney take effect?",
+      "helpText": "Most people choose \"effective immediately.\" A \"springing\" POA only kicks in if you become unable to make decisions yourself.",
+      "options": [
+        {
+          "value": "immediately",
+          "label": "Effective immediately"
+        },
+        {
+          "value": "specific_date",
+          "label": "Effective on a specific date"
+        },
+        {
+          "value": "springing",
+          "label": "Only if I become incapacitated (\"springing\" POA)"
+        }
+      ]
+    },
+    {
+      "key": "effective_date",
+      "type": "text",
+      "required": true,
+      "label": "What date should this take effect?",
+      "placeholder": "04/01/2026",
+      "helpText": "The date your agent's authority begins.",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10,
+      "visible_when": {
+        "duration": ["specific_date"]
+      }
+    },
+    {
+      "key": "termination",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "When should this power of attorney end?",
+      "helpText": "You can revoke a POA at any time as long as you're mentally competent, regardless of what you choose here.",
+      "options": [
+        {
+          "value": "until_revoked",
+          "label": "It stays in effect until I revoke it"
+        },
+        {
+          "value": "specific_end_date",
+          "label": "It ends on a specific date"
+        },
+        {
+          "value": "upon_incapacity",
+          "label": "It ends if I become incapacitated"
+        }
+      ]
+    },
+    {
+      "key": "end_date",
+      "type": "text",
+      "required": true,
+      "label": "What date should this power of attorney expire?",
+      "placeholder": "12/31/2026",
+      "helpText": "After this date, your agent will no longer have authority to act on your behalf.",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10,
+      "visible_when": {
+        "termination": ["specific_end_date"]
+      }
+    },
+    {
+      "key": "has_successor",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Would you like to name a backup (successor) agent?",
+      "helpText": "A successor agent steps in if your primary agent is unable or unwilling to serve. It's a good idea to have one, but it's not required.",
+      "options": [
+        {
+          "value": "no",
+          "label": "No, just the one agent"
+        },
+        {
+          "value": "yes",
+          "label": "Yes, I want a backup agent"
+        }
+      ]
+    },
+    {
+      "key": "successor_name",
+      "type": "text",
+      "required": true,
+      "label": "What is your successor agent's full legal name?",
+      "placeholder": "Maria C. Williams",
+      "helpText": "This person will take over if your primary agent can't serve.",
+      "visible_when": {
+        "has_successor": ["yes"]
+      }
+    },
+    {
+      "key": "successor_contact",
+      "type": "text",
+      "required": true,
+      "label": "Successor agent's phone number or address?",
+      "placeholder": "(512) 555-5678 or full address",
+      "helpText": "Provide a way to reach your successor agent — a phone number, email, or mailing address.",
+      "visible_when": {
+        "has_successor": ["yes"]
+      }
+    },
+    {
+      "key": "signature",
+      "type": "signature",
+      "required": true,
+      "label": "Sign your name",
+      "helpText": "By signing, you (the principal) confirm that you are granting the authority described above to your chosen agent. You can type your name or draw your signature."
+    },
+    {
+      "key": "sign_date",
+      "type": "text",
+      "required": false,
+      "label": "Date of signature",
+      "placeholder": "03/20/2026",
+      "helpText": "The date you're signing this document. If you leave this blank, today's date will be used automatically.",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10
+    },
+    {
+      "key": "witness_note",
+      "type": "info",
+      "label": "Important: Witness & Notarization",
+      "helpText": "Most states require a Power of Attorney to be witnessed by one or two people and/or notarized. Check your state's requirements. Witnesses should be adults who are not named as your agent or successor agent."
+    }
+  ],
+  "transforms": [
+    {
+      "type": "auto_date",
+      "field": "sign_date",
+      "format": "MM/DD/YYYY"
+    },
+    {
+      "type": "concat",
+      "fields": ["principal_street", "principal_city", "principal_state", "principal_zip"],
+      "separator": ", ",
+      "output": "principal_full_address"
+    },
+    {
+      "type": "concat",
+      "fields": ["agent_street", "agent_city", "agent_state", "agent_zip"],
+      "separator": ", ",
+      "output": "agent_full_address"
+    }
+  ]
+}

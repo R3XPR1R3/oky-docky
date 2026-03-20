@@ -10,10 +10,10 @@
     "termsDisclaimer": "Términos y aviso legal"
   },
   "landing": {
-    "badge": "Formularios del IRS simplificados",
+    "badge": "Documentos simplificados",
     "heroTitle": "Llena formularios como si",
     "heroTitleHighlight": "hablaras con un amigo",
-    "heroDescription": "No más papeleo confuso. Responde preguntas sencillas y nosotros nos encargamos del resto. Completa tus formularios del IRS en minutos.",
+    "heroDescription": "No más papeleo confuso. Responde preguntas sencillas y nosotros nos encargamos del resto. Arrendamientos, NDAs, formularios empresariales — en minutos.",
     "getStartedFree": "Comienza gratis",
     "seeHowItWorks": "Mira cómo funciona",
     "noCreditCard": "No se requiere tarjeta de crédito \u2022 Gratis para uso personal",
@@ -97,7 +97,7 @@
     "nextSteps": [
       "Descarga e imprime tu formulario, o envíalo electrónicamente",
       "Guarda una copia para tus registros",
-      "Revísalo con un profesional de impuestos si es necesario"
+      "Haz que todas las partes firmen si es necesario"
     ]
   },
   "ad": {
@@ -112,17 +112,17 @@
   "howItWorks": {
     "heroTitle": "Tres pasos.",
     "heroTitleHighlight": "Cero estrés.",
-    "heroDescription": "Convertimos el confuso papeleo del IRS en una conversación amigable. Así es como funciona.",
+    "heroDescription": "Convertimos el confuso papeleo en una conversación amigable. Así es como funciona.",
     "steps": [
       {
         "number": "01",
         "title": "Elige tu formulario",
-        "description": "Explora nuestra biblioteca de formularios del IRS — W-9, W-4, 1099-NEC y más. Cada formulario está optimizado con campos inteligentes que saben qué información necesitas."
+        "description": "Explora nuestra biblioteca de formularios legales, empresariales y laborales — arrendamientos, NDAs, contratos de servicios y más. Cada formulario está optimizado con campos inteligentes que saben qué información necesitas."
       },
       {
         "number": "02",
         "title": "Responde preguntas sencillas",
-        "description": "Sin jerga fiscal, sin confusión. Te hacemos una pregunta a la vez en lenguaje sencillo. La lógica inteligente muestra solo las preguntas relevantes para tu situación."
+        "description": "Sin jerga legal, sin confusión. Te hacemos una pregunta a la vez en lenguaje sencillo. La lógica inteligente muestra solo las preguntas relevantes para tu situación."
       },
       {
         "number": "03",

@@ -1,0 +1,14 @@
+{
+  "id": "i9-2025",
+  "engine": "acroform",
+  "pdf": "i9-2025.pdf",
+  "schema": "schema.json",
+  "mapping": "mapping.json",
+  "title": "Form I-9",
+  "description": "Employment Eligibility Verification — required for every new hire in the US",
+  "category": "employment",
+  "tags": ["employment", "uscis", "hiring", "work authorization", "new hire", "hr"],
+  "country": "US",
+  "popular": true,
+  "estimated_time": "10 min"
+}

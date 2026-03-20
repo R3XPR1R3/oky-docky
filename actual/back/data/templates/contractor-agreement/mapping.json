@@ -1,0 +1,138 @@
+{
+  "client_display_name": "TODO_client_name_field",
+  "company_name": "TODO_company_name_field",
+  "contact_person_name": "TODO_contact_name_field",
+  "contact_person_title": "TODO_contact_title_field",
+  "client_address": "TODO_client_address_field",
+  "client_city": "TODO_client_city_field",
+  "client_state": "TODO_client_state_field",
+  "client_zip": "TODO_client_zip_field",
+  "client_email": "TODO_client_email_field",
+  "client_phone": "TODO_client_phone_field",
+
+  "contractor_name": "TODO_contractor_name_field",
+  "contractor_business_name": "TODO_contractor_biz_field",
+  "contractor_address": "TODO_contractor_address_field",
+  "contractor_city": "TODO_contractor_city_field",
+  "contractor_state": "TODO_contractor_state_field",
+  "contractor_zip": "TODO_contractor_zip_field",
+  "contractor_email": "TODO_contractor_email_field",
+  "contractor_phone": "TODO_contractor_phone_field",
+
+  "services_description": "TODO_services_field",
+  "governing_state": "TODO_governing_state_field",
+  "non_compete_months": "TODO_noncompete_months_field",
+  "completion_criteria": "TODO_completion_field",
+  "hourly_rate": "TODO_hourly_rate_field",
+  "fixed_fee": "TODO_fixed_fee_field",
+  "monthly_amount": "TODO_monthly_amount_field",
+
+  "start_date": {
+    "type": "date_split",
+    "fields": { "mm": "TODO_start_mm", "dd": "TODO_start_dd", "yyyy": "TODO_start_yyyy" }
+  },
+
+  "end_date": {
+    "type": "date_split",
+    "fields": { "mm": "TODO_end_mm", "dd": "TODO_end_dd", "yyyy": "TODO_end_yyyy" }
+  },
+
+  "sign_date": {
+    "type": "date_split",
+    "fields": { "mm": "TODO_sign_mm", "dd": "TODO_sign_dd", "yyyy": "TODO_sign_yyyy" }
+  },
+
+  "end_type": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "specific_date", "field": "TODO_end_specific", "export_on": "/1" },
+      { "value": "ongoing", "field": "TODO_end_ongoing", "export_on": "/2" },
+      { "value": "project_based", "field": "TODO_end_project", "export_on": "/3" }
+    ]
+  },
+
+  "payment_type": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "hourly", "field": "TODO_pay_hourly", "export_on": "/1" },
+      { "value": "fixed", "field": "TODO_pay_fixed", "export_on": "/2" },
+      { "value": "monthly", "field": "TODO_pay_monthly", "export_on": "/3" }
+    ]
+  },
+
+  "payment_schedule": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "weekly", "field": "TODO_sched_weekly", "export_on": "/1" },
+      { "value": "biweekly", "field": "TODO_sched_biweekly", "export_on": "/2" },
+      { "value": "monthly", "field": "TODO_sched_monthly", "export_on": "/3" },
+      { "value": "upon_completion", "field": "TODO_sched_completion", "export_on": "/4" },
+      { "value": "net_30", "field": "TODO_sched_net30", "export_on": "/5" },
+      { "value": "net_60", "field": "TODO_sched_net60", "export_on": "/6" }
+    ]
+  },
+
+  "invoice_method": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "email", "field": "TODO_invoice_email", "export_on": "/1" },
+      { "value": "mail", "field": "TODO_invoice_mail", "export_on": "/2" },
+      { "value": "portal", "field": "TODO_invoice_portal", "export_on": "/3" }
+    ]
+  },
+
+  "work_ownership": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "client_owns", "field": "TODO_own_client", "export_on": "/1" },
+      { "value": "contractor_licenses", "field": "TODO_own_license", "export_on": "/2" },
+      { "value": "shared", "field": "TODO_own_shared", "export_on": "/3" }
+    ]
+  },
+
+  "non_compete": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "no", "field": "TODO_nc_no", "export_on": "/1" },
+      { "value": "yes", "field": "TODO_nc_yes", "export_on": "/2" }
+    ]
+  },
+
+  "confidentiality": {
+    "type": "checkbox",
+    "field": "TODO_confidentiality_cb",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+
+  "termination_notice": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "immediate", "field": "TODO_term_immediate", "export_on": "/1" },
+      { "value": "7_days", "field": "TODO_term_7d", "export_on": "/2" },
+      { "value": "14_days", "field": "TODO_term_14d", "export_on": "/3" },
+      { "value": "30_days", "field": "TODO_term_30d", "export_on": "/4" }
+    ]
+  },
+
+  "client_signature": {
+    "type": "signature",
+    "field": null,
+    "page": 1,
+    "rect": [65, 80, 300, 100]
+  },
+
+  "contractor_signature": {
+    "type": "signature",
+    "field": null,
+    "page": 1,
+    "rect": [320, 80, 560, 100]
+  }
+}

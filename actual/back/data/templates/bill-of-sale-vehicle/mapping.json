@@ -1,0 +1,91 @@
+{
+  "vehicle_description": "TODO_vehicle_description_field",
+  "vehicle_year": "TODO_vehicle_year_field",
+  "vehicle_make": "TODO_vehicle_make_field",
+  "vehicle_model": "TODO_vehicle_model_field",
+  "vehicle_color": "TODO_vehicle_color_field",
+  "vin": "TODO_vin_field",
+  "odometer_reading": "TODO_odometer_field",
+  "sale_price": "TODO_sale_price_field",
+  "sale_date": "TODO_sale_date_field",
+
+  "vehicle_type": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "car_suv", "field": "TODO_type_car_field", "export_on": "/1" },
+      { "value": "truck", "field": "TODO_type_truck_field", "export_on": "/2" },
+      { "value": "motorcycle", "field": "TODO_type_moto_field", "export_on": "/3" },
+      { "value": "other", "field": "TODO_type_other_field", "export_on": "/4" }
+    ]
+  },
+
+  "vehicle_condition": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "excellent", "field": "TODO_cond_excellent_field", "export_on": "/1" },
+      { "value": "good", "field": "TODO_cond_good_field", "export_on": "/2" },
+      { "value": "fair", "field": "TODO_cond_fair_field", "export_on": "/3" },
+      { "value": "poor", "field": "TODO_cond_poor_field", "export_on": "/4" },
+      { "value": "as_is", "field": "TODO_cond_asis_field", "export_on": "/5" }
+    ]
+  },
+
+  "payment_method": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "cash", "field": "TODO_pay_cash_field", "export_on": "/1" },
+      { "value": "check", "field": "TODO_pay_check_field", "export_on": "/2" },
+      { "value": "bank_transfer", "field": "TODO_pay_bank_field", "export_on": "/3" },
+      { "value": "financing", "field": "TODO_pay_financing_field", "export_on": "/4" },
+      { "value": "trade_cash", "field": "TODO_pay_trade_field", "export_on": "/5" }
+    ]
+  },
+
+  "trade_vehicle_description": "TODO_trade_vehicle_desc_field",
+  "trade_value": "TODO_trade_value_field",
+  "cash_difference": "TODO_cash_difference_field",
+
+  "seller_name": "TODO_seller_name_field",
+  "seller_full_address": "TODO_seller_address_field",
+  "seller_street": "TODO_seller_street_field",
+  "seller_city": "TODO_seller_city_field",
+  "seller_state": "TODO_seller_state_field",
+  "seller_zip": "TODO_seller_zip_field",
+  "seller_phone": "TODO_seller_phone_field",
+  "seller_license_number": "TODO_seller_license_num_field",
+  "seller_license_state": "TODO_seller_license_state_field",
+
+  "buyer_name": "TODO_buyer_name_field",
+  "buyer_full_address": "TODO_buyer_address_field",
+  "buyer_street": "TODO_buyer_street_field",
+  "buyer_city": "TODO_buyer_city_field",
+  "buyer_state": "TODO_buyer_state_field",
+  "buyer_zip": "TODO_buyer_zip_field",
+  "buyer_phone": "TODO_buyer_phone_field",
+  "buyer_license_number": "TODO_buyer_license_num_field",
+  "buyer_license_state": "TODO_buyer_license_state_field",
+
+  "warranty_disclaimer": {
+    "type": "checkbox",
+    "field": "TODO_warranty_disclaimer_field",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+
+  "seller_signature": {
+    "type": "signature",
+    "field": null,
+    "page": 1,
+    "rect": "TODO_seller_signature_rect"
+  },
+
+  "buyer_signature": {
+    "type": "signature",
+    "field": null,
+    "page": 1,
+    "rect": "TODO_buyer_signature_rect"
+  }
+}

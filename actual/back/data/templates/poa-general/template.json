@@ -1,0 +1,14 @@
+{
+  "id": "poa-general",
+  "engine": "acroform",
+  "pdf": "poa-general.pdf",
+  "schema": "schema.json",
+  "mapping": "mapping.json",
+  "title": "General Power of Attorney",
+  "description": "Authorize someone to act on your behalf for legal, financial, or personal matters",
+  "category": "legal",
+  "tags": ["power of attorney", "poa", "legal", "authorization", "agent", "representative"],
+  "country": "US",
+  "popular": true,
+  "estimated_time": "8 min"
+}

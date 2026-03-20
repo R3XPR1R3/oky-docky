@@ -1,0 +1,58 @@
+{
+  "_comment": "PDF field names need to be mapped after uploading the actual I-9 PDF. Use the admin tool at /builder to detect PDF fields.",
+  "last_name": "TODO",
+  "first_name": "TODO",
+  "middle_initial": "TODO",
+  "other_last_names": "TODO",
+  "address_street": "TODO",
+  "address_apt": "TODO",
+  "address_city": "TODO",
+  "address_state": "TODO",
+  "address_zip": "TODO",
+  "date_of_birth": "TODO",
+  "ssn": "TODO",
+  "email": "TODO",
+  "phone": "TODO",
+  "citizenship_status": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "us_citizen", "field": "TODO", "export_on": "/1" },
+      { "value": "noncitizen_national", "field": "TODO", "export_on": "/2" },
+      { "value": "permanent_resident", "field": "TODO", "export_on": "/3" },
+      { "value": "alien_authorized", "field": "TODO", "export_on": "/4" }
+    ]
+  },
+  "uscis_number": "TODO",
+  "work_auth_expiry": "TODO",
+  "alien_number": "TODO",
+  "i94_number": "TODO",
+  "foreign_passport_number": "TODO",
+  "foreign_passport_country": "TODO",
+  "used_preparer": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "no", "field": "TODO", "export_on": "/1" },
+      { "value": "yes", "field": "TODO", "export_on": "/2" }
+    ]
+  },
+  "preparer_last_name": "TODO",
+  "preparer_first_name": "TODO",
+  "preparer_address": "TODO",
+  "preparer_signature": {
+    "type": "signature",
+    "field": null,
+    "page": 0,
+    "rect": [50, 460, 350, 480]
+  },
+  "preparer_sign_date": "TODO",
+  "signature": {
+    "type": "signature",
+    "field": null,
+    "page": 0,
+    "rect": [50, 500, 350, 520]
+  },
+  "sign_date": "TODO",
+  "full_address": "TODO"
+}

@@ -1,0 +1,338 @@
+{
+  "fields": [
+    {
+      "key": "last_name",
+      "type": "text",
+      "required": true,
+      "label": "What is your last name?",
+      "placeholder": "Williams",
+      "helpText": "Your family name or surname."
+    },
+    {
+      "key": "first_name",
+      "type": "text",
+      "required": true,
+      "label": "What is your first name?",
+      "placeholder": "Maria",
+      "helpText": "Your given name — the name you go by."
+    },
+    {
+      "key": "middle_initial",
+      "type": "text",
+      "required": false,
+      "label": "What is your middle initial?",
+      "placeholder": "A",
+      "helpText": "Just the first letter of your middle name. Leave blank if you don't have one.",
+      "maxLength": 1
+    },
+    {
+      "key": "other_last_names",
+      "type": "text",
+      "required": false,
+      "label": "Have you ever used a different last name?",
+      "placeholder": "Johnson",
+      "helpText": "Maiden name, previous married name, or any other last name you've used. Leave blank if not applicable."
+    },
+    {
+      "key": "address_street",
+      "type": "text",
+      "required": true,
+      "label": "What is your street address?",
+      "placeholder": "123 Main Street",
+      "helpText": "Your current home address — street name and number."
+    },
+    {
+      "key": "address_apt",
+      "type": "text",
+      "required": false,
+      "label": "Apartment or unit number?",
+      "placeholder": "Apt 4B",
+      "helpText": "If you live in an apartment, condo, or unit, enter the number here. Otherwise leave blank."
+    },
+    {
+      "key": "address_city",
+      "type": "text",
+      "required": true,
+      "label": "What city do you live in?",
+      "placeholder": "Los Angeles"
+    },
+    {
+      "key": "address_state",
+      "type": "text",
+      "required": true,
+      "label": "What state?",
+      "placeholder": "CA",
+      "helpText": "Use the two-letter abbreviation (e.g., CA, TX, NY).",
+      "maxLength": 2
+    },
+    {
+      "key": "address_zip",
+      "type": "text",
+      "required": true,
+      "label": "What is your ZIP code?",
+      "placeholder": "90001",
+      "inputMask": "DDDDD",
+      "maxLength": 5
+    },
+    {
+      "key": "date_of_birth",
+      "type": "text",
+      "required": true,
+      "label": "What is your date of birth?",
+      "placeholder": "01/15/1990",
+      "helpText": "Enter as MM/DD/YYYY.",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10
+    },
+    {
+      "key": "ssn",
+      "type": "text",
+      "required": false,
+      "label": "What is your Social Security Number?",
+      "placeholder": "123-45-6789",
+      "helpText": "Your SSN is voluntary unless your employer uses E-Verify. It stays private and is only used to verify your work eligibility.",
+      "inputMask": "DDD-DD-DDDD",
+      "maxLength": 11
+    },
+    {
+      "key": "email",
+      "type": "text",
+      "required": false,
+      "label": "What is your email address?",
+      "placeholder": "maria.williams@email.com",
+      "helpText": "A personal email where you can be reached."
+    },
+    {
+      "key": "phone",
+      "type": "text",
+      "required": false,
+      "label": "What is your phone number?",
+      "placeholder": "(555) 123-4567",
+      "helpText": "A phone number where you can be reached.",
+      "inputMask": "(DDD) DDD-DDDD",
+      "maxLength": 14
+    },
+    {
+      "key": "citizenship_status",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "What is your citizenship or immigration status?",
+      "helpText": "Choose the option that best describes your current status. This determines which documents you'll need to show your employer.",
+      "options": [
+        {
+          "value": "us_citizen",
+          "label": "I am a citizen of the United States"
+        },
+        {
+          "value": "noncitizen_national",
+          "label": "I am a noncitizen national of the United States"
+        },
+        {
+          "value": "permanent_resident",
+          "label": "I am a lawful permanent resident (Green Card holder)"
+        },
+        {
+          "value": "alien_authorized",
+          "label": "I am authorized to work in the US (with a visa or work permit)"
+        }
+      ]
+    },
+    {
+      "key": "uscis_number",
+      "type": "text",
+      "required": true,
+      "label": "What is your USCIS Number or A-Number?",
+      "placeholder": "A012345678",
+      "helpText": "Your Alien Registration Number (A-Number) or USCIS Number. You can find this on your Green Card (Form I-551). It starts with the letter A followed by 7-9 digits.",
+      "visible_when": {
+        "citizenship_status": ["permanent_resident"]
+      }
+    },
+    {
+      "key": "work_auth_expiry",
+      "type": "text",
+      "required": true,
+      "label": "When does your work authorization expire?",
+      "placeholder": "12/31/2026",
+      "helpText": "The date your current work permit or visa authorization expires. Enter as MM/DD/YYYY. If your authorization does not expire, write N/A.",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10,
+      "visible_when": {
+        "citizenship_status": ["alien_authorized"]
+      }
+    },
+    {
+      "key": "alien_auth_document_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Which document number can you provide?",
+      "helpText": "You need to provide at least one of these. Pick whichever you have available.",
+      "visible_when": {
+        "citizenship_status": ["alien_authorized"]
+      },
+      "options": [
+        {
+          "value": "alien_number",
+          "label": "Alien Registration Number (A-Number) / USCIS Number"
+        },
+        {
+          "value": "i94_number",
+          "label": "Form I-94 Admission Number"
+        },
+        {
+          "value": "foreign_passport",
+          "label": "Foreign Passport Number"
+        }
+      ]
+    },
+    {
+      "key": "alien_number",
+      "type": "text",
+      "required": true,
+      "label": "What is your Alien Registration Number (A-Number)?",
+      "placeholder": "A012345678",
+      "helpText": "Starts with the letter A followed by 7-9 digits. Found on your Employment Authorization Document (EAD) or other USCIS documents.",
+      "visible_when": {
+        "alien_auth_document_type": ["alien_number"]
+      }
+    },
+    {
+      "key": "i94_number",
+      "type": "text",
+      "required": true,
+      "label": "What is your I-94 Admission Number?",
+      "placeholder": "12345678901",
+      "helpText": "Your 11-digit I-94 number. You can look it up at i94.cbp.dhs.gov if you don't have it handy.",
+      "maxLength": 11,
+      "visible_when": {
+        "alien_auth_document_type": ["i94_number"]
+      }
+    },
+    {
+      "key": "foreign_passport_number",
+      "type": "text",
+      "required": true,
+      "label": "What is your foreign passport number?",
+      "placeholder": "AB1234567",
+      "helpText": "The passport number from your country of origin.",
+      "visible_when": {
+        "alien_auth_document_type": ["foreign_passport"]
+      }
+    },
+    {
+      "key": "foreign_passport_country",
+      "type": "text",
+      "required": true,
+      "label": "What country issued your passport?",
+      "placeholder": "Mexico",
+      "helpText": "The country that issued the foreign passport you entered above.",
+      "visible_when": {
+        "alien_auth_document_type": ["foreign_passport"]
+      }
+    },
+    {
+      "key": "used_preparer",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Did someone help you fill out this form?",
+      "helpText": "If a preparer or translator helped you complete Section 1, select Yes. If you filled it out on your own, select No.",
+      "options": [
+        {
+          "value": "no",
+          "label": "No, I filled this out myself"
+        },
+        {
+          "value": "yes",
+          "label": "Yes, a preparer or translator helped me"
+        }
+      ]
+    },
+    {
+      "key": "preparer_last_name",
+      "type": "text",
+      "required": true,
+      "label": "Preparer's last name?",
+      "placeholder": "Garcia",
+      "visible_when": {
+        "used_preparer": ["yes"]
+      }
+    },
+    {
+      "key": "preparer_first_name",
+      "type": "text",
+      "required": true,
+      "label": "Preparer's first name?",
+      "placeholder": "Ana",
+      "visible_when": {
+        "used_preparer": ["yes"]
+      }
+    },
+    {
+      "key": "preparer_address",
+      "type": "text",
+      "required": true,
+      "label": "Preparer's address?",
+      "placeholder": "456 Oak Avenue, Suite 200, Houston, TX 77001",
+      "helpText": "Full address of the person who helped you: street, city, state, and ZIP.",
+      "visible_when": {
+        "used_preparer": ["yes"]
+      }
+    },
+    {
+      "key": "preparer_signature",
+      "type": "signature",
+      "required": true,
+      "label": "Preparer's signature",
+      "helpText": "The person who helped you needs to sign here.",
+      "visible_when": {
+        "used_preparer": ["yes"]
+      }
+    },
+    {
+      "key": "preparer_sign_date",
+      "type": "text",
+      "required": true,
+      "label": "Date of preparer's signature",
+      "placeholder": "03/20/2026",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10,
+      "visible_when": {
+        "used_preparer": ["yes"]
+      }
+    },
+    {
+      "key": "signature",
+      "type": "signature",
+      "required": true,
+      "label": "Your signature",
+      "helpText": "By signing, you confirm that everything you entered is true and correct to the best of your knowledge. You understand that providing false information may result in penalties."
+    },
+    {
+      "key": "sign_date",
+      "type": "text",
+      "required": true,
+      "label": "Today's date",
+      "placeholder": "03/20/2026",
+      "helpText": "The date you are signing this form.",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10
+    }
+  ],
+  "transforms": [
+    {
+      "type": "auto_date",
+      "output": "sign_date",
+      "format": "MM/DD/YYYY"
+    },
+    {
+      "type": "concat",
+      "inputs": ["address_street", "address_apt", "address_city", "address_state", "address_zip"],
+      "separator": ", ",
+      "output": "full_address",
+      "skip_empty": true
+    }
+  ]
+}

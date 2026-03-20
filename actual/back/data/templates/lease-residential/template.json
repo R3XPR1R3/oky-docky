@@ -1,0 +1,14 @@
+{
+  "id": "lease-residential",
+  "engine": "acroform",
+  "pdf": "lease-residential.pdf",
+  "schema": "schema.json",
+  "mapping": "mapping.json",
+  "title": "Residential Lease Agreement",
+  "description": "Standard rental agreement between landlord and tenant",
+  "category": "real-estate",
+  "tags": ["lease", "rental", "apartment", "house", "landlord", "tenant", "real estate", "rent"],
+  "country": "US",
+  "popular": true,
+  "estimated_time": "12 min"
+}
