@@ -1,0 +1,101 @@
+{
+  "principal_name": "f1_01[0]",
+  "principal_dob": "f1_02[0]",
+  "principal_full_address": "f1_03[0]",
+  "principal_street": "f1_04[0]",
+  "principal_city": "f1_05[0]",
+  "principal_state": "f1_06[0]",
+  "principal_zip": "f1_07[0]",
+
+  "agent_name": "f1_08[0]",
+  "agent_full_address": "f1_09[0]",
+  "agent_street": "f1_10[0]",
+  "agent_city": "f1_11[0]",
+  "agent_state": "f1_12[0]",
+  "agent_zip": "f1_13[0]",
+  "agent_phone": "f1_14[0]",
+  "agent_relationship": "f1_15[0]",
+  "agent_relationship_other": "f1_16[0]",
+
+  "authority_financial": {
+    "type": "checkbox",
+    "field": "c1_1[0]",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_real_estate": {
+    "type": "checkbox",
+    "field": "c1_2[0]",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_legal": {
+    "type": "checkbox",
+    "field": "c1_3[0]",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_healthcare": {
+    "type": "checkbox",
+    "field": "c1_4[0]",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_business": {
+    "type": "checkbox",
+    "field": "c1_5[0]",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_government": {
+    "type": "checkbox",
+    "field": "c1_6[0]",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_tax": {
+    "type": "checkbox",
+    "field": "c1_7[0]",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+  "authority_all": {
+    "type": "checkbox",
+    "field": "c1_8[0]",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+
+  "duration": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "immediately", "field": "c1_9[0]", "export_on": "/1" },
+      { "value": "specific_date", "field": "c1_9[1]", "export_on": "/2" },
+      { "value": "springing", "field": "c1_9[2]", "export_on": "/3" }
+    ]
+  },
+  "effective_date": "f1_17[0]",
+
+  "termination": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "until_revoked", "field": "c1_10[0]", "export_on": "/1" },
+      { "value": "specific_end_date", "field": "c1_10[1]", "export_on": "/2" },
+      { "value": "upon_incapacity", "field": "c1_10[2]", "export_on": "/3" }
+    ]
+  },
+  "end_date": "f1_18[0]",
+
+  "successor_name": "f1_19[0]",
+  "successor_contact": "f1_20[0]",
+
+  "signature": {
+    "type": "signature",
+    "field": null,
+    "page": 1,
+    "rect": [65, 80, 300, 100]
+  },
+  "sign_date": "f1_21[0]"
+}

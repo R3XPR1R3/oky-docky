@@ -1,0 +1,416 @@
+{
+  "fields": [
+    {
+      "key": "nda_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "What kind of NDA do you need?",
+      "helpText": "A mutual NDA means both sides are sharing secrets. A one-way NDA means only one side is sharing. Most business deals use mutual.",
+      "options": [
+        {
+          "value": "mutual",
+          "label": "Mutual — both parties will share confidential info"
+        },
+        {
+          "value": "one_way",
+          "label": "One-way — only one party is sharing info"
+        }
+      ]
+    },
+    {
+      "key": "party1_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Who is the first party?",
+      "helpText": "Are you signing this as yourself, or on behalf of a company?",
+      "options": [
+        {
+          "value": "individual",
+          "label": "An individual person"
+        },
+        {
+          "value": "company",
+          "label": "A company or organization"
+        }
+      ]
+    },
+    {
+      "key": "party1_name",
+      "type": "text",
+      "required": true,
+      "label": "What's the first party's full name?",
+      "placeholder": "Jane Smith",
+      "helpText": "Full legal name as it should appear on the agreement.",
+      "visible_when": {
+        "party1_type": ["individual"]
+      }
+    },
+    {
+      "key": "party1_company_name",
+      "type": "text",
+      "required": true,
+      "label": "What's the company name?",
+      "placeholder": "Acme Technologies Inc.",
+      "helpText": "The official, registered name of the company.",
+      "visible_when": {
+        "party1_type": ["company"]
+      }
+    },
+    {
+      "key": "party1_rep_name",
+      "type": "text",
+      "required": true,
+      "label": "Who is signing on behalf of the company?",
+      "placeholder": "Jane Smith",
+      "helpText": "The name of the person authorized to sign this agreement for the company.",
+      "visible_when": {
+        "party1_type": ["company"]
+      }
+    },
+    {
+      "key": "party1_rep_title",
+      "type": "text",
+      "required": true,
+      "label": "What's their title?",
+      "placeholder": "CEO",
+      "helpText": "Their role at the company — like CEO, VP of Engineering, Managing Director, etc.",
+      "visible_when": {
+        "party1_type": ["company"]
+      }
+    },
+    {
+      "key": "party1_address",
+      "type": "text",
+      "required": true,
+      "label": "Party 1's street address?",
+      "placeholder": "123 Main Street, Suite 200",
+      "helpText": "Street address including suite or unit number if applicable."
+    },
+    {
+      "key": "party1_city",
+      "type": "text",
+      "required": true,
+      "label": "City?",
+      "placeholder": "San Francisco"
+    },
+    {
+      "key": "party1_state",
+      "type": "text",
+      "required": true,
+      "label": "State?",
+      "placeholder": "CA",
+      "maxLength": 2
+    },
+    {
+      "key": "party1_zip",
+      "type": "text",
+      "required": true,
+      "label": "ZIP code?",
+      "placeholder": "94105",
+      "inputMask": "DDDDD",
+      "maxLength": 5
+    },
+    {
+      "key": "party1_email",
+      "type": "text",
+      "required": true,
+      "label": "Party 1's email address?",
+      "placeholder": "jane@acmetech.com",
+      "helpText": "Where we can reach the first party. This email may be used for official notices."
+    },
+    {
+      "key": "party2_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Who is the second party?",
+      "helpText": "Is the other side a person or a company?",
+      "options": [
+        {
+          "value": "individual",
+          "label": "An individual person"
+        },
+        {
+          "value": "company",
+          "label": "A company or organization"
+        }
+      ]
+    },
+    {
+      "key": "party2_name",
+      "type": "text",
+      "required": true,
+      "label": "What's the second party's full name?",
+      "placeholder": "John Doe",
+      "helpText": "Full legal name as it should appear on the agreement.",
+      "visible_when": {
+        "party2_type": ["individual"]
+      }
+    },
+    {
+      "key": "party2_company_name",
+      "type": "text",
+      "required": true,
+      "label": "What's the other company's name?",
+      "placeholder": "Beta Innovations LLC",
+      "helpText": "The official, registered name of the other company.",
+      "visible_when": {
+        "party2_type": ["company"]
+      }
+    },
+    {
+      "key": "party2_rep_name",
+      "type": "text",
+      "required": true,
+      "label": "Who is signing for the other company?",
+      "placeholder": "John Doe",
+      "helpText": "The person authorized to sign this agreement on behalf of the other company.",
+      "visible_when": {
+        "party2_type": ["company"]
+      }
+    },
+    {
+      "key": "party2_rep_title",
+      "type": "text",
+      "required": true,
+      "label": "What's their title?",
+      "placeholder": "CTO",
+      "helpText": "Their role at the company — like CEO, Director, Partner, etc.",
+      "visible_when": {
+        "party2_type": ["company"]
+      }
+    },
+    {
+      "key": "party2_address",
+      "type": "text",
+      "required": true,
+      "label": "Party 2's street address?",
+      "placeholder": "456 Oak Avenue, Floor 3",
+      "helpText": "Street address including suite or unit number if applicable."
+    },
+    {
+      "key": "party2_city",
+      "type": "text",
+      "required": true,
+      "label": "City?",
+      "placeholder": "Austin"
+    },
+    {
+      "key": "party2_state",
+      "type": "text",
+      "required": true,
+      "label": "State?",
+      "placeholder": "TX",
+      "maxLength": 2
+    },
+    {
+      "key": "party2_zip",
+      "type": "text",
+      "required": true,
+      "label": "ZIP code?",
+      "placeholder": "73301",
+      "inputMask": "DDDDD",
+      "maxLength": 5
+    },
+    {
+      "key": "party2_email",
+      "type": "text",
+      "required": true,
+      "label": "Party 2's email address?",
+      "placeholder": "john@betainnovations.com",
+      "helpText": "Where we can reach the second party. This email may be used for official notices."
+    },
+    {
+      "key": "nda_purpose",
+      "type": "text",
+      "required": true,
+      "label": "What's this NDA for?",
+      "placeholder": "Exploring a potential business partnership",
+      "helpText": "Briefly describe why you're sharing confidential information. This helps define what the NDA covers — for example, 'discussing a potential merger' or 'evaluating a software integration.'"
+    },
+    {
+      "key": "confidential_types",
+      "type": "checkbox_group",
+      "required": true,
+      "label": "What counts as confidential?",
+      "helpText": "Check everything that applies. The more specific you are, the stronger your protection. You can pick as many as you need.",
+      "options": [
+        {
+          "value": "business_plans",
+          "label": "Business plans and strategies"
+        },
+        {
+          "value": "financial_info",
+          "label": "Financial information"
+        },
+        {
+          "value": "customer_lists",
+          "label": "Customer and client lists"
+        },
+        {
+          "value": "technical_data",
+          "label": "Technical data and trade secrets"
+        },
+        {
+          "value": "product_designs",
+          "label": "Product designs and prototypes"
+        },
+        {
+          "value": "marketing",
+          "label": "Marketing strategies"
+        },
+        {
+          "value": "employee_info",
+          "label": "Employee information"
+        },
+        {
+          "value": "software",
+          "label": "Software and source code"
+        }
+      ]
+    },
+    {
+      "key": "duration",
+      "type": "radio",
+      "required": true,
+      "label": "How long should the confidentiality last?",
+      "helpText": "This is how long both parties must keep the information secret after the NDA is signed. Longer is usually safer. Most business NDAs go with 2 or 3 years.",
+      "options": [
+        {
+          "value": "1_year",
+          "label": "1 year"
+        },
+        {
+          "value": "2_years",
+          "label": "2 years"
+        },
+        {
+          "value": "3_years",
+          "label": "3 years"
+        },
+        {
+          "value": "5_years",
+          "label": "5 years"
+        },
+        {
+          "value": "indefinite",
+          "label": "Indefinitely — no expiration"
+        }
+      ]
+    },
+    {
+      "key": "governing_state",
+      "type": "text",
+      "required": true,
+      "label": "Which state's laws should govern this agreement?",
+      "placeholder": "California",
+      "helpText": "If there's ever a dispute, this is the state whose courts and laws will handle it. Usually the state where one of the parties is based."
+    },
+    {
+      "key": "effective_date",
+      "type": "date",
+      "required": true,
+      "label": "When does this NDA take effect?",
+      "placeholder": "MM/DD/YYYY",
+      "helpText": "The date the agreement officially starts. Usually today's date.",
+      "inputMask": "DD/DD/DDDD"
+    },
+    {
+      "key": "sharing_permission",
+      "type": "radio",
+      "required": true,
+      "label": "Can confidential info be shared with employees or contractors who need it?",
+      "helpText": "Sometimes your team members need to see the info to do their jobs. This controls whether that's allowed and under what conditions.",
+      "options": [
+        {
+          "value": "with_consent",
+          "label": "Yes, but only with the other party's written consent"
+        },
+        {
+          "value": "without_consent",
+          "label": "Yes, without needing consent (as long as they also agree to keep it confidential)"
+        },
+        {
+          "value": "no",
+          "label": "No — only the signing parties can see it"
+        }
+      ]
+    },
+    {
+      "key": "breach_remedy",
+      "type": "radio",
+      "required": true,
+      "label": "What should happen if someone breaks the NDA?",
+      "helpText": "Monetary damages means paying for losses. Injunctive relief means a court can order the person to stop sharing the info immediately. Picking 'both' gives you the most protection.",
+      "options": [
+        {
+          "value": "monetary",
+          "label": "Monetary damages — they pay for the harm caused"
+        },
+        {
+          "value": "injunctive",
+          "label": "Injunctive relief — a court order to stop the breach"
+        },
+        {
+          "value": "both",
+          "label": "Both — damages and a court order"
+        }
+      ]
+    },
+    {
+      "key": "party1_signature",
+      "type": "signature",
+      "required": true,
+      "label": "Party 1 — sign here",
+      "helpText": "By signing, Party 1 agrees to all the terms above. You can type your name or draw your signature."
+    },
+    {
+      "key": "party2_signature",
+      "type": "signature",
+      "required": false,
+      "label": "Party 2 — sign here (optional)",
+      "helpText": "If Party 2 is here, they can sign now. Otherwise, they can sign later — we'll send them a copy."
+    }
+  ],
+  "transforms": [
+    {
+      "type": "auto_date",
+      "field": "effective_date",
+      "format": "MM/DD/YYYY"
+    },
+    {
+      "type": "copy",
+      "from": "party1_name",
+      "to": "party1_display_name",
+      "when": {
+        "party1_type": "individual"
+      }
+    },
+    {
+      "type": "copy",
+      "from": "party1_company_name",
+      "to": "party1_display_name",
+      "when": {
+        "party1_type": "company"
+      }
+    },
+    {
+      "type": "copy",
+      "from": "party2_name",
+      "to": "party2_display_name",
+      "when": {
+        "party2_type": "individual"
+      }
+    },
+    {
+      "type": "copy",
+      "from": "party2_company_name",
+      "to": "party2_display_name",
+      "when": {
+        "party2_type": "company"
+      }
+    }
+  ]
+}

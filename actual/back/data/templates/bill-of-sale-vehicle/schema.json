@@ -1,0 +1,398 @@
+{
+  "fields": [
+    {
+      "key": "user_role",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Are you the buyer or the seller?",
+      "helpText": "This helps us personalize the form for you. Either party can fill it out — both will need to sign.",
+      "options": [
+        {
+          "value": "buyer",
+          "label": "I'm the buyer"
+        },
+        {
+          "value": "seller",
+          "label": "I'm the seller"
+        }
+      ]
+    },
+    {
+      "key": "vehicle_type",
+      "type": "radio",
+      "required": true,
+      "label": "What type of vehicle is being sold?",
+      "options": [
+        {
+          "value": "car_suv",
+          "label": "Car / SUV"
+        },
+        {
+          "value": "truck",
+          "label": "Truck"
+        },
+        {
+          "value": "motorcycle",
+          "label": "Motorcycle"
+        },
+        {
+          "value": "other",
+          "label": "Other (RV, trailer, boat, etc.)"
+        }
+      ]
+    },
+    {
+      "key": "vehicle_year",
+      "type": "text",
+      "required": true,
+      "label": "What year is the vehicle?",
+      "placeholder": "2021",
+      "helpText": "The 4-digit model year. You can find this on the title or registration.",
+      "inputMask": "DDDD",
+      "maxLength": 4
+    },
+    {
+      "key": "vehicle_make",
+      "type": "text",
+      "required": true,
+      "label": "What is the make (manufacturer)?",
+      "placeholder": "Toyota, Ford, Honda, Chevrolet...",
+      "helpText": "The brand of the vehicle — for example, Toyota, Ford, BMW, Harley-Davidson."
+    },
+    {
+      "key": "vehicle_model",
+      "type": "text",
+      "required": true,
+      "label": "What is the model?",
+      "placeholder": "Camry, F-150, Civic, Silverado...",
+      "helpText": "The specific model name — for example, Camry, F-150, Civic."
+    },
+    {
+      "key": "vehicle_color",
+      "type": "text",
+      "required": true,
+      "label": "What color is the vehicle?",
+      "placeholder": "Silver, Black, White, Red..."
+    },
+    {
+      "key": "vin",
+      "type": "text",
+      "required": true,
+      "label": "What is the VIN (Vehicle Identification Number)?",
+      "placeholder": "1HGBH41JXMN109186",
+      "helpText": "The VIN is a 17-character code unique to your vehicle. You can find it on the driver's side dashboard (look through the windshield), on the driver's door jamb sticker, or on your title and registration documents.",
+      "maxLength": 17
+    },
+    {
+      "key": "odometer_reading",
+      "type": "text",
+      "required": true,
+      "label": "What is the current odometer reading?",
+      "placeholder": "45230",
+      "helpText": "The current mileage shown on the dashboard. Federal law requires accurate odometer disclosure when selling a vehicle.",
+      "inputMask": "DDDDDDDD",
+      "maxLength": 8
+    },
+    {
+      "key": "vehicle_condition",
+      "type": "radio",
+      "required": true,
+      "label": "How would you describe the vehicle's condition?",
+      "helpText": "Be honest — this becomes part of the legal record of the sale.",
+      "options": [
+        {
+          "value": "excellent",
+          "label": "Excellent — like new, no issues"
+        },
+        {
+          "value": "good",
+          "label": "Good — runs well, minor wear"
+        },
+        {
+          "value": "fair",
+          "label": "Fair — some mechanical or cosmetic issues"
+        },
+        {
+          "value": "poor",
+          "label": "Poor — significant issues, needs work"
+        },
+        {
+          "value": "as_is",
+          "label": "As-is — sold with no guarantees whatsoever"
+        }
+      ]
+    },
+    {
+      "key": "sale_price",
+      "type": "text",
+      "required": true,
+      "label": "What is the sale price?",
+      "placeholder": "15000.00",
+      "helpText": "The total agreed-upon price in US dollars. Be accurate — this may be used for tax and registration purposes.",
+      "inputMask": "DDDDDDDD.DD",
+      "maxLength": 11
+    },
+    {
+      "key": "payment_method",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "How is the buyer paying?",
+      "helpText": "Select the primary payment method for this transaction.",
+      "options": [
+        {
+          "value": "cash",
+          "label": "Cash"
+        },
+        {
+          "value": "check",
+          "label": "Check (personal or cashier's)"
+        },
+        {
+          "value": "bank_transfer",
+          "label": "Bank transfer / wire"
+        },
+        {
+          "value": "financing",
+          "label": "Financing (bank loan or dealer financing)"
+        },
+        {
+          "value": "trade_cash",
+          "label": "Trade-in + cash"
+        }
+      ]
+    },
+    {
+      "key": "trade_vehicle_description",
+      "type": "text",
+      "required": true,
+      "label": "Describe the trade-in vehicle",
+      "placeholder": "2015 Honda Civic LX, Silver, VIN: 2HGFG...",
+      "helpText": "Include the year, make, model, and VIN of the vehicle being traded in.",
+      "visible_when": {
+        "payment_method": ["trade_cash"]
+      }
+    },
+    {
+      "key": "trade_value",
+      "type": "text",
+      "required": true,
+      "label": "What is the agreed value of the trade-in?",
+      "placeholder": "5000.00",
+      "helpText": "The dollar value both parties have agreed the trade-in vehicle is worth.",
+      "inputMask": "DDDDDDDD.DD",
+      "maxLength": 11,
+      "visible_when": {
+        "payment_method": ["trade_cash"]
+      }
+    },
+    {
+      "key": "cash_difference",
+      "type": "text",
+      "required": true,
+      "label": "How much cash is being paid on top of the trade?",
+      "placeholder": "10000.00",
+      "helpText": "The additional cash amount the buyer is paying beyond the trade-in value.",
+      "inputMask": "DDDDDDDD.DD",
+      "maxLength": 11,
+      "visible_when": {
+        "payment_method": ["trade_cash"]
+      }
+    },
+    {
+      "key": "sale_date",
+      "type": "text",
+      "required": false,
+      "label": "What is the date of the sale?",
+      "placeholder": "03/20/2026",
+      "helpText": "The date the sale is taking place. If you leave this blank, today's date will be used.",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10
+    },
+    {
+      "key": "seller_name",
+      "type": "text",
+      "required": true,
+      "label": "Seller's full legal name",
+      "placeholder": "John D. Smith",
+      "helpText": "The name of the person selling the vehicle, exactly as it appears on their ID."
+    },
+    {
+      "key": "seller_street",
+      "type": "text",
+      "required": true,
+      "label": "Seller's street address",
+      "placeholder": "123 Main Street",
+      "helpText": "The seller's current home address."
+    },
+    {
+      "key": "seller_city",
+      "type": "text",
+      "required": true,
+      "label": "Seller's city",
+      "placeholder": "Houston"
+    },
+    {
+      "key": "seller_state",
+      "type": "text",
+      "required": true,
+      "label": "Seller's state",
+      "placeholder": "TX",
+      "maxLength": 2
+    },
+    {
+      "key": "seller_zip",
+      "type": "text",
+      "required": true,
+      "label": "Seller's ZIP code",
+      "placeholder": "77001",
+      "inputMask": "DDDDD",
+      "maxLength": 5
+    },
+    {
+      "key": "seller_phone",
+      "type": "text",
+      "required": true,
+      "label": "Seller's phone number",
+      "placeholder": "(713) 555-1234",
+      "inputMask": "(DDD) DDD-DDDD",
+      "maxLength": 14
+    },
+    {
+      "key": "seller_license_number",
+      "type": "text",
+      "required": true,
+      "label": "Seller's driver's license number",
+      "placeholder": "12345678",
+      "helpText": "The number on the seller's driver's license or state-issued ID."
+    },
+    {
+      "key": "seller_license_state",
+      "type": "text",
+      "required": true,
+      "label": "State that issued the seller's license",
+      "placeholder": "TX",
+      "maxLength": 2
+    },
+    {
+      "key": "buyer_name",
+      "type": "text",
+      "required": true,
+      "label": "Buyer's full legal name",
+      "placeholder": "Sarah M. Johnson",
+      "helpText": "The name of the person buying the vehicle, exactly as it appears on their ID."
+    },
+    {
+      "key": "buyer_street",
+      "type": "text",
+      "required": true,
+      "label": "Buyer's street address",
+      "placeholder": "456 Elm Avenue",
+      "helpText": "The buyer's current home address."
+    },
+    {
+      "key": "buyer_city",
+      "type": "text",
+      "required": true,
+      "label": "Buyer's city",
+      "placeholder": "Dallas"
+    },
+    {
+      "key": "buyer_state",
+      "type": "text",
+      "required": true,
+      "label": "Buyer's state",
+      "placeholder": "TX",
+      "maxLength": 2
+    },
+    {
+      "key": "buyer_zip",
+      "type": "text",
+      "required": true,
+      "label": "Buyer's ZIP code",
+      "placeholder": "75201",
+      "inputMask": "DDDDD",
+      "maxLength": 5
+    },
+    {
+      "key": "buyer_phone",
+      "type": "text",
+      "required": true,
+      "label": "Buyer's phone number",
+      "placeholder": "(214) 555-5678",
+      "inputMask": "(DDD) DDD-DDDD",
+      "maxLength": 14
+    },
+    {
+      "key": "buyer_license_number",
+      "type": "text",
+      "required": true,
+      "label": "Buyer's driver's license number",
+      "placeholder": "87654321",
+      "helpText": "The number on the buyer's driver's license or state-issued ID."
+    },
+    {
+      "key": "buyer_license_state",
+      "type": "text",
+      "required": true,
+      "label": "State that issued the buyer's license",
+      "placeholder": "TX",
+      "maxLength": 2
+    },
+    {
+      "key": "warranty_disclaimer",
+      "type": "checkbox",
+      "required": false,
+      "label": "This vehicle is sold \"AS-IS\" with no warranty of any kind",
+      "helpText": "By checking this box, the seller makes no guarantees about the vehicle's condition, and the buyer accepts the vehicle in its current state. The buyer is responsible for any and all repairs after the sale."
+    },
+    {
+      "key": "seller_signature",
+      "type": "signature",
+      "required": true,
+      "label": "Seller's signature",
+      "helpText": "By signing, the seller confirms they are the legal owner of the vehicle and have the right to sell it. You can type your name or draw your signature."
+    },
+    {
+      "key": "buyer_signature",
+      "type": "signature",
+      "required": true,
+      "label": "Buyer's signature",
+      "helpText": "By signing, the buyer confirms they agree to purchase the vehicle at the stated price and terms. You can type your name or draw your signature."
+    }
+  ],
+  "transforms": [
+    {
+      "type": "auto_date",
+      "field": "sale_date",
+      "format": "MM/DD/YYYY"
+    },
+    {
+      "type": "derive",
+      "field": "warranty_disclaimer",
+      "value": true,
+      "when": {
+        "vehicle_condition": "as_is"
+      }
+    },
+    {
+      "type": "concat",
+      "fields": ["seller_street", "seller_city", "seller_state", "seller_zip"],
+      "separator": ", ",
+      "output": "seller_full_address"
+    },
+    {
+      "type": "concat",
+      "fields": ["buyer_street", "buyer_city", "buyer_state", "buyer_zip"],
+      "separator": ", ",
+      "output": "buyer_full_address"
+    },
+    {
+      "type": "concat",
+      "fields": ["vehicle_year", "vehicle_make", "vehicle_model"],
+      "separator": " ",
+      "output": "vehicle_description"
+    }
+  ]
+}

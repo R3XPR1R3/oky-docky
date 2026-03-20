@@ -1,0 +1,138 @@
+{
+  "client_display_name": "f1_01[0]",
+  "company_name": "f1_02[0]",
+  "contact_person_name": "f1_03[0]",
+  "contact_person_title": "f1_04[0]",
+  "client_address": "f1_05[0]",
+  "client_city": "f1_06[0]",
+  "client_state": "f1_07[0]",
+  "client_zip": "f1_08[0]",
+  "client_email": "f1_09[0]",
+  "client_phone": "f1_10[0]",
+
+  "contractor_name": "f1_11[0]",
+  "contractor_business_name": "f1_12[0]",
+  "contractor_address": "f1_13[0]",
+  "contractor_city": "f1_14[0]",
+  "contractor_state": "f1_15[0]",
+  "contractor_zip": "f1_16[0]",
+  "contractor_email": "f1_17[0]",
+  "contractor_phone": "f1_18[0]",
+
+  "services_description": "f1_19[0]",
+  "governing_state": "f1_20[0]",
+  "non_compete_months": "f1_21[0]",
+  "completion_criteria": "f1_22[0]",
+  "hourly_rate": "f1_23[0]",
+  "fixed_fee": "f1_24[0]",
+  "monthly_amount": "f1_25[0]",
+
+  "start_date": {
+    "type": "date_split",
+    "fields": { "mm": "f1_26[0]", "dd": "f1_27[0]", "yyyy": "f1_28[0]" }
+  },
+
+  "end_date": {
+    "type": "date_split",
+    "fields": { "mm": "f1_29[0]", "dd": "f1_30[0]", "yyyy": "f1_31[0]" }
+  },
+
+  "sign_date": {
+    "type": "date_split",
+    "fields": { "mm": "f1_32[0]", "dd": "f1_33[0]", "yyyy": "f1_34[0]" }
+  },
+
+  "end_type": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "specific_date", "field": "c1_1[0]", "export_on": "/1" },
+      { "value": "ongoing", "field": "c1_1[1]", "export_on": "/2" },
+      { "value": "project_based", "field": "c1_1[2]", "export_on": "/3" }
+    ]
+  },
+
+  "payment_type": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "hourly", "field": "c1_2[0]", "export_on": "/1" },
+      { "value": "fixed", "field": "c1_2[1]", "export_on": "/2" },
+      { "value": "monthly", "field": "c1_2[2]", "export_on": "/3" }
+    ]
+  },
+
+  "payment_schedule": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "weekly", "field": "c1_3[0]", "export_on": "/1" },
+      { "value": "biweekly", "field": "c1_3[1]", "export_on": "/2" },
+      { "value": "monthly", "field": "c1_3[2]", "export_on": "/3" },
+      { "value": "upon_completion", "field": "c1_3[3]", "export_on": "/4" },
+      { "value": "net_30", "field": "c1_3[4]", "export_on": "/5" },
+      { "value": "net_60", "field": "c1_3[5]", "export_on": "/6" }
+    ]
+  },
+
+  "invoice_method": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "email", "field": "c1_4[0]", "export_on": "/1" },
+      { "value": "mail", "field": "c1_4[1]", "export_on": "/2" },
+      { "value": "portal", "field": "c1_4[2]", "export_on": "/3" }
+    ]
+  },
+
+  "work_ownership": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "client_owns", "field": "c1_5[0]", "export_on": "/1" },
+      { "value": "contractor_licenses", "field": "c1_5[1]", "export_on": "/2" },
+      { "value": "shared", "field": "c1_5[2]", "export_on": "/3" }
+    ]
+  },
+
+  "non_compete": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "no", "field": "c1_6[0]", "export_on": "/1" },
+      { "value": "yes", "field": "c1_6[1]", "export_on": "/2" }
+    ]
+  },
+
+  "confidentiality": {
+    "type": "checkbox",
+    "field": "c1_7[0]",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off"
+  },
+
+  "termination_notice": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "immediate", "field": "c1_8[0]", "export_on": "/1" },
+      { "value": "7_days", "field": "c1_8[1]", "export_on": "/2" },
+      { "value": "14_days", "field": "c1_8[2]", "export_on": "/3" },
+      { "value": "30_days", "field": "c1_8[3]", "export_on": "/4" }
+    ]
+  },
+
+  "client_signature": {
+    "type": "signature",
+    "field": null,
+    "page": 1,
+    "rect": [65, 80, 300, 100]
+  },
+
+  "contractor_signature": {
+    "type": "signature",
+    "field": null,
+    "page": 1,
+    "rect": [320, 80, 560, 100]
+  }
+}

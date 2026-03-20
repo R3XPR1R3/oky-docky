@@ -1,0 +1,665 @@
+{
+  "fields": [
+    {
+      "key": "user_role",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Are you the landlord or the tenant?",
+      "helpText": "This helps us tailor the wording of the agreement for you.",
+      "options": [
+        {
+          "value": "landlord",
+          "label": "I'm the landlord"
+        },
+        {
+          "value": "tenant",
+          "label": "I'm the tenant"
+        }
+      ]
+    },
+    {
+      "key": "landlord_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Is the landlord an individual or a company?",
+      "options": [
+        {
+          "value": "individual",
+          "label": "Individual person"
+        },
+        {
+          "value": "company",
+          "label": "Property management company"
+        }
+      ]
+    },
+    {
+      "key": "landlord_name",
+      "type": "text",
+      "required": true,
+      "label": "What is the landlord's full legal name?",
+      "placeholder": "Jane Smith",
+      "visible_when": {
+        "landlord_type": ["individual"]
+      }
+    },
+    {
+      "key": "landlord_company_name",
+      "type": "text",
+      "required": true,
+      "label": "What is the company name?",
+      "placeholder": "Sunrise Property Management LLC",
+      "visible_when": {
+        "landlord_type": ["company"]
+      }
+    },
+    {
+      "key": "landlord_contact_person",
+      "type": "text",
+      "required": true,
+      "label": "Who is the contact person at the company?",
+      "placeholder": "Jane Smith",
+      "visible_when": {
+        "landlord_type": ["company"]
+      }
+    },
+    {
+      "key": "landlord_address",
+      "type": "text",
+      "required": true,
+      "label": "What is the landlord's mailing address?",
+      "placeholder": "456 Oak Avenue, Suite 200",
+      "helpText": "This is for official notices — it can be different from the rental property."
+    },
+    {
+      "key": "landlord_city_state_zip",
+      "type": "text",
+      "required": true,
+      "label": "Landlord's city, state, and ZIP code?",
+      "placeholder": "Austin, TX 78701"
+    },
+    {
+      "key": "landlord_phone",
+      "type": "text",
+      "required": true,
+      "label": "Landlord's phone number?",
+      "placeholder": "(512) 555-1234",
+      "inputMask": "(DDD) DDD-DDDD",
+      "maxLength": 14
+    },
+    {
+      "key": "landlord_email",
+      "type": "text",
+      "required": true,
+      "label": "Landlord's email address?",
+      "placeholder": "landlord@email.com"
+    },
+    {
+      "key": "tenant_name",
+      "type": "text",
+      "required": true,
+      "label": "What is the tenant's full legal name?",
+      "placeholder": "John Doe"
+    },
+    {
+      "key": "tenant_phone",
+      "type": "text",
+      "required": true,
+      "label": "Tenant's phone number?",
+      "placeholder": "(512) 555-5678",
+      "inputMask": "(DDD) DDD-DDDD",
+      "maxLength": 14
+    },
+    {
+      "key": "tenant_email",
+      "type": "text",
+      "required": true,
+      "label": "Tenant's email address?",
+      "placeholder": "tenant@email.com"
+    },
+    {
+      "key": "additional_occupants_count",
+      "type": "text",
+      "required": true,
+      "label": "How many other people will live there?",
+      "placeholder": "0",
+      "helpText": "Don't count pets — we'll ask about those later.",
+      "inputMask": "DD",
+      "maxLength": 2
+    },
+    {
+      "key": "additional_occupants_names",
+      "type": "text",
+      "required": false,
+      "label": "What are their full names?",
+      "placeholder": "Maria Doe, Carlos Doe",
+      "helpText": "List all additional occupants, separated by commas.",
+      "visible_when": {
+        "additional_occupants_count": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+      }
+    },
+    {
+      "key": "property_address",
+      "type": "text",
+      "required": true,
+      "label": "What is the rental property's street address?",
+      "placeholder": "123 Main Street, Apt 4B"
+    },
+    {
+      "key": "property_city",
+      "type": "text",
+      "required": true,
+      "label": "City?",
+      "placeholder": "Austin"
+    },
+    {
+      "key": "property_state",
+      "type": "text",
+      "required": true,
+      "label": "State?",
+      "placeholder": "TX",
+      "maxLength": 2
+    },
+    {
+      "key": "property_zip",
+      "type": "text",
+      "required": true,
+      "label": "ZIP code?",
+      "placeholder": "78701",
+      "inputMask": "DDDDD",
+      "maxLength": 5
+    },
+    {
+      "key": "property_type",
+      "type": "radio",
+      "required": true,
+      "label": "What type of property is it?",
+      "options": [
+        {
+          "value": "apartment",
+          "label": "Apartment"
+        },
+        {
+          "value": "house",
+          "label": "House"
+        },
+        {
+          "value": "condo",
+          "label": "Condo"
+        },
+        {
+          "value": "townhouse",
+          "label": "Townhouse"
+        },
+        {
+          "value": "room",
+          "label": "Room"
+        },
+        {
+          "value": "studio",
+          "label": "Studio"
+        }
+      ]
+    },
+    {
+      "key": "furnished",
+      "type": "radio",
+      "required": true,
+      "label": "Is the property furnished?",
+      "options": [
+        {
+          "value": "furnished",
+          "label": "Furnished"
+        },
+        {
+          "value": "unfurnished",
+          "label": "Unfurnished"
+        },
+        {
+          "value": "partially",
+          "label": "Partially furnished"
+        }
+      ]
+    },
+    {
+      "key": "bedrooms",
+      "type": "text",
+      "required": true,
+      "label": "How many bedrooms?",
+      "placeholder": "2",
+      "inputMask": "DD",
+      "maxLength": 2
+    },
+    {
+      "key": "bathrooms",
+      "type": "text",
+      "required": true,
+      "label": "How many bathrooms?",
+      "placeholder": "1",
+      "inputMask": "DD",
+      "maxLength": 2
+    },
+    {
+      "key": "lease_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "What type of lease is this?",
+      "helpText": "A fixed-term lease locks in the rent for a set period (like 12 months). Month-to-month is more flexible but either side can end it with notice.",
+      "options": [
+        {
+          "value": "fixed",
+          "label": "Fixed-term (e.g. 12 months)"
+        },
+        {
+          "value": "month_to_month",
+          "label": "Month-to-month"
+        }
+      ]
+    },
+    {
+      "key": "lease_start_date",
+      "type": "text",
+      "required": true,
+      "label": "When does the lease start?",
+      "placeholder": "04/01/2026",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10
+    },
+    {
+      "key": "lease_end_date",
+      "type": "text",
+      "required": true,
+      "label": "When does the lease end?",
+      "placeholder": "03/31/2027",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10,
+      "visible_when": {
+        "lease_type": ["fixed"]
+      }
+    },
+    {
+      "key": "monthly_rent",
+      "type": "text",
+      "required": true,
+      "label": "How much is the monthly rent?",
+      "placeholder": "1500",
+      "helpText": "Enter the dollar amount without the $ sign."
+    },
+    {
+      "key": "rent_due_day",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "When is rent due each month?",
+      "options": [
+        {
+          "value": "1st",
+          "label": "1st of the month"
+        },
+        {
+          "value": "15th",
+          "label": "15th of the month"
+        },
+        {
+          "value": "other",
+          "label": "Other day"
+        }
+      ]
+    },
+    {
+      "key": "rent_due_day_other",
+      "type": "text",
+      "required": true,
+      "label": "Which day of the month?",
+      "placeholder": "5",
+      "inputMask": "DD",
+      "maxLength": 2,
+      "visible_when": {
+        "rent_due_day": ["other"]
+      }
+    },
+    {
+      "key": "late_fee_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Is there a late fee if rent isn't paid on time?",
+      "options": [
+        {
+          "value": "none",
+          "label": "No late fee"
+        },
+        {
+          "value": "flat",
+          "label": "Yes, a flat fee"
+        },
+        {
+          "value": "percentage",
+          "label": "Yes, a percentage of rent"
+        }
+      ]
+    },
+    {
+      "key": "late_fee_amount",
+      "type": "text",
+      "required": true,
+      "label": "How much is the late fee?",
+      "placeholder": "50",
+      "helpText": "Enter the dollar amount without the $ sign.",
+      "visible_when": {
+        "late_fee_type": ["flat"]
+      }
+    },
+    {
+      "key": "late_fee_percentage",
+      "type": "text",
+      "required": true,
+      "label": "What percentage of rent is the late fee?",
+      "placeholder": "5",
+      "helpText": "Enter just the number. For example, enter 5 for 5%.",
+      "visible_when": {
+        "late_fee_type": ["percentage"]
+      }
+    },
+    {
+      "key": "grace_period",
+      "type": "radio",
+      "required": true,
+      "label": "How many days after the due date before the late fee kicks in?",
+      "helpText": "A grace period gives the tenant a few extra days to pay before the late fee applies.",
+      "options": [
+        {
+          "value": "none",
+          "label": "No grace period — late fee starts immediately"
+        },
+        {
+          "value": "3",
+          "label": "3 days"
+        },
+        {
+          "value": "5",
+          "label": "5 days"
+        },
+        {
+          "value": "7",
+          "label": "7 days"
+        }
+      ]
+    },
+    {
+      "key": "security_deposit",
+      "type": "text",
+      "required": true,
+      "label": "How much is the security deposit?",
+      "placeholder": "1500",
+      "helpText": "This is a one-time payment the tenant makes upfront. It's returned at the end of the lease if there's no damage. Enter the dollar amount without the $ sign."
+    },
+    {
+      "key": "deposit_held_at",
+      "type": "text",
+      "required": false,
+      "label": "Where will the deposit be held?",
+      "placeholder": "First National Bank, Account #XXXX",
+      "helpText": "Some states require the landlord to keep the deposit in a specific bank or escrow account. Check your state's laws."
+    },
+    {
+      "key": "utility_electricity",
+      "type": "radio",
+      "required": true,
+      "label": "Who pays for electricity?",
+      "options": [
+        {
+          "value": "landlord",
+          "label": "Landlord pays"
+        },
+        {
+          "value": "tenant",
+          "label": "Tenant pays"
+        }
+      ]
+    },
+    {
+      "key": "utility_water",
+      "type": "radio",
+      "required": true,
+      "label": "Who pays for water and sewer?",
+      "options": [
+        {
+          "value": "landlord",
+          "label": "Landlord pays"
+        },
+        {
+          "value": "tenant",
+          "label": "Tenant pays"
+        }
+      ]
+    },
+    {
+      "key": "utility_gas",
+      "type": "radio",
+      "required": true,
+      "label": "Who pays for gas/heating?",
+      "options": [
+        {
+          "value": "landlord",
+          "label": "Landlord pays"
+        },
+        {
+          "value": "tenant",
+          "label": "Tenant pays"
+        }
+      ]
+    },
+    {
+      "key": "utility_internet",
+      "type": "radio",
+      "required": true,
+      "label": "Who pays for internet/cable?",
+      "options": [
+        {
+          "value": "landlord",
+          "label": "Landlord pays"
+        },
+        {
+          "value": "tenant",
+          "label": "Tenant pays"
+        }
+      ]
+    },
+    {
+      "key": "utility_trash",
+      "type": "radio",
+      "required": true,
+      "label": "Who pays for trash collection?",
+      "options": [
+        {
+          "value": "landlord",
+          "label": "Landlord pays"
+        },
+        {
+          "value": "tenant",
+          "label": "Tenant pays"
+        }
+      ]
+    },
+    {
+      "key": "pets_policy",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Are pets allowed?",
+      "options": [
+        {
+          "value": "no_pets",
+          "label": "No pets allowed"
+        },
+        {
+          "value": "with_deposit",
+          "label": "Yes, with an additional pet deposit"
+        },
+        {
+          "value": "with_monthly_fee",
+          "label": "Yes, with a monthly pet fee"
+        },
+        {
+          "value": "allowed",
+          "label": "Yes, no restrictions"
+        }
+      ]
+    },
+    {
+      "key": "pet_deposit",
+      "type": "text",
+      "required": true,
+      "label": "How much is the pet deposit?",
+      "placeholder": "300",
+      "helpText": "A one-time refundable deposit for pet-related damages. Enter the dollar amount without the $ sign.",
+      "visible_when": {
+        "pets_policy": ["with_deposit"]
+      }
+    },
+    {
+      "key": "pet_monthly_fee",
+      "type": "text",
+      "required": true,
+      "label": "How much is the monthly pet fee?",
+      "placeholder": "25",
+      "helpText": "A recurring monthly charge on top of rent. Enter the dollar amount without the $ sign.",
+      "visible_when": {
+        "pets_policy": ["with_monthly_fee"]
+      }
+    },
+    {
+      "key": "smoking_policy",
+      "type": "radio",
+      "required": true,
+      "label": "What is the smoking policy?",
+      "options": [
+        {
+          "value": "no_smoking",
+          "label": "No smoking anywhere on the property"
+        },
+        {
+          "value": "outside_only",
+          "label": "Smoking outside only"
+        },
+        {
+          "value": "allowed",
+          "label": "Smoking allowed"
+        }
+      ]
+    },
+    {
+      "key": "subletting_policy",
+      "type": "radio",
+      "required": true,
+      "label": "Can the tenant sublet the property?",
+      "helpText": "Subletting means the tenant rents out all or part of the property to someone else.",
+      "options": [
+        {
+          "value": "not_allowed",
+          "label": "Not allowed"
+        },
+        {
+          "value": "with_consent",
+          "label": "Only with written consent from the landlord"
+        },
+        {
+          "value": "allowed",
+          "label": "Allowed"
+        }
+      ]
+    },
+    {
+      "key": "early_termination",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Is there a fee for ending the lease early?",
+      "helpText": "An early termination fee is what the tenant owes if they break the lease before it's up.",
+      "options": [
+        {
+          "value": "no_fee",
+          "label": "No fee"
+        },
+        {
+          "value": "flat_fee",
+          "label": "Yes, a flat fee"
+        },
+        {
+          "value": "months_rent",
+          "label": "Yes, a certain number of months' rent"
+        }
+      ]
+    },
+    {
+      "key": "early_termination_fee",
+      "type": "text",
+      "required": true,
+      "label": "How much is the early termination fee?",
+      "placeholder": "2000",
+      "helpText": "Enter the dollar amount without the $ sign.",
+      "visible_when": {
+        "early_termination": ["flat_fee"]
+      }
+    },
+    {
+      "key": "early_termination_months",
+      "type": "text",
+      "required": true,
+      "label": "How many months of rent?",
+      "placeholder": "2",
+      "helpText": "The tenant would owe this many months of rent as a penalty for breaking the lease early.",
+      "inputMask": "DD",
+      "maxLength": 2,
+      "visible_when": {
+        "early_termination": ["months_rent"]
+      }
+    },
+    {
+      "key": "notice_to_vacate",
+      "type": "radio",
+      "required": true,
+      "label": "How much notice is required before moving out?",
+      "helpText": "This is how far in advance either party must give written notice before ending the lease.",
+      "options": [
+        {
+          "value": "30",
+          "label": "30 days"
+        },
+        {
+          "value": "60",
+          "label": "60 days"
+        },
+        {
+          "value": "90",
+          "label": "90 days"
+        }
+      ]
+    },
+    {
+      "key": "landlord_signature",
+      "type": "text",
+      "required": true,
+      "label": "Landlord's signature (printed name)",
+      "placeholder": "Jane Smith"
+    },
+    {
+      "key": "tenant_signature",
+      "type": "text",
+      "required": true,
+      "label": "Tenant's signature (printed name)",
+      "placeholder": "John Doe"
+    }
+  ],
+  "transforms": [
+    {
+      "type": "auto_date",
+      "output": "sign_date",
+      "format": "MM/DD/YYYY"
+    }
+  ]
+}

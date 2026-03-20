@@ -1,0 +1,497 @@
+{
+  "fields": [
+    {
+      "key": "user_role",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Which side are you on?",
+      "helpText": "This just helps us tailor the wording so everything makes sense from your perspective.",
+      "options": [
+        {
+          "value": "client",
+          "label": "I'm hiring a contractor"
+        },
+        {
+          "value": "contractor",
+          "label": "I'm the contractor"
+        }
+      ]
+    },
+    {
+      "key": "client_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Is the client a person or a company?",
+      "helpText": "The client is the one hiring and paying for the work.",
+      "options": [
+        {
+          "value": "individual",
+          "label": "An individual person"
+        },
+        {
+          "value": "company",
+          "label": "A company or organization"
+        }
+      ]
+    },
+    {
+      "key": "client_name",
+      "type": "text",
+      "required": true,
+      "label": "What's the client's full name?",
+      "placeholder": "Sarah Johnson",
+      "helpText": "The full legal name of the person hiring the contractor.",
+      "visible_when": {
+        "client_type": ["individual"]
+      }
+    },
+    {
+      "key": "company_name",
+      "type": "text",
+      "required": true,
+      "label": "What's the company name?",
+      "placeholder": "Bright Ideas Marketing LLC",
+      "helpText": "The official, registered name of the company hiring the contractor.",
+      "visible_when": {
+        "client_type": ["company"]
+      }
+    },
+    {
+      "key": "contact_person_name",
+      "type": "text",
+      "required": true,
+      "label": "Who's the main contact person at the company?",
+      "placeholder": "Sarah Johnson",
+      "helpText": "The person the contractor will work with and who can sign this agreement.",
+      "visible_when": {
+        "client_type": ["company"]
+      }
+    },
+    {
+      "key": "contact_person_title",
+      "type": "text",
+      "required": true,
+      "label": "What's their title?",
+      "placeholder": "Head of Operations",
+      "helpText": "Their role at the company — like CEO, Hiring Manager, Director, etc.",
+      "visible_when": {
+        "client_type": ["company"]
+      }
+    },
+    {
+      "key": "client_address",
+      "type": "text",
+      "required": true,
+      "label": "Client's street address?",
+      "placeholder": "789 Corporate Blvd, Suite 100",
+      "helpText": "Street address including suite or unit number if applicable."
+    },
+    {
+      "key": "client_city",
+      "type": "text",
+      "required": true,
+      "label": "City?",
+      "placeholder": "Denver"
+    },
+    {
+      "key": "client_state",
+      "type": "text",
+      "required": true,
+      "label": "State?",
+      "placeholder": "CO",
+      "maxLength": 2
+    },
+    {
+      "key": "client_zip",
+      "type": "text",
+      "required": true,
+      "label": "ZIP code?",
+      "placeholder": "80202",
+      "inputMask": "DDDDD",
+      "maxLength": 5
+    },
+    {
+      "key": "client_email",
+      "type": "text",
+      "required": true,
+      "label": "Client's email?",
+      "placeholder": "sarah@brightideas.com",
+      "helpText": "For official communication and sending invoices."
+    },
+    {
+      "key": "client_phone",
+      "type": "text",
+      "required": true,
+      "label": "Client's phone number?",
+      "placeholder": "(555) 123-4567",
+      "inputMask": "(DDD) DDD-DDDD",
+      "maxLength": 14
+    },
+    {
+      "key": "contractor_name",
+      "type": "text",
+      "required": true,
+      "label": "What's the contractor's full name?",
+      "placeholder": "Alex Rivera",
+      "helpText": "The full legal name of the person doing the work."
+    },
+    {
+      "key": "contractor_business_name",
+      "type": "text",
+      "required": false,
+      "label": "Do you operate under a business name?",
+      "placeholder": "Rivera Design Studio",
+      "helpText": "If the contractor has a registered business name (like an LLC or DBA), put it here. Totally fine to leave this blank if they work under their own name."
+    },
+    {
+      "key": "contractor_address",
+      "type": "text",
+      "required": true,
+      "label": "Contractor's street address?",
+      "placeholder": "456 Freelancer Lane, Apt 2B",
+      "helpText": "Street address including apartment or unit number if applicable."
+    },
+    {
+      "key": "contractor_city",
+      "type": "text",
+      "required": true,
+      "label": "City?",
+      "placeholder": "Portland"
+    },
+    {
+      "key": "contractor_state",
+      "type": "text",
+      "required": true,
+      "label": "State?",
+      "placeholder": "OR",
+      "maxLength": 2
+    },
+    {
+      "key": "contractor_zip",
+      "type": "text",
+      "required": true,
+      "label": "ZIP code?",
+      "placeholder": "97201",
+      "inputMask": "DDDDD",
+      "maxLength": 5
+    },
+    {
+      "key": "contractor_email",
+      "type": "text",
+      "required": true,
+      "label": "Contractor's email?",
+      "placeholder": "alex@riveradesign.com",
+      "helpText": "For official communication and sending invoices."
+    },
+    {
+      "key": "contractor_phone",
+      "type": "text",
+      "required": true,
+      "label": "Contractor's phone number?",
+      "placeholder": "(555) 987-6543",
+      "inputMask": "(DDD) DDD-DDDD",
+      "maxLength": 14
+    },
+    {
+      "key": "services_description",
+      "type": "text",
+      "required": true,
+      "label": "What work will the contractor do?",
+      "placeholder": "Design and develop a new company website including homepage, about page, and contact form",
+      "helpText": "Be specific — this protects both parties. Instead of 'design work,' say 'design a logo, business cards, and brand style guide.' The clearer this is, the fewer misunderstandings later."
+    },
+    {
+      "key": "start_date",
+      "type": "date",
+      "required": true,
+      "label": "When does the work start?",
+      "placeholder": "MM/DD/YYYY",
+      "helpText": "The first day the contractor is expected to begin working.",
+      "inputMask": "DD/DD/DDDD"
+    },
+    {
+      "key": "end_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "When does the contract end?",
+      "helpText": "Pick what makes sense for this gig. A fixed end date is great for short projects, ongoing works for long-term relationships, and project-based means it's done when the work is done.",
+      "options": [
+        {
+          "value": "specific_date",
+          "label": "On a specific end date"
+        },
+        {
+          "value": "ongoing",
+          "label": "Ongoing until someone terminates it"
+        },
+        {
+          "value": "project_based",
+          "label": "When the project is completed"
+        }
+      ]
+    },
+    {
+      "key": "end_date",
+      "type": "date",
+      "required": true,
+      "label": "What's the end date?",
+      "placeholder": "MM/DD/YYYY",
+      "helpText": "The last day of the contract.",
+      "inputMask": "DD/DD/DDDD",
+      "visible_when": {
+        "end_type": ["specific_date"]
+      }
+    },
+    {
+      "key": "completion_criteria",
+      "type": "text",
+      "required": true,
+      "label": "How will you know the project is done?",
+      "placeholder": "Website is live, all pages are functional, and client has approved the final design",
+      "helpText": "Describe the specific deliverables or milestones that mark the project as complete. This avoids the 'are we done yet?' back-and-forth.",
+      "visible_when": {
+        "end_type": ["project_based"]
+      }
+    },
+    {
+      "key": "payment_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "How will the contractor be paid?",
+      "helpText": "Hourly works well for ongoing or unpredictable work. Fixed fee is best for defined projects. Monthly retainer is great for ongoing advisory or support roles.",
+      "options": [
+        {
+          "value": "hourly",
+          "label": "Hourly rate"
+        },
+        {
+          "value": "fixed",
+          "label": "Fixed project fee"
+        },
+        {
+          "value": "monthly",
+          "label": "Monthly retainer"
+        }
+      ]
+    },
+    {
+      "key": "hourly_rate",
+      "type": "text",
+      "required": true,
+      "label": "What's the hourly rate?",
+      "placeholder": "75.00",
+      "helpText": "The amount in US dollars per hour of work. Just the number — no dollar sign needed.",
+      "visible_when": {
+        "payment_type": ["hourly"]
+      }
+    },
+    {
+      "key": "fixed_fee",
+      "type": "text",
+      "required": true,
+      "label": "What's the total project fee?",
+      "placeholder": "5000.00",
+      "helpText": "The total amount in US dollars for the entire project. Just the number — no dollar sign needed.",
+      "visible_when": {
+        "payment_type": ["fixed"]
+      }
+    },
+    {
+      "key": "monthly_amount",
+      "type": "text",
+      "required": true,
+      "label": "What's the monthly amount?",
+      "placeholder": "3000.00",
+      "helpText": "The amount in US dollars paid each month. Just the number — no dollar sign needed.",
+      "visible_when": {
+        "payment_type": ["monthly"]
+      }
+    },
+    {
+      "key": "payment_schedule",
+      "type": "radio",
+      "required": true,
+      "label": "How often should payments be made?",
+      "helpText": "This is how frequently the contractor gets paid. Net-30 means within 30 days of receiving an invoice — that's pretty standard for businesses.",
+      "options": [
+        {
+          "value": "weekly",
+          "label": "Weekly"
+        },
+        {
+          "value": "biweekly",
+          "label": "Every two weeks"
+        },
+        {
+          "value": "monthly",
+          "label": "Monthly"
+        },
+        {
+          "value": "upon_completion",
+          "label": "When the project is done"
+        },
+        {
+          "value": "net_30",
+          "label": "Net-30 (within 30 days of invoice)"
+        },
+        {
+          "value": "net_60",
+          "label": "Net-60 (within 60 days of invoice)"
+        }
+      ]
+    },
+    {
+      "key": "invoice_method",
+      "type": "radio",
+      "required": true,
+      "label": "How will invoices be submitted?",
+      "helpText": "How the contractor will send their bills. Email is the most common these days.",
+      "options": [
+        {
+          "value": "email",
+          "label": "By email"
+        },
+        {
+          "value": "mail",
+          "label": "By mail"
+        },
+        {
+          "value": "portal",
+          "label": "Through an online portal"
+        }
+      ]
+    },
+    {
+      "key": "work_ownership",
+      "type": "radio",
+      "required": true,
+      "label": "Who owns the work product?",
+      "helpText": "This is a big one. 'Client owns everything' means the contractor hands over all rights (most common for hired work). 'Contractor retains rights' means they own it but give the client permission to use it. 'Shared' means both parties can use it.",
+      "options": [
+        {
+          "value": "client_owns",
+          "label": "Client owns everything — full transfer of rights"
+        },
+        {
+          "value": "contractor_licenses",
+          "label": "Contractor keeps ownership but licenses it to the client"
+        },
+        {
+          "value": "shared",
+          "label": "Shared ownership — both parties can use it"
+        }
+      ]
+    },
+    {
+      "key": "non_compete",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Include a non-compete clause?",
+      "helpText": "A non-compete means the contractor can't work for the client's direct competitors for a period after the contract ends. Many states have limits on these, so keep it reasonable.",
+      "options": [
+        {
+          "value": "no",
+          "label": "No non-compete — the contractor is free to work with anyone"
+        },
+        {
+          "value": "yes",
+          "label": "Yes — restrict competing work for a period after the contract ends"
+        }
+      ]
+    },
+    {
+      "key": "non_compete_months",
+      "type": "text",
+      "required": true,
+      "label": "How many months should the non-compete last after the contract ends?",
+      "placeholder": "6",
+      "helpText": "The number of months the contractor can't work for competitors after this contract ends. 3 to 12 months is typical. Courts may not enforce anything too long.",
+      "visible_when": {
+        "non_compete": ["yes"]
+      }
+    },
+    {
+      "key": "confidentiality",
+      "type": "checkbox",
+      "required": false,
+      "label": "Include a confidentiality clause",
+      "helpText": "Strongly recommended. This means the contractor agrees not to share your private business information with anyone. Almost every contractor agreement includes this.",
+      "defaultChecked": true
+    },
+    {
+      "key": "termination_notice",
+      "type": "radio",
+      "required": true,
+      "label": "How much notice is needed to end the contract?",
+      "helpText": "If either side wants out, how far in advance do they need to say so? More notice gives both sides time to wrap things up smoothly.",
+      "options": [
+        {
+          "value": "immediate",
+          "label": "Immediately — no notice required"
+        },
+        {
+          "value": "7_days",
+          "label": "7 days"
+        },
+        {
+          "value": "14_days",
+          "label": "14 days"
+        },
+        {
+          "value": "30_days",
+          "label": "30 days"
+        }
+      ]
+    },
+    {
+      "key": "governing_state",
+      "type": "text",
+      "required": true,
+      "label": "Which state's laws should govern this agreement?",
+      "placeholder": "Colorado",
+      "helpText": "If there's ever a disagreement, this is the state whose courts and laws will sort it out. Usually where the client is based."
+    },
+    {
+      "key": "client_signature",
+      "type": "signature",
+      "required": true,
+      "label": "Client — sign here",
+      "helpText": "By signing, the client agrees to all the terms in this agreement. You can type your name or draw your signature."
+    },
+    {
+      "key": "contractor_signature",
+      "type": "signature",
+      "required": true,
+      "label": "Contractor — sign here",
+      "helpText": "By signing, the contractor agrees to all the terms in this agreement. You can type your name or draw your signature."
+    }
+  ],
+  "transforms": [
+    {
+      "type": "auto_date",
+      "field": "sign_date",
+      "format": "MM/DD/YYYY"
+    },
+    {
+      "type": "copy",
+      "from": "client_name",
+      "to": "client_display_name",
+      "when": {
+        "client_type": "individual"
+      }
+    },
+    {
+      "type": "copy",
+      "from": "company_name",
+      "to": "client_display_name",
+      "when": {
+        "client_type": "company"
+      }
+    }
+  ]
+}

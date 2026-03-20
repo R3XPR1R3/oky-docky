@@ -1,0 +1,14 @@
+{
+  "id": "llc-formation",
+  "engine": "acroform",
+  "pdf": "llc-formation.pdf",
+  "schema": "schema.json",
+  "mapping": "mapping.json",
+  "title": "LLC Articles of Organization",
+  "description": "Form your LLC — create the articles of organization to register your business",
+  "category": "business",
+  "tags": ["llc", "business formation", "articles of organization", "startup", "small business", "incorporation"],
+  "country": "US",
+  "popular": true,
+  "estimated_time": "8 min"
+}

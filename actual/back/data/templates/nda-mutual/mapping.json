@@ -1,0 +1,98 @@
+{
+  "party1_display_name": "f1_01[0]",
+  "party1_company_name": "f1_02[0]",
+  "party1_rep_name": "f1_03[0]",
+  "party1_rep_title": "f1_04[0]",
+  "party1_address": "f1_05[0]",
+  "party1_city": "f1_06[0]",
+  "party1_state": "f1_07[0]",
+  "party1_zip": "f1_08[0]",
+  "party1_email": "f1_09[0]",
+
+  "party2_display_name": "f1_10[0]",
+  "party2_company_name": "f1_11[0]",
+  "party2_rep_name": "f1_12[0]",
+  "party2_rep_title": "f1_13[0]",
+  "party2_address": "f1_14[0]",
+  "party2_city": "f1_15[0]",
+  "party2_state": "f1_16[0]",
+  "party2_zip": "f1_17[0]",
+  "party2_email": "f1_18[0]",
+
+  "nda_purpose": "f1_19[0]",
+  "governing_state": "f1_20[0]",
+
+  "effective_date": {
+    "type": "date_split",
+    "fields": { "mm": "f1_21[0]", "dd": "f1_22[0]", "yyyy": "f1_23[0]" }
+  },
+
+  "nda_type": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "mutual", "field": "c1_1[0]", "export_on": "/1" },
+      { "value": "one_way", "field": "c1_1[1]", "export_on": "/2" }
+    ]
+  },
+
+  "duration": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "1_year", "field": "c1_2[0]", "export_on": "/1" },
+      { "value": "2_years", "field": "c1_2[1]", "export_on": "/2" },
+      { "value": "3_years", "field": "c1_2[2]", "export_on": "/3" },
+      { "value": "5_years", "field": "c1_2[3]", "export_on": "/4" },
+      { "value": "indefinite", "field": "c1_2[4]", "export_on": "/5" }
+    ]
+  },
+
+  "sharing_permission": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "with_consent", "field": "c1_3[0]", "export_on": "/1" },
+      { "value": "without_consent", "field": "c1_3[1]", "export_on": "/2" },
+      { "value": "no", "field": "c1_3[2]", "export_on": "/3" }
+    ]
+  },
+
+  "breach_remedy": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "monetary", "field": "c1_4[0]", "export_on": "/1" },
+      { "value": "injunctive", "field": "c1_4[1]", "export_on": "/2" },
+      { "value": "both", "field": "c1_4[2]", "export_on": "/3" }
+    ]
+  },
+
+  "confidential_types": {
+    "type": "checkbox_group",
+    "choices": [
+      { "value": "business_plans", "field": "c1_5[0]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "financial_info", "field": "c1_5[1]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "customer_lists", "field": "c1_5[2]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "technical_data", "field": "c1_5[3]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "product_designs", "field": "c1_5[4]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "marketing", "field": "c1_5[5]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "employee_info", "field": "c1_5[6]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "software", "field": "c1_5[7]", "checked_value": "/Yes", "unchecked_value": "/Off" }
+    ]
+  },
+
+  "party1_signature": {
+    "type": "signature",
+    "field": null,
+    "page": 1,
+    "rect": [65, 80, 300, 100]
+  },
+
+  "party2_signature": {
+    "type": "signature",
+    "field": null,
+    "page": 1,
+    "rect": [320, 80, 560, 100]
+  }
+}

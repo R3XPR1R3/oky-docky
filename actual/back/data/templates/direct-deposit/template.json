@@ -1,0 +1,14 @@
+{
+  "id": "direct-deposit",
+  "engine": "acroform",
+  "pdf": "direct-deposit.pdf",
+  "schema": "schema.json",
+  "mapping": "mapping.json",
+  "title": "Direct Deposit Authorization",
+  "description": "Set up direct deposit for your paycheck — no more paper checks",
+  "category": "employment",
+  "tags": ["direct deposit", "payroll", "bank", "paycheck", "hr", "employment"],
+  "country": "US",
+  "popular": true,
+  "estimated_time": "3 min"
+}

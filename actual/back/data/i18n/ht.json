@@ -10,10 +10,10 @@
     "termsDisclaimer": "Kondisyon ak Avètisman"
   },
   "landing": {
-    "badge": "Fòm IRS vin senp",
+    "badge": "Dokiman vin senp",
     "heroTitle": "Ranpli Fòm Tankou",
     "heroTitleHighlight": "W Ap Pale Ak Yon Zanmi",
-    "heroDescription": "Pa gen dokiman konplike ankò. Reponn kesyon senp epi nou pral jere rès la. Ranpli fòm IRS ou yo nan kèk minit.",
+    "heroDescription": "Pa gen dokiman konplike ankò. Reponn kesyon senp epi nou pral jere rès la. Kontra lwaye, NDA, fòm biznis — nan kèk minit.",
     "getStartedFree": "Kòmanse Gratis",
     "seeHowItWorks": "Gade Kijan Li Fonksyone",
     "noCreditCard": "Pa bezwen kat kredi • Gratis pou itilizasyon pèsonèl",
@@ -95,9 +95,9 @@
     "download": "Telechaje",
     "whatsNext": "Ki Sa Ki Vini Apre?",
     "nextSteps": [
-      "Telechaje epi enprime fòm ou a, oswa soumèt li elektwonikman",
+      "Telechaje epi enprime fòm ou a, oswa voye li",
       "Kenbe yon kopi pou dosye ou",
-      "Revize ak yon pwofesyonèl taks si sa nesesè"
+      "Fè tout pati siyen si sa nesesè"
     ]
   },
   "ad": {
@@ -112,22 +112,22 @@
   "howItWorks": {
     "heroTitle": "Twa Etap.",
     "heroTitleHighlight": "Zewo Strès.",
-    "heroDescription": "Nou transfòme dokiman IRS konplike yo an yon konvèsasyon amikal. Men kijan li fonksyone.",
+    "heroDescription": "Nou transfòme dokiman konplike yo an yon konvèsasyon amikal. Men kijan li fonksyone.",
     "steps": [
       {
         "number": "01",
         "title": "Chwazi Fòm Ou",
-        "description": "Navige nan bibliyotèk fòm IRS nou yo — W-9, W-4, 1099-NEC, ak plis ankò. Chak fòm optimize ak chan entelijan ki konnen ki enfòmasyon ou bezwen."
+        "description": "Navige nan bibliyotèk fòm legal, biznis, ak travay nou yo — kontra lwaye, NDA, akò kontraktè, ak plis ankò. Chak fòm optimize ak chan entelijan ki konnen ki enfòmasyon ou bezwen."
       },
       {
         "number": "02",
         "title": "Reponn Kesyon Senp",
-        "description": "Pa gen jagon taks, pa gen konfizyon. Nou poze ou yon kesyon alafwa an langaj klè. Lojik entelijan montre sèlman kesyon ki gen rapò ak sitiyasyon ou."
+        "description": "Pa gen jagon legal, pa gen konfizyon. Nou poze ou yon kesyon alafwa an langaj klè. Lojik entelijan montre sèlman kesyon ki gen rapò ak sitiyasyon ou."
       },
       {
         "number": "03",
         "title": "Telechaje ak Depoze",
-        "description": "Fòm ranpli ou a jenere tousuit kòm yon PDF prè pou depoze. Telechaje li, enprime li, oswa soumèt li elektwonikman — ou fini!"
+        "description": "Fòm ranpli ou a jenere tousuit kòm yon PDF prè pou itilize. Telechaje li, enprime li, siyen li, oswa voye li — ou fini!"
       }
     ],
     "ctaTitle": "Prè pou eseye li?",
@@ -152,7 +152,7 @@
         "cta": "Kòmanse Gratis",
         "features": [
           "2 fòm pa mwa",
-          "Modèl W-9, W-4",
+          "Tout modèl debaz",
           "Telechajman PDF imedya",
           "Kesyon-repons etap pa etap",
           "Done pa janm estoke"
@@ -166,7 +166,7 @@
         "cta": "Kòmanse Esè Pro",
         "features": [
           "Fòm ilimite",
-          "Tout modèl IRS (W-9, W-4, 1099-NEC, ...)",
+          "Tout modèl (legal, biznis, travay, ...)",
           "Kesyon-repons an gwoup — ranpli plizyè fòm alafwa",
           "Enpòtasyon CSV pou ranplisaj an gwo",
           "Enstriksyon pou depoze ak lis verifikasyon",
@@ -190,10 +190,10 @@
       }
     ],
     "apiTitle": "Ranpli fòm an gwo kantite",
-    "apiDescription": "Entegre Oky-Docky nan fliks travay ou ak REST API nou an. Voye done, resevwa PDF ranpli. Pafè pou konpayi pewòl, kabinè kontabilite, ak lojisyèl preparasyon taks.",
+    "apiDescription": "Entegre Oky-Docky nan fliks travay ou ak REST API nou an. Voye done, resevwa PDF ranpli. Pafè pou konpayi pewòl, kabinè kontabilite, ak lojisyèl biznis.",
     "apiBulk": "Tretman an gwo",
     "apiSpeed": "Repons nan mwens pase yon segonn",
-    "apiComment": "# Ranpli yon W-9 pa REST API",
+    "apiComment": "# Ranpli yon fòm pa REST API",
     "contactTitle": "Kontakte Nou",
     "contactDescription": "Enterese nan Pro, Enterprise, oswa gen kesyon? Ekri nou yon mesaj.",
     "contactName": "Non *",
@@ -210,14 +210,14 @@
     "title": "Kondisyon Sèvis ak Avètisman",
     "lastUpdated": "Dènye mizajou: Fevriye 2026",
     "importantNotice": "Avi Enpòtan",
-    "importantNoticeText": "Oky-Docky se yon <strong>zouti preparasyon dokiman</strong> ki opere pa <strong>Barckhat LLC</strong>, pa yon sèvis konsèy taks. Nou pa bay konsèy taks, legal, finansye, oswa kontabilite. Enfòmasyon ak fòm sèvis sa a jenere baze sèlman sou done ou bay. Toujou konsilte yon pwofesyonèl taks kalifye pou konsèy espesifik pou sitiyasyon ou.",
+    "importantNoticeText": "Oky-Docky se yon <strong>zouti preparasyon dokiman</strong> ki opere pa <strong>Barckhat LLC</strong>, pa yon sèvis konsèy legal oswa pwofesyonèl. Nou pa bay konsèy legal, finansye, oswa kontabilite. Enfòmasyon ak fòm sèvis sa a jenere baze sèlman sou done ou bay. Toujou konsilte yon pwofesyonèl kalifye pou konsèy espesifik pou sitiyasyon ou.",
     "sections": [
       {
         "title": "1. Deskripsyon Sèvis",
         "paragraphs": [
-          "Oky-Docky se yon pwodui Barckhat LLC. Li bay yon sèvis preparasyon dokiman otomatize ki ede itilizatè ranpli fòm taks IRS (tankou W-9, W-4, Form 14039, ak lòt) atravè yon entèfas kesyon-repons gide.",
+          "Oky-Docky se yon pwodui Barckhat LLC. Li bay yon sèvis preparasyon dokiman otomatize ki ede itilizatè ranpli fòm legal, biznis, ak travay atravè yon entèfas kesyon-repons gide.",
           "Sèvis la jenere dokiman PDF ki deja ranpli baze sou enfòmasyon itilizatè bay. Barckhat LLC pa verifye, valide, oswa garanti egzaktitid, konplètman, oswa sifizans legal okenn fòm ki jenere.",
-          "Barckhat LLC pa yon kabinè preparasyon taks anrejistre. Nou pa depoze fòm pou ou sof si sa di klèman nan yon akò sèvis peye separe."
+          "Barckhat LLC pa yon kabinè avoka oswa yon kabinè preparasyon taks anrejistre. Nou pa depoze fòm pou ou sof si sa di klèman nan yon akò sèvis peye separe."
         ]
       },
       {
@@ -225,16 +225,16 @@
         "paragraphs": [
           "OU SÈL AK EKSKLIZIVMAN RESPONSAB pou egzaktitid, konplètman, ak legalite tout enfòmasyon ou antre nan sèvis sa a. Barckhat LLC aji sèlman kòm yon founisè teknoloji epi pa gen okenn responsablite pou kontni soumisyon ou yo.",
           "OU SÈL RESPONSAB pou revize, verifye, siyen, depoze, ak soumèt tout dokiman ki jenere. Nenpòt erè, omisyon, oswa inegsaktitid nan done ou bay se responsablite ou nèt.",
-          "OU AKSEPTE TOUT RISK ak responsablite pou nenpòt penalite taks, amann, konsekans legal, odit, oswa lòt rezilta ki soti nan itilizasyon dokiman sèvis sa a jenere. Barckhat LLC pa dwe responsab pou okenn konsekans ki soti nan itilizasyon ou fè ak fòm ki jenere yo.",
-          "Ou rekonèt ke lwa taks yo konplèks epi sijè a chanjman. Se responsablite ou pou asire ke fòm ou jenere yo konfòm ak règleman IRS aktyèl yo ak lwa federal ak leta ki aplikab yo.",
-          "Ou dakò pou pa itilize sèvis sa a pou okenn objektif fwòd, ilegal, oswa twonpè, sa gen ladan men pa limite a vòl idantite, evazyon fiskal, oswa depo fo dokiman."
+          "OU AKSEPTE TOUT RISK ak responsablite pou nenpòt penalite, amann, konsekans legal, oswa lòt rezilta ki soti nan itilizasyon dokiman sèvis sa a jenere. Barckhat LLC pa dwe responsab pou okenn konsekans ki soti nan itilizasyon ou fè ak fòm ki jenere yo.",
+          "Ou rekonèt ke lwa ak règleman yo konplèks epi sijè a chanjman. Se responsablite ou pou asire ke fòm ou jenere yo konfòm ak lwa federal ak leta ki aplikab yo.",
+          "Ou dakò pou pa itilize sèvis sa a pou okenn objektif fwòd, ilegal, oswa twonpè, sa gen ladan men pa limite a vòl idantite oswa depo fo dokiman."
         ]
       },
       {
         "title": "3. Limitasyon Responsablite",
         "paragraphs": [
           "NAN LIMIT MAKSIMÒM LALWA PÈMÈT, BARCKHAT LLC, MANM LI YO, ADMINISTRATÈ, OFISYE, ANPLWAYE, AK AJAN PA DWE RESPONSAB POU OKENN DOMAJ DIRÈK, ENDIRÈK, ENSIDANTÈL, ESPESYAL, KONSEKANSYÈL, OSWA PINITIF KI SOTI NAN ITILIZASYON OU FÈ AK SÈVIS SA A.",
-          "Sa gen ladan, san limitasyon: erè nan fòm ki jenere, penalite oswa amann IRS oswa nenpòt ajans gouvènmantal enpoze, dat limit depo ki manke, kalkil taks ki pa kòrèk, deklarasyon ki rejte, konsekans vòl idantite, oswa nenpòt pèt finansyè ki soti nan konfyans nan fòm sèvis sa a jenere.",
+          "Sa gen ladan, san limitasyon: erè nan fòm ki jenere, penalite oswa amann nenpòt ajans gouvènmantal enpoze, dat limit ki manke, soumisyon ki rejte, oswa nenpòt pèt finansyè ki soti nan konfyans nan fòm sèvis sa a jenere.",
           "Barckhat LLC bay sèvis sa a sou yon baz \"TEL KE LI YE\" ak \"TEL KE LI DISPONIB\", san garanti okenn kalite, eksplisit oswa enplisite, sa gen ladan men pa limite a garanti sou komèsyalizasyon, aptitid pou yon objektif patikilye, oswa non-vyolasyon.",
           "Responsablite total Barckhat LLC pou nenpòt reklamasyon ki soti nan itilizasyon sèvis la pa dwe depase montan ou te peye pou sèvis la nan 12 mwa anvan reklamasyon an, oswa $100, kèlkeswa sa ki pi piti.",
           "Lè ou itilize sèvis sa a, ou dakò pou dedomaje epi kenbe Barckhat LLC san responsablite kont nenpòt reklamasyon, domaj, pèt, oswa depans (sa gen ladan frè avoka) ki soti nan itilizasyon ou fè ak sèvis la oswa nenpòt fòm ki jenere atravè li."
@@ -250,11 +250,11 @@
         ]
       },
       {
-        "title": "5. Avètisman IRS ak Regilatwa",
+        "title": "5. Avètisman Regilatwa",
         "paragraphs": [
-          "Oky-Docky ak Barckhat LLC pa afilye ak, andose pa, oswa konekte ak Internal Revenue Service (IRS) oswa okenn ajans gouvènmantal.",
-          "Modèl fòm IRS ki itilize nan sèvis sa a baze sou piblikasyon IRS ki disponib piblikman. Vèsyon fòm ak estrikti chan ka chanje; nou fè efò rezonab pou kenbe modèl yo ajou men nou pa garanti yo reflete dènye revizyon yo.",
-          "Pou fòm ofisyèl IRS, enstriksyon, ak piblikasyon, vizite www.irs.gov."
+          "Oky-Docky ak Barckhat LLC pa afilye ak, andose pa, oswa konekte ak okenn ajans gouvènmantal.",
+          "Modèl fòm ki itilize nan sèvis sa a baze sou dokiman ki disponib piblikman ak fòm legal estanda. Vèsyon fòm ak egzijans ka chanje; nou fè efò rezonab pou kenbe modèl yo ajou men nou pa garanti yo reflete dènye revizyon yo.",
+          "Pou fòm ofisyèl gouvènman ak enstriksyon, vizite sit entènèt ajans gouvènmantal ki konsène a."
         ]
       },
       {

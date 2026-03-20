@@ -1,0 +1,67 @@
+{
+  "_comment": "PDF field names need to be mapped after uploading the actual direct deposit PDF. Use the admin tool at /builder to detect PDF fields.",
+  "employee_name": "f1_01[0]",
+  "employee_id": "f1_02[0]",
+  "ssn_last4": "f1_03[0]",
+  "company_name": "f1_04[0]",
+  "action_type": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "new", "field": "c1_1[0]", "export_on": "/1" },
+      { "value": "change", "field": "c1_1[1]", "export_on": "/2" },
+      { "value": "cancel", "field": "c1_1[2]", "export_on": "/3" }
+    ]
+  },
+  "account_type": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "checking", "field": "c1_2[0]", "export_on": "/1" },
+      { "value": "savings", "field": "c1_2[1]", "export_on": "/2" }
+    ]
+  },
+  "bank_name": "f1_05[0]",
+  "routing_number": "f1_06[0]",
+  "account_number": "f1_07[0]",
+  "deposit_type": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "entire", "field": "c1_3[0]", "export_on": "/1" },
+      { "value": "fixed_amount", "field": "c1_3[1]", "export_on": "/2" },
+      { "value": "percentage", "field": "c1_3[2]", "export_on": "/3" }
+    ]
+  },
+  "deposit_amount": "f1_08[0]",
+  "deposit_percentage": "f1_09[0]",
+  "account2_type": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "checking", "field": "c1_4[0]", "export_on": "/1" },
+      { "value": "savings", "field": "c1_4[1]", "export_on": "/2" }
+    ]
+  },
+  "account2_bank_name": "f1_10[0]",
+  "account2_routing_number": "f1_11[0]",
+  "account2_account_number": "f1_12[0]",
+  "account2_deposit_type": {
+    "type": "radio_group",
+    "off_value": "/Off",
+    "choices": [
+      { "value": "remainder", "field": "c1_5[0]", "export_on": "/1" },
+      { "value": "fixed_amount", "field": "c1_5[1]", "export_on": "/2" },
+      { "value": "percentage", "field": "c1_5[2]", "export_on": "/3" }
+    ]
+  },
+  "account2_deposit_amount": "f1_13[0]",
+  "account2_deposit_percentage": "f1_14[0]",
+  "signature": {
+    "type": "signature",
+    "field": null,
+    "page": 0,
+    "rect": [50, 500, 350, 520]
+  },
+  "sign_date": "f1_15[0]"
+}

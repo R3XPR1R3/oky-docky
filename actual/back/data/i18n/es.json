@@ -10,10 +10,10 @@
     "termsDisclaimer": "Términos y aviso legal"
   },
   "landing": {
-    "badge": "Formularios del IRS simplificados",
+    "badge": "Documentos simplificados",
     "heroTitle": "Llena formularios como si",
     "heroTitleHighlight": "hablaras con un amigo",
-    "heroDescription": "No más papeleo confuso. Responde preguntas sencillas y nosotros nos encargamos del resto. Completa tus formularios del IRS en minutos.",
+    "heroDescription": "No más papeleo confuso. Responde preguntas sencillas y nosotros nos encargamos del resto. Arrendamientos, NDAs, formularios empresariales — en minutos.",
     "getStartedFree": "Comienza gratis",
     "seeHowItWorks": "Mira cómo funciona",
     "noCreditCard": "No se requiere tarjeta de crédito \u2022 Gratis para uso personal",
@@ -95,9 +95,9 @@
     "download": "Descargar",
     "whatsNext": "¿Qué sigue?",
     "nextSteps": [
-      "Descarga e imprime tu formulario, o envíalo electrónicamente",
+      "Descarga e imprime tu formulario, o envíalo",
       "Guarda una copia para tus registros",
-      "Revísalo con un profesional de impuestos si es necesario"
+      "Haz que todas las partes firmen si es necesario"
     ]
   },
   "ad": {
@@ -112,22 +112,22 @@
   "howItWorks": {
     "heroTitle": "Tres pasos.",
     "heroTitleHighlight": "Cero estrés.",
-    "heroDescription": "Convertimos el confuso papeleo del IRS en una conversación amigable. Así es como funciona.",
+    "heroDescription": "Convertimos el confuso papeleo en una conversación amigable. Así es como funciona.",
     "steps": [
       {
         "number": "01",
         "title": "Elige tu formulario",
-        "description": "Explora nuestra biblioteca de formularios del IRS — W-9, W-4, 1099-NEC y más. Cada formulario está optimizado con campos inteligentes que saben qué información necesitas."
+        "description": "Explora nuestra biblioteca de formularios legales, empresariales y laborales — arrendamientos, NDAs, contratos de servicios y más. Cada formulario está optimizado con campos inteligentes que saben qué información necesitas."
       },
       {
         "number": "02",
         "title": "Responde preguntas sencillas",
-        "description": "Sin jerga fiscal, sin confusión. Te hacemos una pregunta a la vez en lenguaje sencillo. La lógica inteligente muestra solo las preguntas relevantes para tu situación."
+        "description": "Sin jerga legal, sin confusión. Te hacemos una pregunta a la vez en lenguaje sencillo. La lógica inteligente muestra solo las preguntas relevantes para tu situación."
       },
       {
         "number": "03",
         "title": "Descarga y presenta",
-        "description": "Tu formulario completado se genera al instante como un PDF listo para presentar. Descárgalo, imprímelo o envíalo electrónicamente — ¡listo!"
+        "description": "Tu formulario completado se genera al instante como un PDF listo para usar. Descárgalo, imprímelo, fírmalo o envíalo — ¡listo!"
       }
     ],
     "ctaTitle": "¿Listo para probarlo?",
@@ -152,7 +152,7 @@
         "cta": "Comienza gratis",
         "features": [
           "2 formularios por mes",
-          "Plantillas W-9, W-4",
+          "Todas las plantillas básicas",
           "Descarga instantánea en PDF",
           "Preguntas y respuestas paso a paso",
           "Datos nunca almacenados"
@@ -166,7 +166,7 @@
         "cta": "Comenzar prueba Pro",
         "features": [
           "Formularios ilimitados",
-          "Todas las plantillas del IRS (W-9, W-4, 1099-NEC, ...)",
+          "Todas las plantillas (legales, empresariales, laborales, ...)",
           "Preguntas en lote — llena múltiples formularios a la vez",
           "Importación CSV para llenado masivo",
           "Instrucciones de presentación y listas de verificación",
@@ -190,10 +190,10 @@
       }
     ],
     "apiTitle": "Llena formularios a escala",
-    "apiDescription": "Integra Oky-Docky en tu flujo de trabajo con nuestra REST API. Envía datos, recibe PDFs completados. Perfecto para empresas de nómina, firmas contables y software de preparación de impuestos.",
+    "apiDescription": "Integra Oky-Docky en tu flujo de trabajo con nuestra REST API. Envía datos, recibe PDFs completados. Perfecto para empresas de nómina, firmas contables y software empresarial.",
     "apiBulk": "Procesamiento masivo",
     "apiSpeed": "Respuesta en menos de un segundo",
-    "apiComment": "# Llenar un W-9 vía API",
+    "apiComment": "# Llenar un formulario vía API",
     "contactTitle": "Contáctanos",
     "contactDescription": "¿Interesado en Pro, Enterprise o tienes preguntas? Escríbenos.",
     "contactName": "Nombre *",
@@ -210,14 +210,14 @@
     "title": "Términos de servicio y aviso legal",
     "lastUpdated": "Última actualización: febrero 2026",
     "importantNotice": "Aviso importante",
-    "importantNoticeText": "Oky-Docky es una <strong>herramienta de preparación de documentos</strong> operada por <strong>Barckhat LLC</strong>, no un servicio de asesoría fiscal. No proporcionamos asesoramiento fiscal, legal, financiero ni contable. La información y los formularios generados por este servicio se basan únicamente en los datos que usted proporciona. Siempre consulte a un profesional fiscal calificado para obtener asesoramiento específico a su situación.",
+    "importantNoticeText": "Oky-Docky es una <strong>herramienta de preparación de documentos</strong> operada por <strong>Barckhat LLC</strong>, no un servicio de asesoría legal o profesional. No proporcionamos asesoramiento legal, financiero ni contable. La información y los formularios generados por este servicio se basan únicamente en los datos que usted proporciona. Siempre consulte a un profesional calificado para obtener asesoramiento específico a su situación.",
     "sections": [
       {
         "title": "1. Descripción del servicio",
         "paragraphs": [
-          "Oky-Docky es un producto de Barckhat LLC. Proporciona un servicio automatizado de preparación de documentos que ayuda a los usuarios a completar formularios fiscales del IRS (como W-9, W-4, Form 14039 y otros) a través de una interfaz guiada de preguntas y respuestas.",
+          "Oky-Docky es un producto de Barckhat LLC. Proporciona un servicio automatizado de preparación de documentos que ayuda a los usuarios a completar formularios legales, empresariales y laborales a través de una interfaz guiada de preguntas y respuestas.",
           "El servicio genera documentos PDF prellenados basados en la información proporcionada por el usuario. Barckhat LLC no verifica, valida ni garantiza la exactitud, integridad o suficiencia legal de ningún formulario generado.",
-          "Barckhat LLC no es una firma registrada de preparación de impuestos. No presentamos formularios en su nombre a menos que se indique explícitamente en un acuerdo de servicio pagado por separado."
+          "Barckhat LLC no es un bufete de abogados ni una firma registrada de preparación de impuestos. No presentamos formularios en su nombre a menos que se indique explícitamente en un acuerdo de servicio pagado por separado."
         ]
       },
       {
@@ -225,16 +225,16 @@
         "paragraphs": [
           "USTED ES ÚNICA Y EXCLUSIVAMENTE RESPONSABLE de la exactitud, integridad y legalidad de toda la información que ingresa en este servicio. Barckhat LLC actúa únicamente como proveedor de tecnología y no asume responsabilidad alguna por el contenido de sus envíos.",
           "USTED ES EL ÚNICO RESPONSABLE de revisar, verificar, firmar, presentar y enviar todos los documentos generados. Cualquier error, omisión o inexactitud en los datos que proporcione es enteramente su responsabilidad.",
-          "USTED ASUME TODO EL RIESGO y la responsabilidad por cualquier multa fiscal, sanción, consecuencia legal, auditoría u otros resultados derivados del uso de documentos generados por este servicio. Barckhat LLC no será responsable de ninguna consecuencia derivada de su uso de los formularios generados.",
-          "Usted reconoce que las leyes fiscales son complejas y están sujetas a cambios. Es su responsabilidad asegurarse de que los formularios que genere cumplan con las regulaciones vigentes del IRS y las leyes federales y estatales aplicables.",
-          "Usted acepta no utilizar este servicio para ningún propósito fraudulento, ilegal o engañoso, incluyendo pero no limitado a robo de identidad, evasión fiscal o presentación de documentos falsos."
+          "USTED ASUME TODO EL RIESGO y la responsabilidad por cualquier sanción, multa, consecuencia legal u otros resultados derivados del uso de documentos generados por este servicio. Barckhat LLC no será responsable de ninguna consecuencia derivada de su uso de los formularios generados.",
+          "Usted reconoce que las leyes y regulaciones son complejas y están sujetas a cambios. Es su responsabilidad asegurarse de que los formularios que genere cumplan con las leyes federales y estatales aplicables.",
+          "Usted acepta no utilizar este servicio para ningún propósito fraudulento, ilegal o engañoso, incluyendo pero no limitado a robo de identidad o presentación de documentos falsos."
         ]
       },
       {
         "title": "3. Limitación de responsabilidad",
         "paragraphs": [
           "EN LA MÁXIMA MEDIDA PERMITIDA POR LA LEY, BARCKHAT LLC, SUS MIEMBROS, GERENTES, DIRECTIVOS, EMPLEADOS Y AGENTES NO SERÁN RESPONSABLES DE NINGÚN DAÑO DIRECTO, INDIRECTO, INCIDENTAL, ESPECIAL, CONSECUENTE O PUNITIVO DERIVADO DE SU USO DE ESTE SERVICIO.",
-          "Esto incluye, sin limitación: errores en los formularios generados, multas o sanciones impuestas por el IRS o cualquier agencia gubernamental, plazos de presentación incumplidos, cálculos fiscales incorrectos, declaraciones rechazadas, consecuencias de robo de identidad o cualquier pérdida financiera resultante de la confianza en los formularios generados por este servicio.",
+          "Esto incluye, sin limitación: errores en los formularios generados, multas o sanciones impuestas por cualquier agencia gubernamental, plazos incumplidos, envíos rechazados o cualquier pérdida financiera resultante de la confianza en los formularios generados por este servicio.",
           "Barckhat LLC proporciona este servicio \"TAL CUAL\" y \"SEGÚN DISPONIBILIDAD\", sin garantías de ningún tipo, expresas o implícitas, incluyendo pero no limitado a garantías de comerciabilidad, idoneidad para un propósito particular o no infracción.",
           "La responsabilidad total de Barckhat LLC por cualquier reclamación derivada del uso del servicio no excederá la cantidad que usted pagó por el servicio en los 12 meses anteriores a la reclamación, o $100, lo que sea menor.",
           "Al utilizar este servicio, usted acepta indemnizar y mantener indemne a Barckhat LLC de cualquier reclamación, daño, pérdida o gasto (incluidos honorarios de abogados) derivados de su uso del servicio o de cualquier formulario generado a través del mismo."
@@ -250,11 +250,11 @@
         ]
       },
       {
-        "title": "5. Aviso legal sobre el IRS y regulaciones",
+        "title": "5. Aviso legal regulatorio",
         "paragraphs": [
-          "Oky-Docky y Barckhat LLC no están afiliados, respaldados ni conectados con el Servicio de Impuestos Internos (IRS) ni con ninguna agencia gubernamental.",
-          "Las plantillas de formularios del IRS utilizadas en este servicio se basan en publicaciones del IRS disponibles públicamente. Las versiones de los formularios y las estructuras de campos pueden cambiar; hacemos esfuerzos razonables para mantener las plantillas actualizadas, pero no garantizamos que reflejen las últimas revisiones.",
-          "Para formularios oficiales del IRS, instrucciones y publicaciones, visite www.irs.gov."
+          "Oky-Docky y Barckhat LLC no están afiliados, respaldados ni conectados con ninguna agencia gubernamental.",
+          "Las plantillas de formularios utilizadas en este servicio se basan en documentos disponibles públicamente y formularios legales estándar. Las versiones de los formularios y los requisitos pueden cambiar; hacemos esfuerzos razonables para mantener las plantillas actualizadas, pero no garantizamos que reflejen las últimas revisiones.",
+          "Para formularios e instrucciones oficiales del gobierno, visite el sitio web de la agencia gubernamental correspondiente."
         ]
       },
       {

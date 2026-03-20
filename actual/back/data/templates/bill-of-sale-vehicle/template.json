@@ -1,0 +1,14 @@
+{
+  "id": "bill-of-sale-vehicle",
+  "engine": "acroform",
+  "pdf": "bill-of-sale-vehicle.pdf",
+  "schema": "schema.json",
+  "mapping": "mapping.json",
+  "title": "Vehicle Bill of Sale",
+  "description": "Document the sale of a car, truck, or motorcycle with a legal bill of sale",
+  "category": "legal",
+  "tags": ["bill of sale", "vehicle", "car", "auto", "sale", "transfer", "dmv"],
+  "country": "US",
+  "popular": true,
+  "estimated_time": "5 min"
+}

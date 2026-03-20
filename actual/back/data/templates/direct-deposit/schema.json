@@ -1,0 +1,308 @@
+{
+  "fields": [
+    {
+      "key": "employee_name",
+      "type": "text",
+      "required": true,
+      "label": "What is your full name?",
+      "placeholder": "Maria Williams",
+      "helpText": "First and last name, as it appears on your paycheck."
+    },
+    {
+      "key": "employee_id",
+      "type": "text",
+      "required": false,
+      "label": "What is your Employee ID?",
+      "placeholder": "EMP-12345",
+      "helpText": "Your employee ID number, if you have one. Check your badge or ask HR if you're not sure."
+    },
+    {
+      "key": "ssn_last4",
+      "type": "text",
+      "required": false,
+      "label": "Last 4 digits of your SSN?",
+      "placeholder": "6789",
+      "helpText": "Just the last four digits of your Social Security Number. Used to verify your identity.",
+      "inputMask": "DDDD",
+      "maxLength": 4
+    },
+    {
+      "key": "company_name",
+      "type": "text",
+      "required": true,
+      "label": "What company do you work for?",
+      "placeholder": "Acme Corporation",
+      "helpText": "The name of your employer."
+    },
+    {
+      "key": "action_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "What would you like to do?",
+      "helpText": "Are you setting up direct deposit for the first time, changing your bank info, or canceling?",
+      "options": [
+        {
+          "value": "new",
+          "label": "Set up direct deposit for the first time"
+        },
+        {
+          "value": "change",
+          "label": "Change my existing direct deposit"
+        },
+        {
+          "value": "cancel",
+          "label": "Cancel direct deposit (go back to paper checks)"
+        }
+      ]
+    },
+    {
+      "key": "account_type",
+      "type": "radio",
+      "required": true,
+      "label": "What type of bank account?",
+      "helpText": "Choose the type of account where you want your paycheck deposited.",
+      "visible_when": {
+        "action_type": ["new", "change"]
+      },
+      "options": [
+        {
+          "value": "checking",
+          "label": "Checking account"
+        },
+        {
+          "value": "savings",
+          "label": "Savings account"
+        }
+      ]
+    },
+    {
+      "key": "bank_name",
+      "type": "text",
+      "required": true,
+      "label": "What is your bank's name?",
+      "placeholder": "Chase Bank",
+      "helpText": "The name of the bank or credit union where you want your pay deposited.",
+      "visible_when": {
+        "action_type": ["new", "change"]
+      }
+    },
+    {
+      "key": "routing_number",
+      "type": "text",
+      "required": true,
+      "label": "What is the routing number?",
+      "placeholder": "021000021",
+      "helpText": "A 9-digit number that identifies your bank. You can find it at the bottom-left of a check, or in your bank's mobile app under account details.",
+      "inputMask": "DDDDDDDDD",
+      "maxLength": 9,
+      "visible_when": {
+        "action_type": ["new", "change"]
+      }
+    },
+    {
+      "key": "account_number",
+      "type": "text",
+      "required": true,
+      "label": "What is your account number?",
+      "placeholder": "123456789012",
+      "helpText": "Your bank account number. Found on checks (the middle number at the bottom) or in your bank's app. Double-check this carefully — a wrong digit means your pay goes to the wrong place!",
+      "visible_when": {
+        "action_type": ["new", "change"]
+      }
+    },
+    {
+      "key": "deposit_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "How much of your paycheck should go to this account?",
+      "helpText": "You can deposit your entire paycheck, a fixed dollar amount, or a percentage.",
+      "visible_when": {
+        "action_type": ["new", "change"]
+      },
+      "options": [
+        {
+          "value": "entire",
+          "label": "My entire paycheck"
+        },
+        {
+          "value": "fixed_amount",
+          "label": "A specific dollar amount"
+        },
+        {
+          "value": "percentage",
+          "label": "A specific percentage"
+        }
+      ]
+    },
+    {
+      "key": "deposit_amount",
+      "type": "text",
+      "required": true,
+      "label": "How much per paycheck?",
+      "placeholder": "500.00",
+      "helpText": "Enter the dollar amount you want deposited into this account each pay period.",
+      "visible_when": {
+        "deposit_type": ["fixed_amount"]
+      }
+    },
+    {
+      "key": "deposit_percentage",
+      "type": "text",
+      "required": true,
+      "label": "What percentage of your paycheck?",
+      "placeholder": "75",
+      "helpText": "Enter a number from 1 to 100. For example, enter 75 to deposit 75% of your pay.",
+      "visible_when": {
+        "deposit_type": ["percentage"]
+      }
+    },
+    {
+      "key": "has_second_account",
+      "type": "radio",
+      "required": false,
+      "routing": true,
+      "label": "Do you want to split your pay into a second account?",
+      "helpText": "Some people split their paycheck — for example, putting a portion into savings and the rest into checking.",
+      "visible_when": {
+        "deposit_type": ["fixed_amount", "percentage"]
+      },
+      "options": [
+        {
+          "value": "no",
+          "label": "No, just one account"
+        },
+        {
+          "value": "yes",
+          "label": "Yes, add a second account"
+        }
+      ]
+    },
+    {
+      "key": "account2_type",
+      "type": "radio",
+      "required": true,
+      "label": "What type is your second account?",
+      "visible_when": {
+        "has_second_account": ["yes"]
+      },
+      "options": [
+        {
+          "value": "checking",
+          "label": "Checking account"
+        },
+        {
+          "value": "savings",
+          "label": "Savings account"
+        }
+      ]
+    },
+    {
+      "key": "account2_bank_name",
+      "type": "text",
+      "required": true,
+      "label": "Second account bank name?",
+      "placeholder": "Ally Bank",
+      "helpText": "The bank or credit union for your second account.",
+      "visible_when": {
+        "has_second_account": ["yes"]
+      }
+    },
+    {
+      "key": "account2_routing_number",
+      "type": "text",
+      "required": true,
+      "label": "Second account routing number?",
+      "placeholder": "124003116",
+      "helpText": "The 9-digit routing number for your second bank.",
+      "inputMask": "DDDDDDDDD",
+      "maxLength": 9,
+      "visible_when": {
+        "has_second_account": ["yes"]
+      }
+    },
+    {
+      "key": "account2_account_number",
+      "type": "text",
+      "required": true,
+      "label": "Second account number?",
+      "placeholder": "987654321012",
+      "helpText": "The account number for your second bank account.",
+      "visible_when": {
+        "has_second_account": ["yes"]
+      }
+    },
+    {
+      "key": "account2_deposit_type",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "How much goes into the second account?",
+      "helpText": "The remainder after your first account deposit goes here, or you can specify an amount or percentage.",
+      "visible_when": {
+        "has_second_account": ["yes"]
+      },
+      "options": [
+        {
+          "value": "remainder",
+          "label": "Whatever is left over (remainder)"
+        },
+        {
+          "value": "fixed_amount",
+          "label": "A specific dollar amount"
+        },
+        {
+          "value": "percentage",
+          "label": "A specific percentage"
+        }
+      ]
+    },
+    {
+      "key": "account2_deposit_amount",
+      "type": "text",
+      "required": true,
+      "label": "Dollar amount for the second account?",
+      "placeholder": "200.00",
+      "helpText": "The fixed dollar amount to deposit into your second account each pay period.",
+      "visible_when": {
+        "account2_deposit_type": ["fixed_amount"]
+      }
+    },
+    {
+      "key": "account2_deposit_percentage",
+      "type": "text",
+      "required": true,
+      "label": "Percentage for the second account?",
+      "placeholder": "25",
+      "helpText": "The percentage of your paycheck to deposit into your second account.",
+      "visible_when": {
+        "account2_deposit_type": ["percentage"]
+      }
+    },
+    {
+      "key": "signature",
+      "type": "signature",
+      "required": true,
+      "label": "Your signature",
+      "helpText": "By signing, you authorize your employer to deposit your pay into the account(s) listed above. This authorization stays in effect until you submit a new form or cancel it in writing."
+    },
+    {
+      "key": "sign_date",
+      "type": "text",
+      "required": true,
+      "label": "Today's date",
+      "placeholder": "03/20/2026",
+      "helpText": "The date you are signing this form.",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10
+    }
+  ],
+  "transforms": [
+    {
+      "type": "auto_date",
+      "output": "sign_date",
+      "format": "MM/DD/YYYY"
+    }
+  ]
+}
