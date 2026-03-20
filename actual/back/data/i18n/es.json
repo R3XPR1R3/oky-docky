@@ -95,7 +95,7 @@
     "download": "Descargar",
     "whatsNext": "¿Qué sigue?",
     "nextSteps": [
-      "Descarga e imprime tu formulario, o envíalo electrónicamente",
+      "Descarga e imprime tu formulario, o envíalo",
       "Guarda una copia para tus registros",
       "Haz que todas las partes firmen si es necesario"
     ]
@@ -234,7 +234,7 @@
         "title": "3. Limitación de responsabilidad",
         "paragraphs": [
           "EN LA MÁXIMA MEDIDA PERMITIDA POR LA LEY, BARCKHAT LLC, SUS MIEMBROS, GERENTES, DIRECTIVOS, EMPLEADOS Y AGENTES NO SERÁN RESPONSABLES DE NINGÚN DAÑO DIRECTO, INDIRECTO, INCIDENTAL, ESPECIAL, CONSECUENTE O PUNITIVO DERIVADO DE SU USO DE ESTE SERVICIO.",
-          "Esto incluye, sin limitación: errores en los formularios generados, multas o sanciones impuestas por el IRS o cualquier agencia gubernamental, plazos de presentación incumplidos, cálculos fiscales incorrectos, declaraciones rechazadas, consecuencias de robo de identidad o cualquier pérdida financiera resultante de la confianza en los formularios generados por este servicio.",
+          "Esto incluye, sin limitación: errores en los formularios generados, multas o sanciones impuestas por cualquier agencia gubernamental, plazos incumplidos, envíos rechazados o cualquier pérdida financiera resultante de la confianza en los formularios generados por este servicio.",
           "Barckhat LLC proporciona este servicio \"TAL CUAL\" y \"SEGÚN DISPONIBILIDAD\", sin garantías de ningún tipo, expresas o implícitas, incluyendo pero no limitado a garantías de comerciabilidad, idoneidad para un propósito particular o no infracción.",
           "La responsabilidad total de Barckhat LLC por cualquier reclamación derivada del uso del servicio no excederá la cantidad que usted pagó por el servicio en los 12 meses anteriores a la reclamación, o $100, lo que sea menor.",
           "Al utilizar este servicio, usted acepta indemnizar y mantener indemne a Barckhat LLC de cualquier reclamación, daño, pérdida o gasto (incluidos honorarios de abogados) derivados de su uso del servicio o de cualquier formulario generado a través del mismo."
@@ -250,11 +250,11 @@
         ]
       },
       {
-        "title": "5. Aviso legal sobre el IRS y regulaciones",
+        "title": "5. Aviso legal regulatorio",
         "paragraphs": [
-          "Oky-Docky y Barckhat LLC no están afiliados, respaldados ni conectados con el Servicio de Impuestos Internos (IRS) ni con ninguna agencia gubernamental.",
-          "Las plantillas de formularios del IRS utilizadas en este servicio se basan en publicaciones del IRS disponibles públicamente. Las versiones de los formularios y las estructuras de campos pueden cambiar; hacemos esfuerzos razonables para mantener las plantillas actualizadas, pero no garantizamos que reflejen las últimas revisiones.",
-          "Para formularios oficiales del IRS, instrucciones y publicaciones, visite www.irs.gov."
+          "Oky-Docky y Barckhat LLC no están afiliados, respaldados ni conectados con ninguna agencia gubernamental.",
+          "Las plantillas de formularios utilizadas en este servicio se basan en documentos disponibles públicamente y formularios legales estándar. Las versiones de los formularios y los requisitos pueden cambiar; hacemos esfuerzos razonables para mantener las plantillas actualizadas, pero no garantizamos que reflejen las últimas revisiones.",
+          "Para formularios e instrucciones oficiales del gobierno, visite el sitio web de la agencia gubernamental correspondiente."
         ]
       },
       {
