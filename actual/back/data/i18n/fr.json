@@ -152,7 +152,7 @@
         "cta": "Commencer gratuitement",
         "features": [
           "2 formulaires par mois",
-          "Mod\u00e8les W-9, W-4",
+          "Tous les mod\u00e8les de base",
           "T\u00e9l\u00e9chargement PDF instantan\u00e9",
           "Questions-r\u00e9ponses \u00e9tape par \u00e9tape",
           "Donn\u00e9es jamais stock\u00e9es"
@@ -166,7 +166,7 @@
         "cta": "Essayer Pro",
         "features": [
           "Formulaires illimit\u00e9s",
-          "Tous les mod\u00e8les IRS (W-9, W-4, 1099-NEC, ...)",
+          "Tous les mod\u00e8les (juridiques, commerciaux, emploi, ...)",
           "Questions-r\u00e9ponses group\u00e9es \u2014 remplissez plusieurs formulaires \u00e0 la fois",
           "Import CSV pour le remplissage en masse",
           "Instructions de d\u00e9p\u00f4t et listes de v\u00e9rification",
@@ -193,7 +193,7 @@
     "apiDescription": "Int\u00e9grez Oky-Docky dans votre flux de travail gr\u00e2ce \u00e0 notre REST API. Envoyez des donn\u00e9es, recevez des PDF remplis. Parfait pour les entreprises de paie, les cabinets comptables et les logiciels de pr\u00e9paration fiscale.",
     "apiBulk": "Traitement en masse",
     "apiSpeed": "R\u00e9ponse en moins d\u2019une seconde",
-    "apiComment": "# Remplir un W-9 via API",
+    "apiComment": "# Remplir un formulaire via API",
     "contactTitle": "Contactez-nous",
     "contactDescription": "Int\u00e9ress\u00e9 par Pro, Entreprise, ou vous avez des questions\u00a0? \u00c9crivez-nous.",
     "contactName": "Nom *",
