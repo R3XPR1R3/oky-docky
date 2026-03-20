@@ -1,67 +1,67 @@
 {
-  "principal_name": "TODO_principal_name_field",
-  "principal_dob": "TODO_principal_dob_field",
-  "principal_full_address": "TODO_principal_address_field",
-  "principal_street": "TODO_principal_street_field",
-  "principal_city": "TODO_principal_city_field",
-  "principal_state": "TODO_principal_state_field",
-  "principal_zip": "TODO_principal_zip_field",
+  "principal_name": "f1_01[0]",
+  "principal_dob": "f1_02[0]",
+  "principal_full_address": "f1_03[0]",
+  "principal_street": "f1_04[0]",
+  "principal_city": "f1_05[0]",
+  "principal_state": "f1_06[0]",
+  "principal_zip": "f1_07[0]",
 
-  "agent_name": "TODO_agent_name_field",
-  "agent_full_address": "TODO_agent_address_field",
-  "agent_street": "TODO_agent_street_field",
-  "agent_city": "TODO_agent_city_field",
-  "agent_state": "TODO_agent_state_field",
-  "agent_zip": "TODO_agent_zip_field",
-  "agent_phone": "TODO_agent_phone_field",
-  "agent_relationship": "TODO_agent_relationship_field",
-  "agent_relationship_other": "TODO_agent_relationship_other_field",
+  "agent_name": "f1_08[0]",
+  "agent_full_address": "f1_09[0]",
+  "agent_street": "f1_10[0]",
+  "agent_city": "f1_11[0]",
+  "agent_state": "f1_12[0]",
+  "agent_zip": "f1_13[0]",
+  "agent_phone": "f1_14[0]",
+  "agent_relationship": "f1_15[0]",
+  "agent_relationship_other": "f1_16[0]",
 
   "authority_financial": {
     "type": "checkbox",
-    "field": "TODO_authority_financial_field",
+    "field": "c1_1[0]",
     "checked_value": "/Yes",
     "unchecked_value": "/Off"
   },
   "authority_real_estate": {
     "type": "checkbox",
-    "field": "TODO_authority_real_estate_field",
+    "field": "c1_2[0]",
     "checked_value": "/Yes",
     "unchecked_value": "/Off"
   },
   "authority_legal": {
     "type": "checkbox",
-    "field": "TODO_authority_legal_field",
+    "field": "c1_3[0]",
     "checked_value": "/Yes",
     "unchecked_value": "/Off"
   },
   "authority_healthcare": {
     "type": "checkbox",
-    "field": "TODO_authority_healthcare_field",
+    "field": "c1_4[0]",
     "checked_value": "/Yes",
     "unchecked_value": "/Off"
   },
   "authority_business": {
     "type": "checkbox",
-    "field": "TODO_authority_business_field",
+    "field": "c1_5[0]",
     "checked_value": "/Yes",
     "unchecked_value": "/Off"
   },
   "authority_government": {
     "type": "checkbox",
-    "field": "TODO_authority_government_field",
+    "field": "c1_6[0]",
     "checked_value": "/Yes",
     "unchecked_value": "/Off"
   },
   "authority_tax": {
     "type": "checkbox",
-    "field": "TODO_authority_tax_field",
+    "field": "c1_7[0]",
     "checked_value": "/Yes",
     "unchecked_value": "/Off"
   },
   "authority_all": {
     "type": "checkbox",
-    "field": "TODO_authority_all_field",
+    "field": "c1_8[0]",
     "checked_value": "/Yes",
     "unchecked_value": "/Off"
   },
@@ -70,32 +70,32 @@
     "type": "radio_group",
     "off_value": "/Off",
     "choices": [
-      { "value": "immediately", "field": "TODO_duration_immediately_field", "export_on": "/1" },
-      { "value": "specific_date", "field": "TODO_duration_specific_field", "export_on": "/2" },
-      { "value": "springing", "field": "TODO_duration_springing_field", "export_on": "/3" }
+      { "value": "immediately", "field": "c1_9[0]", "export_on": "/1" },
+      { "value": "specific_date", "field": "c1_9[1]", "export_on": "/2" },
+      { "value": "springing", "field": "c1_9[2]", "export_on": "/3" }
     ]
   },
-  "effective_date": "TODO_effective_date_field",
+  "effective_date": "f1_17[0]",
 
   "termination": {
     "type": "radio_group",
     "off_value": "/Off",
     "choices": [
-      { "value": "until_revoked", "field": "TODO_termination_revoked_field", "export_on": "/1" },
-      { "value": "specific_end_date", "field": "TODO_termination_date_field", "export_on": "/2" },
-      { "value": "upon_incapacity", "field": "TODO_termination_incapacity_field", "export_on": "/3" }
+      { "value": "until_revoked", "field": "c1_10[0]", "export_on": "/1" },
+      { "value": "specific_end_date", "field": "c1_10[1]", "export_on": "/2" },
+      { "value": "upon_incapacity", "field": "c1_10[2]", "export_on": "/3" }
     ]
   },
-  "end_date": "TODO_end_date_field",
+  "end_date": "f1_18[0]",
 
-  "successor_name": "TODO_successor_name_field",
-  "successor_contact": "TODO_successor_contact_field",
+  "successor_name": "f1_19[0]",
+  "successor_contact": "f1_20[0]",
 
   "signature": {
     "type": "signature",
     "field": null,
     "page": 1,
-    "rect": "TODO_signature_rect"
+    "rect": [65, 80, 300, 100]
   },
-  "sign_date": "TODO_sign_date_field"
+  "sign_date": "f1_21[0]"
 }

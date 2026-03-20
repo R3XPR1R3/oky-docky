@@ -1,38 +1,38 @@
 {
-  "party1_display_name": "TODO_party1_name_field",
-  "party1_company_name": "TODO_party1_company_field",
-  "party1_rep_name": "TODO_party1_rep_name_field",
-  "party1_rep_title": "TODO_party1_rep_title_field",
-  "party1_address": "TODO_party1_address_field",
-  "party1_city": "TODO_party1_city_field",
-  "party1_state": "TODO_party1_state_field",
-  "party1_zip": "TODO_party1_zip_field",
-  "party1_email": "TODO_party1_email_field",
+  "party1_display_name": "f1_01[0]",
+  "party1_company_name": "f1_02[0]",
+  "party1_rep_name": "f1_03[0]",
+  "party1_rep_title": "f1_04[0]",
+  "party1_address": "f1_05[0]",
+  "party1_city": "f1_06[0]",
+  "party1_state": "f1_07[0]",
+  "party1_zip": "f1_08[0]",
+  "party1_email": "f1_09[0]",
 
-  "party2_display_name": "TODO_party2_name_field",
-  "party2_company_name": "TODO_party2_company_field",
-  "party2_rep_name": "TODO_party2_rep_name_field",
-  "party2_rep_title": "TODO_party2_rep_title_field",
-  "party2_address": "TODO_party2_address_field",
-  "party2_city": "TODO_party2_city_field",
-  "party2_state": "TODO_party2_state_field",
-  "party2_zip": "TODO_party2_zip_field",
-  "party2_email": "TODO_party2_email_field",
+  "party2_display_name": "f1_10[0]",
+  "party2_company_name": "f1_11[0]",
+  "party2_rep_name": "f1_12[0]",
+  "party2_rep_title": "f1_13[0]",
+  "party2_address": "f1_14[0]",
+  "party2_city": "f1_15[0]",
+  "party2_state": "f1_16[0]",
+  "party2_zip": "f1_17[0]",
+  "party2_email": "f1_18[0]",
 
-  "nda_purpose": "TODO_purpose_field",
-  "governing_state": "TODO_governing_state_field",
+  "nda_purpose": "f1_19[0]",
+  "governing_state": "f1_20[0]",
 
   "effective_date": {
     "type": "date_split",
-    "fields": { "mm": "TODO_date_mm", "dd": "TODO_date_dd", "yyyy": "TODO_date_yyyy" }
+    "fields": { "mm": "f1_21[0]", "dd": "f1_22[0]", "yyyy": "f1_23[0]" }
   },
 
   "nda_type": {
     "type": "radio_group",
     "off_value": "/Off",
     "choices": [
-      { "value": "mutual", "field": "TODO_nda_type_mutual", "export_on": "/1" },
-      { "value": "one_way", "field": "TODO_nda_type_oneway", "export_on": "/2" }
+      { "value": "mutual", "field": "c1_1[0]", "export_on": "/1" },
+      { "value": "one_way", "field": "c1_1[1]", "export_on": "/2" }
     ]
   },
 
@@ -40,11 +40,11 @@
     "type": "radio_group",
     "off_value": "/Off",
     "choices": [
-      { "value": "1_year", "field": "TODO_duration_1yr", "export_on": "/1" },
-      { "value": "2_years", "field": "TODO_duration_2yr", "export_on": "/2" },
-      { "value": "3_years", "field": "TODO_duration_3yr", "export_on": "/3" },
-      { "value": "5_years", "field": "TODO_duration_5yr", "export_on": "/4" },
-      { "value": "indefinite", "field": "TODO_duration_indef", "export_on": "/5" }
+      { "value": "1_year", "field": "c1_2[0]", "export_on": "/1" },
+      { "value": "2_years", "field": "c1_2[1]", "export_on": "/2" },
+      { "value": "3_years", "field": "c1_2[2]", "export_on": "/3" },
+      { "value": "5_years", "field": "c1_2[3]", "export_on": "/4" },
+      { "value": "indefinite", "field": "c1_2[4]", "export_on": "/5" }
     ]
   },
 
@@ -52,9 +52,9 @@
     "type": "radio_group",
     "off_value": "/Off",
     "choices": [
-      { "value": "with_consent", "field": "TODO_sharing_consent", "export_on": "/1" },
-      { "value": "without_consent", "field": "TODO_sharing_noconsent", "export_on": "/2" },
-      { "value": "no", "field": "TODO_sharing_no", "export_on": "/3" }
+      { "value": "with_consent", "field": "c1_3[0]", "export_on": "/1" },
+      { "value": "without_consent", "field": "c1_3[1]", "export_on": "/2" },
+      { "value": "no", "field": "c1_3[2]", "export_on": "/3" }
     ]
   },
 
@@ -62,23 +62,23 @@
     "type": "radio_group",
     "off_value": "/Off",
     "choices": [
-      { "value": "monetary", "field": "TODO_remedy_monetary", "export_on": "/1" },
-      { "value": "injunctive", "field": "TODO_remedy_injunctive", "export_on": "/2" },
-      { "value": "both", "field": "TODO_remedy_both", "export_on": "/3" }
+      { "value": "monetary", "field": "c1_4[0]", "export_on": "/1" },
+      { "value": "injunctive", "field": "c1_4[1]", "export_on": "/2" },
+      { "value": "both", "field": "c1_4[2]", "export_on": "/3" }
     ]
   },
 
   "confidential_types": {
     "type": "checkbox_group",
     "choices": [
-      { "value": "business_plans", "field": "TODO_conf_business", "checked_value": "/Yes", "unchecked_value": "/Off" },
-      { "value": "financial_info", "field": "TODO_conf_financial", "checked_value": "/Yes", "unchecked_value": "/Off" },
-      { "value": "customer_lists", "field": "TODO_conf_customers", "checked_value": "/Yes", "unchecked_value": "/Off" },
-      { "value": "technical_data", "field": "TODO_conf_technical", "checked_value": "/Yes", "unchecked_value": "/Off" },
-      { "value": "product_designs", "field": "TODO_conf_products", "checked_value": "/Yes", "unchecked_value": "/Off" },
-      { "value": "marketing", "field": "TODO_conf_marketing", "checked_value": "/Yes", "unchecked_value": "/Off" },
-      { "value": "employee_info", "field": "TODO_conf_employee", "checked_value": "/Yes", "unchecked_value": "/Off" },
-      { "value": "software", "field": "TODO_conf_software", "checked_value": "/Yes", "unchecked_value": "/Off" }
+      { "value": "business_plans", "field": "c1_5[0]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "financial_info", "field": "c1_5[1]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "customer_lists", "field": "c1_5[2]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "technical_data", "field": "c1_5[3]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "product_designs", "field": "c1_5[4]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "marketing", "field": "c1_5[5]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "employee_info", "field": "c1_5[6]", "checked_value": "/Yes", "unchecked_value": "/Off" },
+      { "value": "software", "field": "c1_5[7]", "checked_value": "/Yes", "unchecked_value": "/Off" }
     ]
   },
 

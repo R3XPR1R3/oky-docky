@@ -1,58 +1,58 @@
 {
   "_comment": "PDF field names need to be mapped after uploading the actual I-9 PDF. Use the admin tool at /builder to detect PDF fields.",
-  "last_name": "TODO",
-  "first_name": "TODO",
-  "middle_initial": "TODO",
-  "other_last_names": "TODO",
-  "address_street": "TODO",
-  "address_apt": "TODO",
-  "address_city": "TODO",
-  "address_state": "TODO",
-  "address_zip": "TODO",
-  "date_of_birth": "TODO",
-  "ssn": "TODO",
-  "email": "TODO",
-  "phone": "TODO",
+  "last_name": "f1_01[0]",
+  "first_name": "f1_02[0]",
+  "middle_initial": "f1_03[0]",
+  "other_last_names": "f1_04[0]",
+  "address_street": "f1_05[0]",
+  "address_apt": "f1_06[0]",
+  "address_city": "f1_07[0]",
+  "address_state": "f1_08[0]",
+  "address_zip": "f1_09[0]",
+  "date_of_birth": "f1_10[0]",
+  "ssn": "f1_11[0]",
+  "email": "f1_12[0]",
+  "phone": "f1_13[0]",
   "citizenship_status": {
     "type": "radio_group",
     "off_value": "/Off",
     "choices": [
-      { "value": "us_citizen", "field": "TODO", "export_on": "/1" },
-      { "value": "noncitizen_national", "field": "TODO", "export_on": "/2" },
-      { "value": "permanent_resident", "field": "TODO", "export_on": "/3" },
-      { "value": "alien_authorized", "field": "TODO", "export_on": "/4" }
+      { "value": "us_citizen", "field": "c1_1[0]", "export_on": "/1" },
+      { "value": "noncitizen_national", "field": "c1_1[1]", "export_on": "/2" },
+      { "value": "permanent_resident", "field": "c1_1[2]", "export_on": "/3" },
+      { "value": "alien_authorized", "field": "c1_1[3]", "export_on": "/4" }
     ]
   },
-  "uscis_number": "TODO",
-  "work_auth_expiry": "TODO",
-  "alien_number": "TODO",
-  "i94_number": "TODO",
-  "foreign_passport_number": "TODO",
-  "foreign_passport_country": "TODO",
+  "uscis_number": "f1_14[0]",
+  "work_auth_expiry": "f1_15[0]",
+  "alien_number": "f1_16[0]",
+  "i94_number": "f1_17[0]",
+  "foreign_passport_number": "f1_18[0]",
+  "foreign_passport_country": "f1_19[0]",
   "used_preparer": {
     "type": "radio_group",
     "off_value": "/Off",
     "choices": [
-      { "value": "no", "field": "TODO", "export_on": "/1" },
-      { "value": "yes", "field": "TODO", "export_on": "/2" }
+      { "value": "no", "field": "c1_2[0]", "export_on": "/1" },
+      { "value": "yes", "field": "c1_2[1]", "export_on": "/2" }
     ]
   },
-  "preparer_last_name": "TODO",
-  "preparer_first_name": "TODO",
-  "preparer_address": "TODO",
+  "preparer_last_name": "f1_20[0]",
+  "preparer_first_name": "f1_21[0]",
+  "preparer_address": "f1_22[0]",
   "preparer_signature": {
     "type": "signature",
     "field": null,
     "page": 0,
     "rect": [50, 460, 350, 480]
   },
-  "preparer_sign_date": "TODO",
+  "preparer_sign_date": "f1_23[0]",
   "signature": {
     "type": "signature",
     "field": null,
     "page": 0,
     "rect": [50, 500, 350, 520]
   },
-  "sign_date": "TODO",
-  "full_address": "TODO"
+  "sign_date": "f1_24[0]",
+  "full_address": "f1_25[0]"
 }
