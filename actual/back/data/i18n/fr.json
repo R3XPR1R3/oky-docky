@@ -190,7 +190,7 @@
       }
     ],
     "apiTitle": "Remplissez des formulaires \u00e0 grande \u00e9chelle",
-    "apiDescription": "Int\u00e9grez Oky-Docky dans votre flux de travail gr\u00e2ce \u00e0 notre REST API. Envoyez des donn\u00e9es, recevez des PDF remplis. Parfait pour les entreprises de paie, les cabinets comptables et les logiciels de pr\u00e9paration fiscale.",
+    "apiDescription": "Int\u00e9grez Oky-Docky dans votre flux de travail gr\u00e2ce \u00e0 notre REST API. Envoyez des donn\u00e9es, recevez des PDF remplis. Parfait pour les entreprises de paie, les cabinets comptables et les logiciels d\u2019entreprise.",
     "apiBulk": "Traitement en masse",
     "apiSpeed": "R\u00e9ponse en moins d\u2019une seconde",
     "apiComment": "# Remplir un formulaire via API",
@@ -210,7 +210,7 @@
     "title": "Conditions d\u2019utilisation et avertissement",
     "lastUpdated": "Derni\u00e8re mise \u00e0 jour\u00a0: f\u00e9vrier 2026",
     "importantNotice": "Avis important",
-    "importantNoticeText": "Oky-Docky est un <strong>outil de pr\u00e9paration de documents</strong> exploit\u00e9 par <strong>Barckhat LLC</strong>, et non un service de conseil fiscal. Nous ne fournissons aucun conseil fiscal, juridique, financier ou comptable. Les informations et formulaires g\u00e9n\u00e9r\u00e9s par ce service sont bas\u00e9s uniquement sur les donn\u00e9es que vous fournissez. Consultez toujours un professionnel fiscal qualifi\u00e9 pour des conseils adapt\u00e9s \u00e0 votre situation.",
+    "importantNoticeText": "Oky-Docky est un <strong>outil de pr\u00e9paration de documents</strong> exploit\u00e9 par <strong>Barckhat LLC</strong>, et non un service de conseil juridique ou professionnel. Nous ne fournissons aucun conseil juridique, financier ou comptable. Les informations et formulaires g\u00e9n\u00e9r\u00e9s par ce service sont bas\u00e9s uniquement sur les donn\u00e9es que vous fournissez. Consultez toujours un professionnel qualifi\u00e9 pour des conseils adapt\u00e9s \u00e0 votre situation.",
     "sections": [
       {
         "title": "1. Description du service",
