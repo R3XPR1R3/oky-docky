@@ -301,7 +301,7 @@
   "transforms": [
     {
       "type": "auto_date",
-      "output": "sign_date",
+      "field": "sign_date",
       "format": "MM/DD/YYYY"
     }
   ]

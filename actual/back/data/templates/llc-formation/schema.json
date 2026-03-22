@@ -370,13 +370,13 @@
   "transforms": [
     {
       "type": "auto_date",
-      "output": "sign_date",
+      "field": "sign_date",
       "format": "MM/DD/YYYY"
     },
     {
-      "type": "derive",
-      "output": "manager_name",
+      "type": "copy",
       "from": "member1_name",
+      "to": "manager_name",
       "when": {
         "management_structure": "member_managed",
         "member_count": "1"
