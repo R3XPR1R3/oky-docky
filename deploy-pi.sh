@@ -137,6 +137,31 @@ start_tunnel() {
 }
 
 # ------------------------------------------------------------------
+#  Git with retry: exponential backoff for flaky Pi networking
+# ------------------------------------------------------------------
+git_retry() {
+  local max_attempts=4
+  local delay=2
+  local attempt=1
+  local cmd_desc="$1"
+  shift
+
+  while [ "$attempt" -le "$max_attempts" ]; do
+    if "$@" 2>&1; then
+      return 0
+    fi
+    if [ "$attempt" -eq "$max_attempts" ]; then
+      log "❌ $cmd_desc failed after $max_attempts attempts."
+      return 1
+    fi
+    log "⚠️  $cmd_desc failed (attempt ${attempt}/${max_attempts}). Retrying in ${delay}s..."
+    sleep "$delay"
+    delay=$((delay * 2))
+    attempt=$((attempt + 1))
+  done
+}
+
+# ------------------------------------------------------------------
 #  Async frontend rebuild: build dist + reload nginx (runs in bg)
 # ------------------------------------------------------------------
 FRONTEND_BUILD_LOCK="${SCRIPT_DIR}/.frontend-build.lock"
@@ -203,7 +228,10 @@ _git_fetch_with_retry() {
 
 hot_update() {
   log "Checking for updates on origin/${BRANCH}..."
-  _git_fetch_with_retry || return 1
+  if ! git_retry "git fetch" git fetch origin "$BRANCH"; then
+    log "Cannot reach GitHub. Check network / credentials on this Pi."
+    return 1
+  fi
 
   LOCAL=$(git rev-parse HEAD)
   REMOTE=$(git rev-parse "origin/${BRANCH}")
@@ -226,13 +254,14 @@ hot_update() {
   fi
 
   log "New commits: ${LOCAL:0:8} -> ${REMOTE:0:8}"
-  if ! git pull --ff-only origin "$BRANCH"; then
+  if ! git_retry "git pull" git pull --ff-only origin "$BRANCH"; then
     if [ "$GIT_FORCE_SYNC" != "1" ]; then
-      log "git pull --ff-only failed and GIT_FORCE_SYNC=0. Manual intervention required."
+      log "git pull failed and GIT_FORCE_SYNC=0. Manual intervention required."
       return 1
     fi
 
     log "Fast-forward pull failed. Forcing repo sync to origin/${BRANCH}."
+    git fetch origin "$BRANCH"
     git reset --hard "origin/${BRANCH}"
     git clean -fd
   fi
@@ -276,14 +305,14 @@ hot_update() {
 initial_deploy() {
   log "=== Initial deploy ==="
   git checkout "$BRANCH" 2>/dev/null || git checkout -b "$BRANCH" "origin/${BRANCH}"
-  if ! git pull --ff-only origin "$BRANCH"; then
+  if ! git_retry "git pull" git pull --ff-only origin "$BRANCH"; then
     if [ "$GIT_FORCE_SYNC" != "1" ]; then
       log "Initial git sync failed (non fast-forward). Set GIT_FORCE_SYNC=1 or sync manually."
       return 1
     fi
 
     log "Initial sync is divergent. Forcing repo sync to origin/${BRANCH}."
-    git fetch origin "$BRANCH"
+    git_retry "git fetch" git fetch origin "$BRANCH"
     git reset --hard "origin/${BRANCH}"
     git clean -fd
   fi
