@@ -47,6 +47,10 @@ cd "$SCRIPT_DIR"
 
 BRANCH="${DEPLOY_BRANCH:-main}"
 CHECK_INTERVAL="${CHECK_INTERVAL:-20}"
+
+# Fix "dubious ownership" error when repo owner differs from current user
+# (common on Pi when service runs as different user or after sudo clone)
+git config --global --add safe.directory "$SCRIPT_DIR" 2>/dev/null || true
 LOG_FILE="${SCRIPT_DIR}/deploy.log"
 TUNNEL_LOG="${SCRIPT_DIR}/tunnel.log"
 TUNNEL_URL_FILE="${SCRIPT_DIR}/tunnel-url.txt"
@@ -206,6 +210,22 @@ _rebuild_frontend_async() {
 # ------------------------------------------------------------------
 #  Hot-update: pull and let containers pick up changes live
 # ------------------------------------------------------------------
+_git_fetch_with_retry() {
+  local attempt max_attempts=4 delay=2
+  for attempt in $(seq 1 $max_attempts); do
+    if git fetch origin "$BRANCH" 2>&1; then
+      return 0
+    fi
+    if [ "$attempt" -lt "$max_attempts" ]; then
+      log "⚠ git fetch failed (attempt ${attempt}/${max_attempts}). Retrying in ${delay}s..."
+      sleep "$delay"
+      delay=$((delay * 2))
+    fi
+  done
+  log "✖ git fetch failed after ${max_attempts} attempts. Cannot reach GitHub. Check network / credentials on this Pi."
+  return 1
+}
+
 hot_update() {
   log "Checking for updates on origin/${BRANCH}..."
   if ! git_retry "git fetch" git fetch origin "$BRANCH"; then
