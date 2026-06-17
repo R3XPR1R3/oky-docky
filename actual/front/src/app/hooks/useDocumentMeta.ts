@@ -11,7 +11,20 @@ interface DocumentMeta {
 
 const DEFAULT_TITLE = 'Oky-Docky — Smart Document Form Assistant';
 const DEFAULT_DESC = 'Complete tax forms and legal documents faster with guided Q&A workflows and instant PDF generation.';
-const BASE_URL = 'https://oky-docky.com';
+const configuredSiteUrl = import.meta.env.VITE_SITE_URL?.trim().replace(/\/$/, '');
+
+function getBaseUrl() {
+  if (configuredSiteUrl) return configuredSiteUrl;
+  if (typeof window !== 'undefined' && window.location.origin) return window.location.origin;
+  return 'https://oky-docky.com';
+}
+
+function buildCanonicalUrl(path?: string) {
+  const baseUrl = getBaseUrl();
+  if (!path) return baseUrl;
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+}
 
 function setMetaTag(property: string, content: string, isOg = false) {
   const attr = isOg ? 'property' : 'name';
@@ -38,7 +51,7 @@ export function useDocumentMeta(meta: DocumentMeta) {
   useEffect(() => {
     const title = meta.title || DEFAULT_TITLE;
     const desc = meta.description || DEFAULT_DESC;
-    const url = meta.canonical ? `${BASE_URL}${meta.canonical}` : BASE_URL;
+    const url = buildCanonicalUrl(meta.canonical);
 
     document.title = title;
     setMetaTag('description', desc);
