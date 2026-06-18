@@ -5,6 +5,8 @@ import os
 import smtplib
 import time
 import uuid
+from datetime import datetime, timezone
+from html import escape
 from collections import defaultdict
 from io import BytesIO
 from email.message import EmailMessage
@@ -679,15 +681,40 @@ def api_admin_sync_to_repo(request: Request):
 # SEO endpoints
 # ---------------------------------------------------------------------------
 
-BASE_SITE_URL = os.getenv("SITE_URL", "https://oky-docky.com")
+BASE_SITE_URL = os.getenv("SITE_URL", "https://oky-docky.com").rstrip("/")
 
 STATIC_PAGES = [
-    {"path": "/", "priority": "1.0", "changefreq": "weekly"},
-    {"path": "/templates", "priority": "0.9", "changefreq": "weekly"},
-    {"path": "/how-it-works", "priority": "0.6", "changefreq": "monthly"},
-    {"path": "/pricing", "priority": "0.6", "changefreq": "monthly"},
-    {"path": "/disclaimer", "priority": "0.3", "changefreq": "yearly"},
+    {"path": "/", "priority": "1.0", "changefreq": "daily"},
+    {"path": "/templates", "priority": "0.95", "changefreq": "daily"},
+    {"path": "/how-it-works", "priority": "0.8", "changefreq": "weekly"},
+    {"path": "/pricing", "priority": "0.7", "changefreq": "weekly"},
+    {"path": "/disclaimer", "priority": "0.4", "changefreq": "monthly"},
 ]
+
+
+def _utc_date_from_timestamp(timestamp: float) -> str:
+    return datetime.fromtimestamp(timestamp, tz=timezone.utc).date().isoformat()
+
+
+def _template_lastmod(template_id: str) -> str:
+    template_dir = TEMPLATES_ROOT / template_id
+    newest_mtime = max(
+        (path.stat().st_mtime for path in template_dir.rglob("*") if path.is_file()),
+        default=template_dir.stat().st_mtime if template_dir.exists() else time.time(),
+    )
+    return _utc_date_from_timestamp(newest_mtime)
+
+
+def _url_entry(path: str, changefreq: str, priority: str, lastmod: str) -> str:
+    loc = escape(f"{BASE_SITE_URL}{path}", quote=True)
+    return (
+        "  <url>\n"
+        f"    <loc>{loc}</loc>\n"
+        f"    <lastmod>{lastmod}</lastmod>\n"
+        f"    <changefreq>{changefreq}</changefreq>\n"
+        f"    <priority>{priority}</priority>\n"
+        "  </url>"
+    )
 
 
 @app.get("/sitemap.xml")
@@ -695,22 +722,16 @@ def sitemap_xml():
     """Generate sitemap.xml with all template pages and static pages."""
     template_ids = list_templates(TEMPLATES_ROOT)
 
-    urls = []
-    for page in STATIC_PAGES:
-        urls.append(
-            f'  <url>\n    <loc>{BASE_SITE_URL}{page["path"]}</loc>\n'
-            f'    <changefreq>{page["changefreq"]}</changefreq>\n'
-            f'    <priority>{page["priority"]}</priority>\n  </url>'
-        )
+    today = datetime.now(timezone.utc).date().isoformat()
+    urls = [
+        _url_entry(page["path"], page["changefreq"], page["priority"], today)
+        for page in STATIC_PAGES
+    ]
 
     for tid in template_ids:
         try:
-            meta = load_template_meta(TEMPLATES_ROOT, tid)
-            urls.append(
-                f'  <url>\n    <loc>{BASE_SITE_URL}/{tid}</loc>\n'
-                f'    <changefreq>monthly</changefreq>\n'
-                f'    <priority>0.8</priority>\n  </url>'
-            )
+            load_template_meta(TEMPLATES_ROOT, tid)
+            urls.append(_url_entry(f"/{tid}", "weekly", "0.9", _template_lastmod(tid)))
         except Exception:
             continue
 
@@ -731,7 +752,16 @@ def robots_txt():
         "Allow: /\n"
         "Disallow: /builder\n"
         "Disallow: /api/admin/\n"
+        "Disallow: /api/render/\n"
+        "Disallow: /api/feedback\n"
+        "\nUser-agent: Googlebot\n"
+        "Allow: /\n"
+        "Disallow: /builder\n"
+        "Disallow: /api/admin/\n"
+        "Disallow: /api/render/\n"
+        "Disallow: /api/feedback\n"
         f"\nSitemap: {BASE_SITE_URL}/sitemap.xml\n"
+        f"Host: {BASE_SITE_URL.replace('https://', '').replace('http://', '')}\n"
     )
     return Response(content=content, media_type="text/plain")
 
