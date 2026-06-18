@@ -73,6 +73,11 @@ PUBLIC_DOMAIN="${PUBLIC_DOMAIN:-barckhat.com}"
 PUBLIC_URL="${PUBLIC_URL:-https://${PUBLIC_DOMAIN}}"
 GIT_FORCE_SYNC="${GIT_FORCE_SYNC:-1}"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
+if [ -n "$TUNNEL_TOKEN" ]; then
+  # Include the cloudflared profile in normal compose operations so backend,
+  # frontend, and the named tunnel start as one stack.
+  export COMPOSE_PROFILES="${COMPOSE_PROFILES:-tunnel}"
+fi
 UPDATE_STATUS_FILE="${SCRIPT_DIR}/.update-status"
 
 log() {
@@ -537,6 +542,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TUNNEL_LOG="${SCRIPT_DIR}/tunnel.log"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
+if [ -n "$TUNNEL_TOKEN" ]; then
+  # Include the cloudflared profile in normal compose operations so backend,
+  # frontend, and the named tunnel start as one stack.
+  export COMPOSE_PROFILES="${COMPOSE_PROFILES:-tunnel}"
+fi
 UPDATE_STATUS_FILE="${SCRIPT_DIR}/.update-status"
 URL=""
 LAST_UPDATE_MSG=""
