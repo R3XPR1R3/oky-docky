@@ -18,44 +18,75 @@ declare global {
   }
 }
 
+const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT?.trim() || '';
+const ADSENSE_SLOT = import.meta.env.VITE_ADSENSE_SLOT?.trim() || '';
+const ADSENSE_SCRIPT_ID = 'adsense-script';
+const hasAdsenseConfig = /^ca-pub-\d+$/.test(ADSENSE_CLIENT) && /^\d+$/.test(ADSENSE_SLOT);
+
+function ensureAdsenseScript() {
+  if (!hasAdsenseConfig || typeof document === 'undefined') return;
+  if (document.getElementById(ADSENSE_SCRIPT_ID)) return;
+
+  const script = document.createElement('script');
+  script.id = ADSENSE_SCRIPT_ID;
+  script.async = true;
+  script.crossOrigin = 'anonymous';
+  script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(ADSENSE_CLIENT)}`;
+  document.head.appendChild(script);
+}
+
 export function AdInterstitial({
   duration = 7,
   onComplete,
   templateTitle,
 }: AdInterstitialProps) {
-  const [secondsLeft, setSecondsLeft] = useState(duration);
-  const [canSkip, setCanSkip] = useState(false);
+  const safeDuration = Math.max(0, duration);
+  const [secondsLeft, setSecondsLeft] = useState(safeDuration);
+  const [canSkip, setCanSkip] = useState(safeDuration === 0);
   const adRef = useRef<HTMLModElement>(null);
+  const adPushedRef = useRef(false);
   const { t } = useTranslation();
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    setSecondsLeft(safeDuration);
+    setCanSkip(safeDuration === 0);
+
+    if (safeDuration === 0) return;
+
+    const timer = window.setInterval(() => {
       setSecondsLeft((s) => {
         if (s <= 1) {
-          clearInterval(timer);
+          window.clearInterval(timer);
           setCanSkip(true);
           return 0;
         }
         return s - 1;
       });
     }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    return () => window.clearInterval(timer);
+  }, [safeDuration]);
 
-  // Push ad when component mounts
+  // Load and push an ad only when real AdSense IDs are configured.
   useEffect(() => {
+    if (!hasAdsenseConfig || adPushedRef.current) return;
+
+    ensureAdsenseScript();
+
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
+      adPushedRef.current = true;
     } catch {
-      // AdSense not loaded — that's fine, ad slot will be empty
+      // AdSense can be unavailable in dev, before domain approval, or when blocked by an extension.
+      // The document flow still remains usable after the timer finishes.
     }
   }, []);
 
   const handleContinue = useCallback(() => {
+    if (!canSkip) return;
     onComplete();
-  }, [onComplete]);
+  }, [canSkip, onComplete]);
 
-  const progress = ((duration - secondsLeft) / duration) * 100;
+  const progress = safeDuration > 0 ? ((safeDuration - secondsLeft) / safeDuration) * 100 : 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -115,17 +146,22 @@ export function AdInterstitial({
             </div>
           </div>
 
-          {/* Ad slot — replace data-ad-client and data-ad-slot with your AdSense values */}
           <div className="min-h-[280px] flex items-center justify-center p-4">
-            <ins
-              ref={adRef}
-              className="adsbygoogle"
-              style={{ display: 'block', width: '100%', minHeight: '250px' }}
-              data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-              data-ad-slot="XXXXXXXXXX"
-              data-ad-format="auto"
-              data-full-width-responsive="true"
-            />
+            {hasAdsenseConfig ? (
+              <ins
+                ref={adRef}
+                className="adsbygoogle"
+                style={{ display: 'block', width: '100%', minHeight: '250px' }}
+                data-ad-client={ADSENSE_CLIENT}
+                data-ad-slot={ADSENSE_SLOT}
+                data-ad-format="auto"
+                data-full-width-responsive="true"
+              />
+            ) : (
+              <div className="text-center text-slate-400 text-sm px-6">
+                AdSense is not configured yet. Set VITE_ADSENSE_CLIENT and VITE_ADSENSE_SLOT after the production domain is approved.
+              </div>
+            )}
           </div>
         </motion.div>
 
@@ -136,7 +172,6 @@ export function AdInterstitial({
           transition={{ delay: 0.3 }}
           className="space-y-4"
         >
-          {/* Progress bar */}
           <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
@@ -146,7 +181,6 @@ export function AdInterstitial({
             />
           </div>
 
-          {/* Continue button */}
           <div className="flex justify-center">
             <Button
               size="lg"

@@ -32,6 +32,9 @@ export function TemplatePage() {
       ? `Fill out ${template.title} online for free. ${template.description} Guided step-by-step Q&A with instant PDF download.`
       : undefined,
     canonical: `/${templateId}`,
+    keywords: template
+      ? [template.title, template.category, template.country, ...template.tags, 'free online form', 'PDF form filler', 'document assistant'].filter(Boolean).join(', ')
+      : undefined,
   });
 
   useEffect(() => {

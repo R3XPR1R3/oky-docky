@@ -32,18 +32,32 @@
 #    By default, a free quick tunnel is created automatically.
 #    You'll see a public URL like https://random-words.trycloudflare.com
 #
-#    For a PERMANENT domain, set the TUNNEL_TOKEN env var:
+#    For a PERMANENT domain, set TUNNEL_TOKEN in .env. When present,
+#    deploy-pi.sh includes the cloudflared Docker container with the stack instead of
+#    creating a random trycloudflare.com link.
+#
+#    Setup for a PERMANENT domain:
 #      1. Sign up at https://dash.cloudflare.com (free)
 #      2. Go to Zero Trust → Networks → Tunnels → Create
 #      3. Copy the tunnel token
-#      4. export TUNNEL_TOKEN="your-token-here"
-#      5. Re-run ./deploy-pi.sh
+#      4. cp .env.example .env
+#      5. Paste the token into TUNNEL_TOKEN and keep PUBLIC_DOMAIN=barckhat.com
+#      6. Re-run ./deploy-pi.sh
 #
 # ============================================================
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
+
+# Load local deployment secrets/settings without committing them.
+# Put TUNNEL_TOKEN and PUBLIC_DOMAIN in .env on the Pi.
+if [ -f "${SCRIPT_DIR}/.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "${SCRIPT_DIR}/.env"
+  set +a
+fi
 
 BRANCH="${DEPLOY_BRANCH:-main}"
 CHECK_INTERVAL="${CHECK_INTERVAL:-20}"
@@ -55,8 +69,15 @@ LOG_FILE="${SCRIPT_DIR}/deploy.log"
 TUNNEL_LOG="${SCRIPT_DIR}/tunnel.log"
 TUNNEL_URL_FILE="${SCRIPT_DIR}/tunnel-url.txt"
 TUNNEL_TOKEN="${TUNNEL_TOKEN:-}"
+PUBLIC_DOMAIN="${PUBLIC_DOMAIN:-barckhat.com}"
+PUBLIC_URL="${PUBLIC_URL:-https://${PUBLIC_DOMAIN}}"
 GIT_FORCE_SYNC="${GIT_FORCE_SYNC:-1}"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
+if [ -n "$TUNNEL_TOKEN" ]; then
+  # Include the cloudflared profile in normal compose operations so backend,
+  # frontend, and the named tunnel start as one stack.
+  export COMPOSE_PROFILES="${COMPOSE_PROFILES:-tunnel}"
+fi
 UPDATE_STATUS_FILE="${SCRIPT_DIR}/.update-status"
 
 log() {
@@ -96,44 +117,61 @@ write_tunnel_url() {
 }
 
 start_tunnel() {
+  : > "$TUNNEL_LOG"
+
+  if [ -n "$TUNNEL_TOKEN" ]; then
+    # Permanent named tunnel with a configured domain. Run it as a Docker container
+    # so it is managed together with the rest of the stack instead of creating a
+    # random trycloudflare.com link.
+    export COMPOSE_PROFILES="${COMPOSE_PROFILES:-tunnel}"
+
+    if $COMPOSE ps --services --filter status=running 2>/dev/null | grep -qx "cloudflared"; then
+      log "Cloudflare tunnel container already running."
+      write_tunnel_url "$PUBLIC_URL"
+      log "Current tunnel URL: ${PUBLIC_URL}"
+      return 0
+    fi
+
+    log "Starting Cloudflare tunnel container (permanent, token-based)..."
+    $COMPOSE up -d cloudflared >> "$TUNNEL_LOG" 2>&1
+    write_tunnel_url "$PUBLIC_URL"
+    log "============================================"
+    log "  PUBLIC URL: ${PUBLIC_URL}"
+    log "============================================"
+    log "Cloudflare tunnel container started for ${PUBLIC_DOMAIN}."
+    return 0
+  fi
+
   install_cloudflared || { log "Failed to install cloudflared, skipping tunnel."; return 1; }
 
   if pgrep -f "cloudflared.*tunnel" > /dev/null 2>&1; then
-    log "Cloudflare tunnel already running."
+    log "Cloudflare quick tunnel already running."
     if [ -f "$TUNNEL_URL_FILE" ]; then
       log "Current tunnel URL: $(cat "$TUNNEL_URL_FILE")"
     fi
     return 0
   fi
 
-  : > "$TUNNEL_LOG"
   rm -f "$TUNNEL_URL_FILE"
 
-  if [ -n "$TUNNEL_TOKEN" ]; then
-    # Permanent tunnel with a configured domain
-    log "Starting Cloudflare tunnel (permanent, token-based)..."
-    nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate run --token "$TUNNEL_TOKEN"       >> "$TUNNEL_LOG" 2>&1 &
-    log "Tunnel started. Check your Cloudflare dashboard for the domain."
-  else
-    # Quick free tunnel — random URL, no registration needed
-    log "Starting Cloudflare quick tunnel (free, temporary URL)..."
-    nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate --url http://localhost:80       >> "$TUNNEL_LOG" 2>&1 &
+  # Quick free tunnel — random URL, no registration needed
+  log "Starting Cloudflare quick tunnel (free, temporary URL)..."
+  nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate --url http://localhost:80       >> "$TUNNEL_LOG" 2>&1 &
 
-    # Wait for the URL to appear in the fresh log
-    for i in $(seq 1 20); do
-      sleep 2
-      TUNNEL_URL=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
-      if [ -n "$TUNNEL_URL" ]; then
-        write_tunnel_url "$TUNNEL_URL"
-        log "============================================"
-        log "  PUBLIC URL: ${TUNNEL_URL}"
-        log "============================================"
-        log "Share this link with friends!"
-        return 0
-      fi
-    done
-    log "Tunnel started but URL not yet available. Check tunnel.log"
-  fi
+  # Wait for the URL to appear in the fresh log
+  for i in $(seq 1 20); do
+    sleep 2
+    TUNNEL_URL=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
+    if [ -n "$TUNNEL_URL" ]; then
+      write_tunnel_url "$TUNNEL_URL"
+      log "============================================"
+      log "  PUBLIC URL: ${TUNNEL_URL}"
+      log "============================================"
+      log "Share this link with friends!"
+      return 0
+    fi
+  done
+  log "Tunnel started but URL not yet available. Check tunnel.log"
 }
 
 # ------------------------------------------------------------------
@@ -430,6 +468,9 @@ WorkingDirectory=${SCRIPT_DIR}
 Environment=DEPLOY_BRANCH=${BRANCH}
 Environment=CHECK_INTERVAL=${CHECK_INTERVAL}
 Environment=TUNNEL_TOKEN=${TUNNEL_TOKEN}
+Environment=PUBLIC_DOMAIN=${PUBLIC_DOMAIN}
+Environment=PUBLIC_URL=${PUBLIC_URL}
+Environment=COMPOSE_PROFILES=${COMPOSE_PROFILES:-}
 Environment=GIT_FORCE_SYNC=${GIT_FORCE_SYNC}
 ExecStart=${SCRIPT_DIR}/deploy-pi.sh --watch
 Restart=always
@@ -487,6 +528,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TUNNEL_LOG="${SCRIPT_DIR}/tunnel.log"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
+if [ -n "$TUNNEL_TOKEN" ]; then
+  # Include the cloudflared profile in normal compose operations so backend,
+  # frontend, and the named tunnel start as one stack.
+  export COMPOSE_PROFILES="${COMPOSE_PROFILES:-tunnel}"
+fi
 UPDATE_STATUS_FILE="${SCRIPT_DIR}/.update-status"
 URL=""
 LAST_UPDATE_MSG=""
@@ -519,7 +565,11 @@ print_header() {
 
 refresh_url() {
   local new_url
-  new_url=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
+  if [ -f "${SCRIPT_DIR}/tunnel-url.txt" ]; then
+    new_url=$(cat "${SCRIPT_DIR}/tunnel-url.txt" 2>/dev/null || true)
+  else
+    new_url=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
+  fi
   if [ -n "$new_url" ] && [ "$new_url" != "$URL" ]; then
     URL="$new_url"
     print_header
@@ -849,7 +899,8 @@ case "${1:-}" in
     echo "Environment variables:"
     echo "  DEPLOY_BRANCH      Git branch to track (default: main)"
     echo "  CHECK_INTERVAL     Seconds between checks (default: 20)"
-    echo "  TUNNEL_TOKEN       Cloudflare tunnel token for permanent domain (optional)"
+    echo "  TUNNEL_TOKEN       Cloudflare tunnel token for permanent domain (optional; can be set in .env)"
+    echo "  PUBLIC_DOMAIN      Public domain shown in logs/UI (default: barckhat.com)"
     echo "  GIT_FORCE_SYNC     1=auto-resolve local divergence on Pi (default: 1), 0=skip on conflict"
     ;;
   *)

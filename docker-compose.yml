@@ -19,5 +19,21 @@ services:
     depends_on:
       - backend
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    depends_on:
+      - frontend
+    command:
+      [
+        "tunnel",
+        "--no-autoupdate",
+        "run",
+        "--token",
+        "${TUNNEL_TOKEN:?Set TUNNEL_TOKEN in .env or environment to start the named Cloudflare tunnel}"
+      ]
+    profiles:
+      - tunnel
+
 volumes:
   backend-data:
