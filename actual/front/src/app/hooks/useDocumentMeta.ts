@@ -7,10 +7,13 @@ interface DocumentMeta {
   ogTitle?: string;
   ogDescription?: string;
   ogUrl?: string;
+  keywords?: string;
+  robots?: string;
 }
 
 const DEFAULT_TITLE = 'Oky-Docky — Smart Document Form Assistant';
 const DEFAULT_DESC = 'Complete tax forms and legal documents faster with guided Q&A workflows and instant PDF generation.';
+const DEFAULT_ROBOTS = 'index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1';
 const configuredSiteUrl = import.meta.env.VITE_SITE_URL?.trim().replace(/\/$/, '');
 
 function getBaseUrl() {
@@ -55,9 +58,14 @@ export function useDocumentMeta(meta: DocumentMeta) {
 
     document.title = title;
     setMetaTag('description', desc);
+    setMetaTag('robots', meta.robots || DEFAULT_ROBOTS);
+    setMetaTag('googlebot', meta.robots || DEFAULT_ROBOTS);
+    setMetaTag('bingbot', meta.robots || DEFAULT_ROBOTS);
+    if (meta.keywords) setMetaTag('keywords', meta.keywords);
     setMetaTag('og:title', meta.ogTitle || title, true);
     setMetaTag('og:description', meta.ogDescription || desc, true);
-    setMetaTag('og:url', meta.ogUrl || url, true);
+    setMetaTag('og:type', 'website', true);
+    setMetaTag('og:url', meta.ogUrl ? buildCanonicalUrl(meta.ogUrl) : url, true);
     setMetaTag('twitter:title', meta.ogTitle || title);
     setMetaTag('twitter:description', meta.ogDescription || desc);
     setCanonical(url);
@@ -65,5 +73,5 @@ export function useDocumentMeta(meta: DocumentMeta) {
     return () => {
       document.title = DEFAULT_TITLE;
     };
-  }, [meta.title, meta.description, meta.canonical, meta.ogTitle, meta.ogDescription, meta.ogUrl]);
+  }, [meta.title, meta.description, meta.canonical, meta.ogTitle, meta.ogDescription, meta.ogUrl, meta.keywords, meta.robots]);
 }
