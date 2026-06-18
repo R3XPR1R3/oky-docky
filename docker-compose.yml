@@ -19,5 +19,25 @@ services:
     depends_on:
       - backend
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    # The named tunnel is configured in Cloudflare to reach the local origin.
+    # Use host networking so origin URLs like http://localhost:80 resolve to
+    # the host-published frontend port instead of the cloudflared container.
+    network_mode: host
+    depends_on:
+      - frontend
+    command:
+      [
+        "tunnel",
+        "--no-autoupdate",
+        "run",
+        "--token",
+        "${TUNNEL_TOKEN:?Set TUNNEL_TOKEN in .env or environment to start the named Cloudflare tunnel}"
+      ]
+    profiles:
+      - tunnel
+
 volumes:
   backend-data:
