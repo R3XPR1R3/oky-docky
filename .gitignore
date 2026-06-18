@@ -6,3 +6,4 @@ dist/
 .cloudflared/
 deploy.log
 tunnel.log
+.env
