@@ -33,7 +33,7 @@
 #    You'll see a public URL like https://random-words.trycloudflare.com
 #
 #    For a PERMANENT domain, set TUNNEL_TOKEN in .env. When present,
-#    deploy-pi.sh includes the cloudflared Docker container with the stack instead of
+#    deploy-pi.sh starts the cloudflared Docker container instead of
 #    creating a random trycloudflare.com link.
 #
 #    Setup for a PERMANENT domain:
@@ -237,7 +237,7 @@ _rebuild_frontend_async() {
     {
       echo "time=$(date '+%H:%M:%S')"
       echo "event=frontend_failed"
-      echo "message=Ошибка сборки frontend"
+      echo "message=Ошибка сборки frontend — смотри deploy.log"
     } > "$UPDATE_STATUS_FILE"
   fi
 
@@ -364,7 +364,21 @@ initial_deploy() {
 
   # Populate the shared frontend-dist volume
   log "Building frontend dist into shared volume..."
-  $COMPOSE run --rm --build frontend-builder
+  if $COMPOSE run --rm --build frontend-builder; then
+    {
+      echo "time=$(date '+%H:%M:%S')"
+      echo "event=frontend_ready"
+      echo "message=Frontend собран и готов"
+    } > "$UPDATE_STATUS_FILE"
+  else
+    {
+      echo "time=$(date '+%H:%M:%S')"
+      echo "event=frontend_failed"
+      echo "message=Ошибка сборки frontend — смотри deploy.log"
+    } > "$UPDATE_STATUS_FILE"
+    log "❌ Frontend build failed during initial deploy."
+    return 1
+  fi
 
   log "Initial deploy complete!"
   $COMPOSE ps
@@ -667,8 +681,22 @@ okydoky_cmd() {
   case "$cmd" in
     reboot)
       echo "[okydoky] Полный reload..."
-      (cd "$SCRIPT_DIR" && $COMPOSE down && $COMPOSE up -d --remove-orphans && $COMPOSE run --rm --build frontend-builder)
-      echo "[okydoky] ✅ Reload завершён."
+      if (cd "$SCRIPT_DIR" && $COMPOSE down && $COMPOSE up -d --remove-orphans && $COMPOSE run --rm --build frontend-builder); then
+        {
+          echo "time=$(date '+%H:%M:%S')"
+          echo "event=frontend_ready"
+          echo "message=Frontend собран и готов"
+        } > "$UPDATE_STATUS_FILE"
+        echo "[okydoky] ✅ Reload завершён."
+      else
+        {
+          echo "time=$(date '+%H:%M:%S')"
+          echo "event=frontend_failed"
+          echo "message=Ошибка сборки frontend — смотри deploy.log"
+        } > "$UPDATE_STATUS_FILE"
+        echo "[okydoky] ❌ Reload не завершился."
+        return 1
+      fi
       ;;
     changecolor)
       local color="${2:-}"
@@ -678,8 +706,22 @@ okydoky_cmd() {
       fi
       echo "[okydoky] Переключение темы билдера на: $color"
       apply_builder_theme "$color"
-      (cd "$SCRIPT_DIR" && $COMPOSE run --rm --build frontend-builder)
-      echo "[okydoky] ✅ Тема "$color" применена."
+      if (cd "$SCRIPT_DIR" && $COMPOSE run --rm --build frontend-builder); then
+        {
+          echo "time=$(date '+%H:%M:%S')"
+          echo "event=frontend_ready"
+          echo "message=Frontend собран и готов"
+        } > "$UPDATE_STATUS_FILE"
+        echo "[okydoky] ✅ Тема "$color" применена."
+      else
+        {
+          echo "time=$(date '+%H:%M:%S')"
+          echo "event=frontend_failed"
+          echo "message=Ошибка сборки frontend — смотри deploy.log"
+        } > "$UPDATE_STATUS_FILE"
+        echo "[okydoky] ❌ Сборка темы не завершилась."
+        return 1
+      fi
       ;;
     status)
       echo "[okydoky] Текущий коммит: $(cd "$SCRIPT_DIR" && git rev-parse --short HEAD 2>/dev/null || echo 'N/A')"
