@@ -33,7 +33,7 @@
 #    You'll see a public URL like https://random-words.trycloudflare.com
 #
 #    For a PERMANENT domain, set TUNNEL_TOKEN in .env. When present,
-#    deploy-pi.sh includes the cloudflared Docker container with the stack instead of
+#    deploy-pi.sh starts the cloudflared Docker container instead of
 #    creating a random trycloudflare.com link.
 #
 #    Setup for a PERMANENT domain:
