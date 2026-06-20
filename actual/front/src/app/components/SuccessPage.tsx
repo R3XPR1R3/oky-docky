@@ -3,17 +3,20 @@ import { FileText, Download, CheckCircle, RotateCcw } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
 import { useTranslation } from '../i18n/I18nContext';
+import { trackEvent } from '../lib/analytics';
 
 interface SuccessPageProps {
   pdfUrl: string;
+  templateId: string;
   templateTitle: string;
   onStartOver: () => void;
 }
 
-export function SuccessPage({ pdfUrl, templateTitle, onStartOver }: SuccessPageProps) {
+export function SuccessPage({ pdfUrl, templateId, templateTitle, onStartOver }: SuccessPageProps) {
   const { t } = useTranslation();
 
   const handleDownload = () => {
+    trackEvent('download', { template_id: templateId });
     const link = document.createElement('a');
     link.href = pdfUrl;
     link.download = `${templateTitle.replace(/\s+/g, '_')}.pdf`;

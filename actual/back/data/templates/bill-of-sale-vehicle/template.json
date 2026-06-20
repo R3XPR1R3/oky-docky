@@ -9,6 +9,8 @@
   "category": "legal",
   "tags": ["bill of sale", "vehicle", "car", "auto", "sale", "transfer", "dmv"],
   "country": "US",
-  "popular": true,
+  "popular": false,
+  "published": false,
+  "unpublished_reason": "Placeholder PDF has no substantive document text; requires a jurisdiction-specific implementation.",
   "estimated_time": "5 min"
 }

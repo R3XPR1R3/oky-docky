@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FileText, ArrowLeft, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Button } from './ui/button';
@@ -13,7 +13,7 @@ import type { Schema, SchemaField } from '../App';
 import { formatInputValue } from '../lib/inputFormatting';
 
 interface QuestionFlowProps {
-  templateId: string;
+  templateId?: string;
   templateTitle: string;
   schema: Schema;
   initialData: Record<string, any>;
@@ -21,36 +21,69 @@ interface QuestionFlowProps {
   onBack: () => void;
 }
 
+function matchesConditions(conditions: Record<string, string[]> | undefined, answers: Record<string, any>) {
+  if (!conditions) return true;
+  return Object.entries(conditions).every(([key, allowed]) => {
+    const answer = answers[key];
+    return answer !== undefined && answer !== null && answer !== ''
+      && allowed.map(String).includes(String(answer));
+  });
+}
+
+function isVisible(field: SchemaField, answers: Record<string, any>) {
+  if (field.hidden) return false;
+  if (field.visible_when_any?.length) {
+    return field.visible_when_any.some((conditions) => matchesConditions(conditions, answers));
+  }
+  return matchesConditions(field.visible_when, answers);
+}
+
+function formatDateAnswer(isoDate: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
+  return match ? `${match[2]}/${match[3]}/${match[1]}` : isoDate;
+}
+
+function dateAnswerToIso(value: unknown) {
+  const raw = String(value || '');
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(raw);
+  return match ? `${match[3]}-${match[1]}-${match[2]}` : raw;
+}
+
+function todayForFormat(format = 'MM/DD/YYYY') {
+  const now = new Date();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const yyyy = String(now.getFullYear());
+  return format.replace('MM', mm).replace('DD', dd).replace('YYYY', yyyy);
+}
+
 export function QuestionFlow({ templateId, templateTitle, schema, initialData, onComplete, onBack }: QuestionFlowProps) {
   const { t } = useTranslation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, any>>(initialData);
-  const [visibleQuestions, setVisibleQuestions] = useState<SchemaField[]>(schema.fields);
+  const [answers, setAnswers] = useState<Record<string, any>>(() => {
+    const values = { ...initialData };
+    for (const field of schema.fields) {
+      if (field.hidden && field.defaultValue !== undefined && values[field.key] === undefined) {
+        values[field.key] = field.defaultValue;
+      }
+    }
+    for (const transform of schema.transforms || []) {
+      if (transform.type === 'auto_date' && transform.field && !values[transform.field]) {
+        values[transform.field] = todayForFormat(transform.format);
+      }
+    }
+    return values;
+  });
+  const visibleQuestions = useMemo(
+    () => schema.fields.filter((field) => isVisible(field, answers)),
+    [schema.fields, answers],
+  );
 
   useEffect(() => {
-    const resolveQuestions = async () => {
-      try {
-        const response = await fetch(`/api/templates/${templateId}/resolve-questions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ answers }),
-        });
-
-        if (!response.ok) throw new Error('Failed to resolve questions');
-        const data = await response.json();
-        const fields: SchemaField[] = Array.isArray(data.fields) ? data.fields : schema.fields;
-        setVisibleQuestions(fields);
-
-        if (currentQuestionIndex >= fields.length) {
-          setCurrentQuestionIndex(Math.max(0, fields.length - 1));
-        }
-      } catch {
-        setVisibleQuestions(schema.fields);
-      }
-    };
-
-    resolveQuestions();
-  }, [templateId, answers, schema.fields, currentQuestionIndex]);
+    if (currentQuestionIndex >= visibleQuestions.length) {
+      setCurrentQuestionIndex(Math.max(0, visibleQuestions.length - 1));
+    }
+  }, [currentQuestionIndex, visibleQuestions.length]);
 
   const currentQuestion = visibleQuestions[currentQuestionIndex];
   const progress = visibleQuestions.length > 0
@@ -92,11 +125,13 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
     if (!currentQuestion) return false;
     if (!currentQuestion.required) return true;
     const answer = answers[currentQuestion.key];
-    if (currentQuestion.type === 'checkbox' || currentQuestion.type === 'checkbox_input') return true;
+    if (currentQuestion.type === 'checkbox' || currentQuestion.type === 'checkbox_input') return answer === true;
     if (currentQuestion.type === 'signature' || currentQuestion.type === 'signature_area') {
       return typeof answer === 'string' && answer.trim() !== '';
     }
-    return answer !== undefined && answer !== null && answer.toString().trim() !== '';
+    if (answer === undefined || answer === null || answer.toString().trim() === '') return false;
+    if (currentQuestion.inputMask) return String(answer).length === currentQuestion.inputMask.length;
+    return true;
   };
 
   const canProceed = isCurrentAnswerValid();
@@ -154,6 +189,19 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
                         Format: {currentQuestion.inputMask.replace(/D/g, '#').replace(/L/g, 'A').replace(/A/g, '*')}
                       </p>
                     )}
+                  </div>
+                )}
+
+                {currentQuestion.type === 'date' && (
+                  <div className="space-y-2">
+                    <Input
+                      type="date"
+                      value={dateAnswerToIso(answers[currentQuestion.key])}
+                      onChange={(e) => handleAnswerChange(formatDateAnswer(e.target.value))}
+                      className="text-lg px-6 py-6 rounded-xl border-2 focus:border-indigo-500 transition-colors"
+                      autoFocus
+                    />
+                    <p className="text-xs text-slate-400 pl-2">The date is saved as MM/DD/YYYY in the PDF.</p>
                   </div>
                 )}
 

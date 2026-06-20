@@ -11,7 +11,7 @@ interface FieldRect {
   page_height: number;
 }
 
-/** A manually placed overlay field (from mapping with type=text_overlay) */
+/** A manually placed text, date, or signature overlay. */
 interface OverlayField {
   schemaKey: string;
   page: number;
@@ -25,8 +25,8 @@ interface PdfFieldPreviewProps {
   mapping?: Record<string, any>;
   onFieldClick?: (pdfFieldName: string) => void;
   onMappingRemove?: (schemaKey: string) => void;
-  /** Called when a new text_overlay field is drawn on the PDF */
-  onOverlayAdd?: (schemaKey: string, overlayMapping: Record<string, any>) => void;
+  /** Called when a new overlay field is drawn on the PDF. */
+  onOverlayAdd?: (schemaKey: string, overlayMapping: Record<string, any>, fieldType: 'text' | 'date' | 'signature') => void;
   /** Called when an overlay is moved/resized */
   onOverlayUpdate?: (schemaKey: string, overlayMapping: Record<string, any>) => void;
 }
@@ -52,7 +52,7 @@ function buildReverseMapping(mapping: Record<string, any>): Record<string, strin
 function extractOverlayFields(mapping: Record<string, any>, pageInfos: Map<number, { width: number; height: number }>): OverlayField[] {
   const result: OverlayField[] = [];
   for (const [schemaKey, value] of Object.entries(mapping)) {
-    if (typeof value === 'object' && value !== null && value.type === 'text_overlay') {
+    if (typeof value === 'object' && value !== null && ['text_overlay', 'signature'].includes(value.type)) {
       const page = value.page ?? 0;
       const info = pageInfos.get(page);
       result.push({
@@ -86,6 +86,7 @@ export default function PdfFieldPreview({
   const [drawMode, setDrawMode] = useState(false);
   const [drawing, setDrawing] = useState<{ pageIdx: number; startX: number; startY: number; curX: number; curY: number } | null>(null);
   const [newFieldName, setNewFieldName] = useState('');
+  const [newFieldType, setNewFieldType] = useState<'text' | 'date' | 'signature'>('text');
   const [pendingRect, setPendingRect] = useState<{ pageIdx: number; rect: [number, number, number, number] } | null>(null);
   const [overlayDrag, setOverlayDrag] = useState<{
     schemaKey: string;
@@ -112,7 +113,7 @@ export default function PdfFieldPreview({
     setLoading(true);
     setError(null);
 
-    fetch(`/api/templates/${templateId}/pdf-field-rects`)
+    fetch(`/api/admin/templates/${templateId}/pdf-field-rects`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
@@ -125,7 +126,7 @@ export default function PdfFieldPreview({
   useEffect(() => {
     if (!templateId) return;
 
-    const pdfUrl = `/api/templates/${templateId}/pdf-file`;
+    const pdfUrl = `/api/admin/templates/${templateId}/pdf-file`;
     let cancelled = false;
     let loadingTask: pdfjsLib.PDFDocumentLoadingTask | null = null;
 
@@ -263,7 +264,6 @@ export default function PdfFieldPreview({
 
       onOverlayUpdate?.(overlayDrag.schemaKey, {
         ...(mapping[overlayDrag.schemaKey] || {}),
-        type: 'text_overlay',
         page: overlayDrag.pageIdx,
         rect: nextRect.map((v) => Math.round(v * 10) / 10),
       });
@@ -303,23 +303,25 @@ export default function PdfFieldPreview({
     setPendingRect({ pageIdx, rect: pdfRect });
     setDrawing(null);
     setNewFieldName('');
+    setNewFieldType('text');
   }, [drawing, canvasToPdf, overlayDrag]);
 
   const confirmNewField = useCallback(() => {
     if (!pendingRect || !newFieldName.trim()) return;
     const key = newFieldName.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
     const overlayMapping = {
-      type: 'text_overlay',
+      type: newFieldType === 'signature' ? 'signature' : 'text_overlay',
+      ...(newFieldType === 'signature' ? { field: null } : {}),
       page: pendingRect.pageIdx,
       rect: pendingRect.rect,
       font_size: null,
       font: 'Helvetica',
       align: 'L',
     };
-    onOverlayAdd?.(key, overlayMapping);
+    onOverlayAdd?.(key, overlayMapping, newFieldType);
     setPendingRect(null);
     setNewFieldName('');
-  }, [pendingRect, newFieldName, onOverlayAdd]);
+  }, [pendingRect, newFieldName, newFieldType, onOverlayAdd]);
 
   // Stats
   const mappedCount = fieldRects.filter((f) => reverseMapping[f.name]).length;
@@ -441,7 +443,7 @@ export default function PdfFieldPreview({
 
       {drawMode && (
         <div className="mb-3 px-2 py-2 bg-blue-50 rounded-lg border border-blue-200 text-xs text-blue-700">
-          Draw a rectangle on the PDF where you want to place a new text field. The text will be stamped at that position when the form is filled.
+          Draw a rectangle where the answer should appear, then choose text, date, or a drawn signature.
         </div>
       )}
 
@@ -457,7 +459,7 @@ export default function PdfFieldPreview({
 
       {/* New field name dialog */}
       {pendingRect && (
-        <div className="mb-3 px-3 py-3 bg-blue-50 rounded-xl border-2 border-blue-300 flex items-center gap-3">
+        <div className="mb-3 px-3 py-3 bg-blue-50 rounded-xl border-2 border-blue-300 flex flex-wrap items-center gap-3">
           <span className="text-sm text-blue-700 font-medium whitespace-nowrap">Field key:</span>
           <input
             type="text"
@@ -468,6 +470,15 @@ export default function PdfFieldPreview({
             className="flex-1 px-3 py-1.5 text-sm border border-blue-300 rounded-lg font-mono focus:outline-none focus:border-blue-500"
             autoFocus
           />
+          <select
+            value={newFieldType}
+            onChange={(event) => setNewFieldType(event.target.value as 'text' | 'date' | 'signature')}
+            className="rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-sm text-blue-800 focus:border-blue-500 focus:outline-none"
+          >
+            <option value="text">Text</option>
+            <option value="date">Date</option>
+            <option value="signature">Drawn signature</option>
+          </select>
           <button
             onClick={confirmNewField}
             disabled={!newFieldName.trim()}

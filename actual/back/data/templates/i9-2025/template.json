@@ -5,10 +5,18 @@
   "schema": "schema.json",
   "mapping": "mapping.json",
   "title": "Form I-9",
-  "description": "Employment Eligibility Verification — required for every new hire in the US",
+  "description": "Employee Section 1 of Employment Eligibility Verification; the employer completes Section 2 separately",
   "category": "employment",
   "tags": ["employment", "uscis", "hiring", "work authorization", "new hire", "hr"],
   "country": "US",
   "popular": true,
-  "estimated_time": "10 min"
+  "estimated_time": "10 min",
+  "seo_title": "Free Form I-9 Section 1 Filler - USCIS Employee Form | Oky-Docky",
+  "seo_description": "Complete employee Section 1 of the current USCIS Form I-9 with guided citizenship, address, preparer, date, and signature questions.",
+  "seo_keywords": ["I-9 form online", "Form I-9 Section 1", "employment eligibility verification", "USCIS I-9 PDF", "new hire form"],
+  "source_url": "https://www.uscis.gov/sites/default/files/document/forms/i-9.pdf",
+  "source_authority": "U.S. Citizenship and Immigration Services",
+  "form_revision": "01/20/25",
+  "completion_scope": "Employee Section 1 and Supplement A for one preparer or translator",
+  "source_verified": "2026-06-19"
 }

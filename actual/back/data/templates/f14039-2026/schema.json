@@ -1,30 +1,29 @@
 {
   "fields": [
     {
-      "key": "how_discovered",
-      "type": "radio",
-      "required": true,
+      "key": "filing_self",
+      "type": "checkbox",
+      "required": false,
+      "label": "I am submitting Form 14039 for myself"
+    },
+    {
+      "key": "responding_to_notice",
+      "type": "checkbox",
+      "required": false,
       "routing": true,
-      "label": "How did you find out someone used your identity?",
-      "helpText": "Pick the main reason you're filing this form. If more than one applies, pick the one that happened first.",
-      "options": [
-        {
-          "value": "irs_letter",
-          "label": "The IRS sent me a letter or notice about it"
-        },
-        {
-          "value": "rejected",
-          "label": "I tried to file my taxes and they got rejected — someone already filed using my info"
-        },
-        {
-          "value": "other_agency",
-          "label": "Social Security, a state agency, or another organization told me"
-        },
-        {
-          "value": "self_discovered",
-          "label": "I discovered it myself (credit report, strange mail, etc.)"
-        }
-      ]
+      "label": "I am submitting Form 14039 in response to an IRS notice or letter"
+    },
+    {
+      "key": "filing_dependent",
+      "type": "checkbox",
+      "required": false,
+      "label": "I am submitting Form 14039 for my dependent child or dependent relative"
+    },
+    {
+      "key": "filing_other_person",
+      "type": "checkbox",
+      "required": false,
+      "label": "I am submitting Form 14039 for another living or deceased person"
     },
     {
       "key": "notice_letter",
@@ -34,36 +33,35 @@
       "placeholder": "CP01A, LTR 5071C, etc.",
       "helpText": "Look at the top-right corner of the IRS letter. It should have a number. If you can't find it, just skip this.",
       "visible_when": {
-        "how_discovered": [
-          "irs_letter"
+        "responding_to_notice": [
+          true
         ]
       }
     },
     {
-      "key": "what_they_did",
-      "type": "radio",
-      "required": true,
-      "routing": true,
-      "label": "What did the thief do with your information?",
-      "helpText": "Pick the main thing that happened. If multiple things happened, pick the biggest one and describe the rest later.",
-      "options": [
-        {
-          "value": "fake_return",
-          "label": "Filed a fake tax return to steal my refund"
-        },
-        {
-          "value": "used_ssn_job",
-          "label": "Used my Social Security Number to get a job"
-        },
-        {
-          "value": "claimed_dependent",
-          "label": "Claimed me or my child as a dependent on their taxes"
-        },
-        {
-          "value": "other_theft",
-          "label": "Something else or multiple things"
-        }
-      ]
+      "key": "tax_return_fraud",
+      "type": "checkbox",
+      "required": false,
+      "label": "Someone used my information to fraudulently file a federal tax return"
+    },
+    {
+      "key": "spouse_victim",
+      "type": "checkbox",
+      "required": false,
+      "label": "My spouse is also a victim",
+      "visible_when": {"tax_return_fraud": [true]}
+    },
+    {
+      "key": "dependent_claim",
+      "type": "checkbox",
+      "required": false,
+      "label": "I or my dependent was fraudulently or incorrectly claimed as a dependent"
+    },
+    {
+      "key": "employment_misuse",
+      "type": "checkbox",
+      "required": false,
+      "label": "My SSN or ITIN was fraudulently used for employment purposes"
     },
     {
       "key": "theft_details",
@@ -148,6 +146,13 @@
       "helpText": "Where you currently live and get your mail."
     },
     {
+      "key": "current_address_unit",
+      "type": "text",
+      "required": false,
+      "label": "Apartment, room, or suite number?",
+      "placeholder": "Apt 4"
+    },
+    {
       "key": "city",
       "type": "text",
       "required": true,
@@ -207,6 +212,18 @@
       "required": true,
       "label": "What was your old street address?",
       "placeholder": "456 Oak Avenue",
+      "visible_when": {
+        "has_previous_address": [
+          "yes"
+        ]
+      }
+    },
+    {
+      "key": "prev_address_unit",
+      "type": "text",
+      "required": false,
+      "label": "Old apartment, room, or suite number?",
+      "placeholder": "Suite 200",
       "visible_when": {
         "has_previous_address": [
           "yes"
@@ -388,11 +405,11 @@
       "maxLength": 1
     },
     {
-      "key": "rep_relationship",
+      "key": "rep_reason",
       "type": "radio",
       "required": true,
       "routing": true,
-      "label": "What is this person to you?",
+      "label": "Why is this person authorized to complete the form?",
       "visible_when": {
         "filing_for": [
           "representative"
@@ -400,101 +417,109 @@
       },
       "options": [
         {
-          "value": "parent_guardian",
-          "label": "My parent or legal guardian"
+          "value": "surviving_spouse",
+          "label": "The taxpayer is deceased and I am the surviving spouse"
         },
         {
-          "value": "fiduciary",
-          "label": "Trustee, executor, or fiduciary"
+          "value": "court_appointed_rep",
+          "label": "The taxpayer is deceased and I am the court-appointed or certified personal representative"
         },
         {
-          "value": "power_of_attorney",
-          "label": "My attorney (Power of Attorney)"
+          "value": "uncertified_rep",
+          "label": "The taxpayer is deceased and a court-appointed representative has not been appointed"
         },
         {
-          "value": "court_appointed",
-          "label": "Court-appointed representative"
+          "value": "conservator_or_poa",
+          "label": "The taxpayer cannot complete the form and I am a conservator or authorized by Form 2848 or 56"
         },
         {
-          "value": "other",
-          "label": "Someone else"
+          "value": "dependent_relative",
+          "label": "The person is my dependent child or dependent relative"
         }
       ]
     },
     {
-      "key": "court_appointed_for",
+      "key": "uncertified_relationship",
       "type": "radio",
       "required": true,
       "routing": true,
-      "label": "Who was the court appointment for?",
-      "helpText": "The court may have appointed this person for a specific reason.",
+      "label": "What is the representative's relationship to the deceased taxpayer?",
       "visible_when": {
         "filing_for": [
           "representative"
         ],
-        "rep_relationship": [
-          "court_appointed"
+        "rep_reason": [
+          "uncertified_rep"
         ]
       },
       "options": [
         {
           "value": "child",
-          "label": "For my child (minor)"
+          "label": "Child"
         },
         {
           "value": "parent_guardian",
-          "label": "As my parent or legal guardian"
+          "label": "Parent or legal guardian"
         },
         {
-          "value": "other_court",
-          "label": "Other court-appointed reason"
+          "value": "other",
+          "label": "Other"
         }
       ]
     },
     {
-      "key": "court_appointed_other_explain",
+      "key": "uncertified_other_explain",
       "type": "text",
       "required": true,
-      "label": "Describe the court appointment",
-      "placeholder": "Conservator, legal guardian of estate, etc.",
+      "label": "Describe the relationship to the deceased taxpayer",
+      "placeholder": "Sibling, domestic partner, etc.",
       "visible_when": {
         "filing_for": [
           "representative"
         ],
-        "rep_relationship": [
-          "court_appointed"
+        "rep_reason": [
+          "uncertified_rep"
         ],
-        "court_appointed_for": [
-          "other_court"
+        "uncertified_relationship": [
+          "other"
         ]
       }
     },
     {
-      "key": "has_court_acceptance",
-      "type": "checkbox",
-      "required": false,
-      "label": "Court has accepted responsibility for this person's affairs",
-      "helpText": "Check this if the court order specifically grants authority to manage tax matters.",
+      "key": "dependent_authority",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "What authority does the representative have for the dependent?",
       "visible_when": {
         "filing_for": [
           "representative"
         ],
-        "rep_relationship": [
-          "court_appointed"
+        "rep_reason": [
+          "dependent_relative"
         ]
-      }
+      },
+      "options": [
+        {"value": "parent_guardian", "label": "Parent or legal guardian"},
+        {"value": "fiduciary", "label": "Fiduciary under IRS Form 56"},
+        {"value": "power_of_attorney", "label": "Power of Attorney"},
+        {"value": "other", "label": "Other"}
+      ]
     },
     {
-      "key": "rep_relationship_other",
+      "key": "dependent_authority_other",
       "type": "text",
       "required": true,
-      "label": "Describe who they are",
-      "placeholder": "Enrolled Agent, Tax Preparer, CPA, etc.",
+      "label": "Describe the representative's authority",
+      "placeholder": "Describe the legal authority",
       "visible_when": {
         "filing_for": [
           "representative"
         ],
-        "rep_relationship": [
+        "rep_reason": [
+          "dependent_relative"
+        ],
+        "dependent_authority": [
           "other"
         ]
       }
@@ -538,69 +563,6 @@
     }
   ],
   "transforms": [
-    {
-      "type": "derive",
-      "when": {
-        "how_discovered": "irs_letter"
-      },
-      "set": {
-        "reason_notice": true
-      }
-    },
-    {
-      "type": "derive",
-      "when": {
-        "how_discovered": "rejected"
-      },
-      "set": {
-        "reason_rejected": true
-      }
-    },
-    {
-      "type": "derive",
-      "when": {
-        "how_discovered": "other_agency"
-      },
-      "set": {
-        "reason_other_agency": true
-      }
-    },
-    {
-      "type": "derive",
-      "when": {
-        "how_discovered": "self_discovered"
-      },
-      "set": {
-        "reason_other": true
-      }
-    },
-    {
-      "type": "derive",
-      "when": {
-        "what_they_did": "fake_return"
-      },
-      "set": {
-        "theft_tax_return": true
-      }
-    },
-    {
-      "type": "derive",
-      "when": {
-        "what_they_did": "used_ssn_job"
-      },
-      "set": {
-        "theft_ssn_work": true
-      }
-    },
-    {
-      "type": "derive",
-      "when": {
-        "what_they_did": "claimed_dependent"
-      },
-      "set": {
-        "theft_dependent": true
-      }
-    },
     {
       "type": "copy",
       "from": "phone_cell",

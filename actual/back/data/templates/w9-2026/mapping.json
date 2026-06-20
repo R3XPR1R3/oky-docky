@@ -6,9 +6,9 @@
   "exempt_payee_code": "f1_05[0]",
   "fatca_exemption": "f1_06[0]",
 
-  "broker_exempt": {
+  "foreign_partner_reporting": {
     "type": "checkbox",
-    "field": "c1_3[0]",
+    "field": "c1_2[0]",
     "checked_value": "/1",
     "unchecked_value": "/Off"
   },
@@ -31,8 +31,10 @@
   },
 
   "sign_date": {
-    "type": "date_split",
-    "fields": { "mm": "f1_16[0]", "dd": "f1_17[0]", "yyyy": "f1_18[0]" }
+    "type": "text_overlay",
+    "page": 0,
+    "rect": [420, 185, 565, 208],
+    "font_size": 10
   },
 
   "tax_class": {
@@ -52,7 +54,8 @@
   "signature": {
     "type": "signature",
     "field": null,
-    "page": 1,
-    "rect": [65, 80, 430, 100]
+    "page": 0,
+    "rect": [145, 185, 390, 203],
+    "font_size": 10
   }
 }

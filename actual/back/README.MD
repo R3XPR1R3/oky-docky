@@ -17,6 +17,14 @@ uvicorn actual.back.fillable_processor:app --reload --host 0.0.0.0 --port 8000
 ./start-dev.sh
 ```
 
+На Windows с установленным Docker Desktop запустите `start-dev.cmd` двойным
+кликом или из терминала. Лаунчер соберёт и запустит frontend, backend и
+Cloudflare Tunnel без локальной установки Python или Node.js:
+
+```powershell
+.\start-dev.cmd
+```
+
 ## Основные endpoint'ы
 
 - `GET /api/templates`

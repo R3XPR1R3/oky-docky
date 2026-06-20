@@ -46,7 +46,7 @@
     "inputs": [
       "var:children_count"
     ],
-    "factor": 2000,
+    "factor": 2200,
     "output_key": "qualifying_children_amount"
   },
   "calc_other_dependents_amount": {
@@ -87,9 +87,17 @@
   "ws_mj_2c": "f3_04[0]",
   "ws_mj_3": "f3_05[0]",
   "ws_mj_4": "f3_06[0]",
-  "ws_ded_1": "f4_01[0]",
-  "ws_ded_2": "f4_02[0]",
-  "ws_ded_3": "f4_03[0]",
-  "ws_ded_4": "f4_04[0]",
-  "ws_ded_5": "f4_05[0]"
+  "signature": {
+    "type": "signature",
+    "field": null,
+    "page": 0,
+        "rect": [270, 85, 445, 101],
+    "font_size": 10
+  },
+  "sign_date": {
+    "type": "text_overlay",
+    "page": 0,
+        "rect": [500, 85, 575, 101],
+    "font_size": 9
+  }
 }

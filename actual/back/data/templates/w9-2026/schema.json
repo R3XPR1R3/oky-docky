@@ -166,11 +166,15 @@
       }
     },
     {
-      "key": "broker_exempt",
+      "key": "foreign_partner_reporting",
       "type": "checkbox",
       "required": false,
-      "label": "I'm a broker exempt from reporting certain transactions",
-      "helpText": "Only check this if you're a securities broker who only processes transactions and doesn't report income from them. Most people skip this."
+      "label": "This form is being provided to a partnership, trust, or estate in which I have foreign partners, owners, or beneficiaries",
+      "helpText": "This is line 3b. Check it only when line 3a is Partnership, Trust/estate, or an LLC taxed as a partnership and the ownership condition applies.",
+      "visible_when_any": [
+        { "tax_class": ["partnership", "trust"] },
+        { "tax_class": ["llc"], "taxpayer_classification": ["P"] }
+      ]
     },
     {
       "key": "address",

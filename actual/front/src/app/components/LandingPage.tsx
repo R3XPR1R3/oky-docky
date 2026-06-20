@@ -35,15 +35,15 @@ export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaime
             <span className="text-xl font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{t('app.name')}</span>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" className="text-sm" onClick={onHowItWorks}>{t('nav.howItWorks')}</Button>
-            <Button variant="ghost" className="text-sm" onClick={onPricing}>{t('nav.pricing')}</Button>
+            <Button data-analytics="nav:how_it_works" variant="ghost" className="text-sm" onClick={onHowItWorks}>{t('nav.howItWorks')}</Button>
+            <Button data-analytics="nav:pricing" variant="ghost" className="text-sm" onClick={onPricing}>{t('nav.pricing')}</Button>
             {onBuilder && (
               <Button variant="ghost" className="text-sm gap-1" onClick={onBuilder}>
                 <Settings2 className="w-4 h-4" /> Builder
               </Button>
             )}
             <LanguageSelector />
-            <Button variant="outline" className="text-sm" onClick={onGetStarted}>{t('nav.getStarted')}</Button>
+            <Button data-analytics="nav:get_started" variant="outline" className="text-sm" onClick={onGetStarted}>{t('nav.getStarted')}</Button>
           </div>
         </div>
       </motion.header>
@@ -63,11 +63,11 @@ export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaime
           <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">{t('landing.heroDescription')}</p>
 
           <div className="flex items-center justify-center gap-4">
-            <Button size="lg" onClick={onGetStarted} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all duration-300">
+            <Button data-analytics="hero:get_started" size="lg" onClick={onGetStarted} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all duration-300">
               {t('landing.getStartedFree')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <Button size="lg" variant="outline" className="px-8 py-6 text-lg rounded-xl border-2" onClick={onHowItWorks}>{t('landing.seeHowItWorks')}</Button>
+            <Button data-analytics="hero:how_it_works" size="lg" variant="outline" className="px-8 py-6 text-lg rounded-xl border-2" onClick={onHowItWorks}>{t('landing.seeHowItWorks')}</Button>
           </div>
 
           <p className="text-sm text-slate-500 mt-4">{t('landing.noCreditCard')}</p>
@@ -125,7 +125,7 @@ export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaime
           <div className="relative">
             <h2 className="text-4xl font-bold mb-4">{t('landing.ctaTitle')}</h2>
             <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">{t('landing.ctaDescription')}</p>
-            <Button size="lg" onClick={onGetStarted} className="bg-white text-indigo-600 hover:bg-slate-50 px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+            <Button data-analytics="footer_cta:get_started" size="lg" onClick={onGetStarted} className="bg-white text-indigo-600 hover:bg-slate-50 px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
               {t('landing.ctaButton')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>

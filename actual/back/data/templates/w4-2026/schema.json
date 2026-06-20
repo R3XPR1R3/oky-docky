@@ -198,12 +198,25 @@
       }
     },
     {
+      "key": "dependent_credit_eligible",
+      "type": "radio",
+      "required": true,
+      "routing": true,
+      "label": "Will your total income be $200,000 or less ($400,000 or less if married filing jointly)?",
+      "helpText": "Step 3 uses these income thresholds for the dependent credits.",
+      "options": [
+        {"value": "yes", "label": "Yes"},
+        {"value": "no", "label": "No, skip Step 3"}
+      ]
+    },
+    {
       "key": "qualifying_children_count",
       "type": "text",
       "required": false,
       "label": "How many kids under 17 do you have?",
       "placeholder": "0",
-      "helpText": "Children you support who are under 17. Each child gets you a $2,000 tax credit. Put 0 if none."
+      "helpText": "Children you support who are under 17. For 2026, multiply this count by $2,200. Put 0 if none.",
+      "visible_when": {"dependent_credit_eligible": ["yes"]}
     },
     {
       "key": "other_dependents_count",
@@ -211,7 +224,8 @@
       "required": false,
       "label": "Do you support anyone else? (elderly parents, adult children, etc.)",
       "placeholder": "0",
-      "helpText": "Other people who depend on you financially. Each one gets a $500 credit. Put 0 if none."
+      "helpText": "Other people who depend on you financially. Each one gets a $500 credit. Put 0 if none.",
+      "visible_when": {"dependent_credit_eligible": ["yes"]}
     },
     {
       "key": "other_income",
@@ -226,8 +240,8 @@
       "type": "radio",
       "required": false,
       "routing": true,
-      "label": "Do you plan to itemize deductions instead of taking the standard deduction?",
-      "helpText": "Most people take the standard deduction and can skip this. You'd itemize if your mortgage interest, charity, state/local taxes, medical expenses, etc. add up to more than the standard deduction ($15,000 single / $30,000 married).",
+      "label": "Do you need to use the 2026 Deductions Worksheet?",
+      "helpText": "Use it for qualified tips/overtime/vehicle-loan interest, the senior deduction, adjustments, itemized deductions, or qualifying cash gifts. The 2026 standard deductions are $16,100 single/MFS, $32,200 MFJ/QSS, and $24,150 head of household.",
       "options": [
         {
           "value": "no",
@@ -240,81 +254,12 @@
       ]
     },
     {
-      "key": "ws_ded_1",
-      "type": "text",
-      "required": false,
-      "label": "Deductions Worksheet Line 1: Estimated itemized deductions this year",
-      "placeholder": "20000",
-      "helpText": "Add up your expected mortgage interest, charity, state/local tax (up to $10,000), medical expenses over 7.5% of income, etc.",
-      "visible_when": {
-        "use_deductions_worksheet": [
-          "yes"
-        ]
-      }
-    },
-    {
-      "key": "ws_ded_2",
-      "type": "text",
-      "required": false,
-      "label": "Deductions Worksheet Line 2: Standard deduction",
-      "helpText": "Single or Married Filing Separately: $15,000. Married Filing Jointly: $30,000. Head of Household: $22,500.",
-      "visible_when": {
-        "use_deductions_worksheet": [
-          "yes"
-        ]
-      }
-    },
-    {
-      "key": "ws_ded_3",
-      "type": "text",
-      "required": false,
-      "label": "Deductions Worksheet Line 3: Line 1 minus Line 2 (if more than zero)",
-      "placeholder": "0",
-      "helpText": "Subtract the standard deduction from your itemized deductions. If the result is zero or less, enter 0.",
-      "visible_when": {
-        "use_deductions_worksheet": [
-          "yes"
-        ]
-      }
-    },
-    {
-      "key": "ws_ded_4",
-      "type": "text",
-      "required": false,
-      "label": "Deductions Worksheet Line 4: Student loan interest, IRA deductions, other adjustments",
-      "placeholder": "0",
-      "helpText": "Include student loan interest deduction, deductible IRA contributions, and certain other adjustments. Enter 0 if none.",
-      "visible_when": {
-        "use_deductions_worksheet": [
-          "yes"
-        ]
-      }
-    },
-    {
-      "key": "ws_ded_5",
-      "type": "text",
-      "required": false,
-      "label": "Deductions Worksheet Line 5: Total (add Lines 3 and 4) → enter in Step 4(b)",
-      "placeholder": "0",
-      "helpText": "This total goes into Step 4(b) as your deductions amount.",
-      "visible_when": {
-        "use_deductions_worksheet": [
-          "yes"
-        ]
-      }
-    },
-    {
       "key": "deductions",
       "type": "text",
       "required": false,
       "label": "Step 4(b): Deductions amount",
       "placeholder": "0",
-      "helpText": "If you filled the Deductions Worksheet, enter Line 5 here. Otherwise enter your extra deductions beyond the standard deduction, or 0.",
-      "visible_when": {
-        "use_deductions_worksheet": [
-          "no"
-        ]
-      }
+      "helpText": "If you used the official 2026 Deductions Worksheet, enter Line 15 here. Otherwise enter 0."
     },
     {
       "key": "extra_withholding",
@@ -330,6 +275,22 @@
       "required": false,
       "label": "I'm exempt from taxes",
       "helpText": "Only check this if: (1) you got back ALL your taxes last year, AND (2) you expect the same this year. Most people do NOT check this."
+    },
+    {
+      "key": "signature",
+      "type": "signature",
+      "required": true,
+      "label": "Employee signature",
+      "helpText": "Form W-4 is not valid unless the employee signs it."
+    },
+    {
+      "key": "sign_date",
+      "type": "date",
+      "required": true,
+      "label": "Date signed",
+      "placeholder": "06/19/2026",
+      "inputMask": "DD/DD/DDDD",
+      "maxLength": 10
     },
     {
       "key": "employer_name_address",
@@ -363,7 +324,7 @@
       "type": "compute",
       "operation": "multiply",
       "input": "qualifying_children_count",
-      "factor": 2000,
+      "factor": 2200,
       "output": "qualifying_children_amount"
     },
     {
@@ -384,21 +345,17 @@
     },
     {
       "type": "copy",
-      "from": "ws_ded_5",
-      "to": "deductions",
-      "if_empty": true,
-      "when": {
-        "use_deductions_worksheet": "yes"
-      }
-    },
-    {
-      "type": "copy",
       "from": "ws_mj_4",
       "to": "extra_withholding",
       "if_empty": true,
       "when": {
         "use_worksheet": "yes"
       }
+    },
+    {
+      "type": "auto_date",
+      "field": "sign_date",
+      "format": "MM/DD/YYYY"
     }
   ]
 }

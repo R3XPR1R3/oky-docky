@@ -79,6 +79,11 @@ export function DisclaimerPage({ onBack }: DisclaimerPageProps) {
               </motion.div>
             );
           })}
+
+          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-6">
+            <div className="mb-3 flex items-center gap-2"><Shield className="h-5 w-5 text-indigo-600" /><h2 className="text-xl font-bold text-slate-800">Privacy-conscious analytics</h2></div>
+            <p className="text-slate-600 leading-relaxed">We collect first-party usage events such as visited pages, campaign parameters, referring domains, catalog searches, designated button clicks, and form completion counts. We do not store IP addresses, form answers, signatures, tax identifiers, or generated PDF contents in analytics.</p>
+          </motion.div>
         </div>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-16 text-center text-sm text-slate-500 border-t border-slate-200 pt-8">

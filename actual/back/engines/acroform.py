@@ -324,17 +324,37 @@ def _stamp_with_fpdf2(writer: PdfWriter, page_idx: int, img, x: float, y: float,
     page_w = float(media_box.width)
     page_h = float(media_box.height)
 
+    # Browser canvases are larger than most PDF signature boxes. Crop empty
+    # transparent margins and fit the ink without distorting its proportions.
+    alpha = img.getchannel("A") if img.mode == "RGBA" else None
+    bounds = alpha.getbbox() if alpha is not None else None
+    if bounds:
+        padding = max(2, int(max(img.size) * 0.01))
+        left = max(0, bounds[0] - padding)
+        top = max(0, bounds[1] - padding)
+        right = min(img.width, bounds[2] + padding)
+        bottom = min(img.height, bounds[3] + padding)
+        img = img.crop((left, top, right, bottom))
+
+    if img.width <= 0 or img.height <= 0:
+        return
+    scale = min(w / img.width, h / img.height)
+    draw_w = img.width * scale
+    draw_h = img.height * scale
+    draw_x = x + (w - draw_w) / 2
+    draw_y = y + (h - draw_h) / 2
+
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_img:
         img.save(tmp_img, "PNG")
         tmp_img_path = tmp_img.name
 
     # fpdf2 uses top-left origin; PDF uses bottom-left
-    fpdf_y = page_h - y - h
+    fpdf_y = page_h - draw_y - draw_h
 
     pdf = FPDF(unit="pt", format=(page_w, page_h))
     pdf.add_page()
     pdf.set_auto_page_break(False)
-    pdf.image(tmp_img_path, x=x, y=fpdf_y, w=w, h=h)
+    pdf.image(tmp_img_path, x=draw_x, y=fpdf_y, w=draw_w, h=draw_h)
 
     stamp_bytes = pdf.output()
 
@@ -391,12 +411,18 @@ def fill_acroform_pdf(
         if isinstance(v, str) and v.startswith("data:image"):
             safe_values[k] = ""
 
-    # update AcroForm fields on all pages
-    for page in writer.pages:
-        try:
-            writer.update_page_form_field_values(page, safe_values)
-        except Exception:
-            pass
+    # Generate and flatten appearance streams so completed values remain
+    # visible in browser PDF renderers that do not regenerate AcroForm/XFA
+    # appearances (including pdf.js and PDFium).
+    try:
+        writer.update_page_form_field_values(
+            list(writer.pages),
+            safe_values,
+            auto_regenerate=False,
+            flatten=True,
+        )
+    except Exception:
+        pass
 
     # update XFA datasets XML if present
     _fill_xfa_datasets(writer, field_values)

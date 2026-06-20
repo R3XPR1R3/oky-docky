@@ -90,7 +90,7 @@ def _match(when: Dict[str, Any], data: Dict[str, Any]) -> bool:
 def _compute(rule: Dict[str, Any], data: Dict[str, Any]) -> str:
     """Execute a single compute rule and return the string result."""
     op = rule.get("operation", "add")
-    inputs = rule.get("inputs", [])
+    inputs = rule.get("inputs") or ([rule["input"]] if rule.get("input") else [])
     vals = [_to_num(data.get(k)) for k in inputs]
 
     # --- basic arithmetic ---
@@ -202,9 +202,21 @@ def apply_transforms(
             val = result.get(src, "")
             if val:
                 if rule.get("if_empty", False):
-                    result.setdefault(dst, val)
+                    if result.get(dst) in (None, ""):
+                        result[dst] = val
                 else:
                     result[dst] = val
+
+        # --- concat: fields -> joined output ---
+        elif rtype == "concat":
+            source_keys = rule.get("fields") or rule.get("inputs") or []
+            output_key = rule.get("output", "")
+            if not isinstance(source_keys, list) or not output_key:
+                continue
+            values = [str(result.get(key, "")).strip() for key in source_keys]
+            if rule.get("skip_empty", True):
+                values = [value for value in values if value]
+            result[output_key] = str(rule.get("separator", " ")).join(values)
 
         # --- auto_date: today's date ---
         elif rtype == "auto_date":
@@ -216,7 +228,8 @@ def apply_transforms(
                     .replace("DD", "%d")
                     .replace("YYYY", "%Y")
                 )
-                result.setdefault(field, _date.today().strftime(py_fmt))
+                if result.get(field) in (None, ""):
+                    result[field] = _date.today().strftime(py_fmt)
 
         # --- set_value: literal value ---
         elif rtype == "set_value":
@@ -225,6 +238,6 @@ def apply_transforms(
             when = rule.get("when")
             if field:
                 if when is None or _match(when, result):
-                    result.setdefault(field, value)
+                    result[field] = value
 
     return result

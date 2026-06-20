@@ -10,5 +10,12 @@
   "tags": ["tax", "irs", "personal", "business", "tin", "ssn", "ein"],
   "country": "US",
   "popular": true,
-  "estimated_time": "5 min"
+  "estimated_time": "5 min",
+  "seo_title": "Free W-9 Form Filler - Create a Completed W-9 PDF | Oky-Docky",
+  "seo_description": "Fill out the current IRS Form W-9 online using a guided TIN, tax-classification, address, certification, and signature workflow.",
+  "seo_keywords": ["W-9 form online", "free W-9 filler", "IRS W-9 PDF", "taxpayer identification form", "W-9 generator"],
+  "source_url": "https://www.irs.gov/pub/irs-pdf/fw9.pdf",
+  "source_authority": "Internal Revenue Service",
+  "form_revision": "March 2024",
+  "source_verified": "2026-06-19"
 }

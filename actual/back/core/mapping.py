@@ -325,6 +325,7 @@ def build_pdf_field_values(form_data: Dict[str, Any], mapping: Dict[str, Any]) -
                         "rect": rule.get("rect", [0, 0, 200, 50]),
                         "field": "",
                         "text_mode": True,
+                        "font_size": rule.get("font_size"),
                     })
 
         elif rtype == "text_overlay":

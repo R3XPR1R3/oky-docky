@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { Toaster, toast } from 'sonner';
 import { I18nProvider, useTranslation } from './i18n/I18nContext';
@@ -8,12 +8,14 @@ import { DocumentSelection } from './components/DocumentSelection';
 import { ReviewPage } from './components/ReviewPage';
 import { SuccessPage } from './components/SuccessPage';
 import { ErrorDialog } from './components/ErrorDialog';
-import { FormBuilder } from './components/FormBuilder';
+import { AdminLogin } from './components/AdminLogin';
+import { AdminDashboard } from './components/AdminDashboard';
 import { HowItWorks } from './components/HowItWorks';
 import { PricingPage } from './components/PricingPage';
 import { DisclaimerPage } from './components/DisclaimerPage';
 import { TemplatePage } from './pages/TemplatePage';
 import { useDocumentMeta } from './hooks/useDocumentMeta';
+import { AnalyticsTracker, trackEvent } from './lib/analytics';
 
 export interface TemplateMeta {
   id: string;
@@ -24,6 +26,12 @@ export interface TemplateMeta {
   country: string;
   popular: boolean;
   estimated_time: string;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string[];
+  source_url?: string;
+  source_authority?: string;
+  form_revision?: string;
 }
 
 export interface FieldStyle {
@@ -35,7 +43,7 @@ export interface FieldStyle {
 
 export interface SchemaField {
   key: string;
-  type: 'text' | 'radio' | 'checkbox' | 'signature' | 'text_input' | 'checkbox_input' | 'signature_area';
+  type: 'text' | 'date' | 'radio' | 'checkbox' | 'signature' | 'text_input' | 'checkbox_input' | 'signature_area';
   required?: boolean;
   routing?: boolean;
   hidden?: boolean;
@@ -53,12 +61,14 @@ export interface SchemaField {
 }
 
 export interface SchemaTransform {
-  type: 'derive' | 'compute' | 'copy' | 'auto_date' | 'set_value';
+  type: 'derive' | 'compute' | 'copy' | 'concat' | 'auto_date' | 'set_value';
   when?: Record<string, string | string[] | boolean>;
   set?: Record<string, any>;
   operation?: string;
   input?: string;
   inputs?: string[];
+  separator?: string;
+  skip_empty?: boolean;
   factor?: number;
   output?: string;
   from?: string;
@@ -108,6 +118,7 @@ function SelectionRoute() {
 
   const handleSelectDocument = async (template: TemplateMeta) => {
     try {
+      trackEvent('click', { element: `template_card:${template.id}`, template_id: template.id });
       // Pre-validate the template exists, then navigate to its URL
       navigate(`/${template.id}`);
     } catch (err) {
@@ -168,23 +179,14 @@ function DisclaimerRoute() {
 }
 
 function BuilderRoute() {
-  const navigate = useNavigate();
-  useDocumentMeta({
-    title: 'Form Builder — Oky-Docky',
-    description: 'Build and edit document form templates with our visual form builder.',
-    canonical: '/builder',
-  });
-  return (
-    <motion.div key="builder" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
-      <FormBuilder onBack={() => navigate('/')} />
-    </motion.div>
-  );
+  return <Navigate to="/admin?tab=builder" replace />;
 }
 
 function AppRoutes() {
   return (
     <>
       <Toaster position="top-center" richColors />
+      <AnalyticsTracker />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <AnimatePresence mode="wait">
           <Routes>
@@ -194,6 +196,8 @@ function AppRoutes() {
             <Route path="/pricing" element={<PricingRoute />} />
             <Route path="/disclaimer" element={<DisclaimerRoute />} />
             <Route path="/builder" element={<BuilderRoute />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/:templateId" element={<TemplatePage />} />
           </Routes>
         </AnimatePresence>
@@ -205,7 +209,7 @@ function AppRoutes() {
 export default function App() {
   return (
     <I18nProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/oky-docky">
         <AppRoutes />
       </BrowserRouter>
     </I18nProvider>

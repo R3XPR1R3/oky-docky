@@ -52,10 +52,15 @@ cd "$SCRIPT_DIR"
 
 # Load local deployment secrets/settings without committing them.
 # Put TUNNEL_TOKEN and PUBLIC_DOMAIN in .env on the Pi.
-if [ -f "${SCRIPT_DIR}/.env" ]; then
+ENV_FILE="${SCRIPT_DIR}/.env"
+FIRST_SETUP=0
+if [ ! -f "$ENV_FILE" ]; then
+  FIRST_SETUP=1
+fi
+if [ -f "$ENV_FILE" ]; then
   set -a
-  # shellcheck disable=SC1091
-  source "${SCRIPT_DIR}/.env"
+  # shellcheck disable=SC1090
+  source "$ENV_FILE"
   set +a
 fi
 
@@ -70,8 +75,17 @@ TUNNEL_LOG="${SCRIPT_DIR}/tunnel.log"
 TUNNEL_URL_FILE="${SCRIPT_DIR}/tunnel-url.txt"
 TUNNEL_TOKEN="${TUNNEL_TOKEN:-}"
 PUBLIC_DOMAIN="${PUBLIC_DOMAIN:-barckhat.com}"
-PUBLIC_URL="${PUBLIC_URL:-https://${PUBLIC_DOMAIN}}"
-GIT_FORCE_SYNC="${GIT_FORCE_SYNC:-1}"
+PUBLIC_PATH="${PUBLIC_PATH:-/oky-docky/}"
+[[ "$PUBLIC_PATH" == /* ]] || PUBLIC_PATH="/${PUBLIC_PATH}"
+[[ "$PUBLIC_PATH" == */ ]] || PUBLIC_PATH="${PUBLIC_PATH}/"
+PUBLIC_URL="${PUBLIC_URL:-https://${PUBLIC_DOMAIN}${PUBLIC_PATH}}"
+if [ "${PUBLIC_URL%/}" = "https://${PUBLIC_DOMAIN}" ]; then
+  PUBLIC_URL="https://${PUBLIC_DOMAIN}${PUBLIC_PATH}"
+fi
+if [ "$TUNNEL_TOKEN" = "paste-your-cloudflare-tunnel-token-here" ]; then
+  TUNNEL_TOKEN=""
+fi
+GIT_FORCE_SYNC="${GIT_FORCE_SYNC:-0}"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
 if [ -n "$TUNNEL_TOKEN" ]; then
   # Include the cloudflared profile in normal compose operations so backend,
@@ -82,6 +96,157 @@ UPDATE_STATUS_FILE="${SCRIPT_DIR}/.update-status"
 
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOG_FILE"
+}
+
+require_command() {
+  local command_name="$1"
+  local install_hint="$2"
+  if ! command -v "$command_name" >/dev/null 2>&1; then
+    log "ERROR: ${command_name} was not found. ${install_hint}"
+    return 1
+  fi
+}
+
+check_prerequisites() {
+  require_command docker "Install Docker with: curl -fsSL https://get.docker.com | sh"
+  require_command git "Install it with: sudo apt-get install -y git"
+  require_command curl "Install it with: sudo apt-get install -y curl"
+  require_command python3 "Install it with: sudo apt-get install -y python3"
+  if ! docker compose version >/dev/null 2>&1; then
+    log "ERROR: Docker Compose v2 is unavailable. Install the docker-compose-plugin package."
+    return 1
+  fi
+}
+
+upsert_env() {
+  local key="$1" value="$2" temporary
+  temporary="${ENV_FILE}.tmp"
+  touch "$ENV_FILE"
+  awk -v key="$key" 'index($0, key "=") != 1' "$ENV_FILE" > "$temporary"
+  printf '%s=%s\n' "$key" "$value" >> "$temporary"
+  mv "$temporary" "$ENV_FILE"
+  chmod 600 "$ENV_FILE"
+}
+
+configure_environment() {
+  local token="$TUNNEL_TOKEN"
+  local admin_username="${ADMIN_USERNAME:-admin}"
+  local entered_username=""
+  local password="" password_confirm=""
+  local admin_hash="${ADMIN_PASSWORD_HASH:-}"
+  local session_secret="${ADMIN_SESSION_SECRET:-}"
+
+  if [ "$FIRST_SETUP" = "1" ] && [ -t 0 ]; then
+    local entered_domain="" entered_path=""
+    read -r -p "Public domain [${PUBLIC_DOMAIN}]: " entered_domain < /dev/tty
+    read -r -p "Application path [${PUBLIC_PATH}]: " entered_path < /dev/tty
+    [ -n "$entered_domain" ] && PUBLIC_DOMAIN="$entered_domain"
+    [ -n "$entered_path" ] && PUBLIC_PATH="$entered_path"
+    [[ "$PUBLIC_PATH" == /* ]] || PUBLIC_PATH="/${PUBLIC_PATH}"
+    [[ "$PUBLIC_PATH" == */ ]] || PUBLIC_PATH="${PUBLIC_PATH}/"
+    PUBLIC_URL="https://${PUBLIC_DOMAIN}${PUBLIC_PATH}"
+  fi
+
+  if [ -z "$token" ] || [ "$token" = "paste-your-cloudflare-tunnel-token-here" ]; then
+    if [ ! -t 0 ]; then
+      log "ERROR: TUNNEL_TOKEN is missing. Run ./deploy-pi.sh interactively once."
+      return 1
+    fi
+    echo "Paste the Cloudflare named-tunnel token. Input is hidden." >&2
+    read -r -s -p "Cloudflare tunnel token: " token < /dev/tty
+    echo >&2
+    if [ ${#token} -lt 40 ]; then
+      log "ERROR: The Cloudflare tunnel token looks incomplete."
+      return 1
+    fi
+  fi
+
+  if [ -z "$admin_hash" ] || [[ "$admin_hash" == *":iterations:salt:hash" ]]; then
+    if [ ! -t 0 ]; then
+      log "ERROR: Admin credentials are missing. Run ./deploy-pi.sh interactively once."
+      return 1
+    fi
+    read -r -p "Admin username [${admin_username}]: " entered_username < /dev/tty
+    [ -n "${entered_username:-}" ] && admin_username="$entered_username"
+    if [[ ! "$admin_username" =~ ^[A-Za-z][A-Za-z0-9_-]{2,39}$ ]]; then
+      log "ERROR: Admin username must be 3-40 letters, digits, underscores, or hyphens."
+      return 1
+    fi
+    while true; do
+      read -r -s -p "Admin password (minimum 12 characters): " password < /dev/tty
+      echo >&2
+      read -r -s -p "Repeat admin password: " password_confirm < /dev/tty
+      echo >&2
+      if [ "$password" != "$password_confirm" ]; then
+        echo "Passwords do not match. Try again." >&2
+      elif [ ${#password} -lt 12 ]; then
+        echo "Password is too short. Try again." >&2
+      else
+        break
+      fi
+    done
+    admin_hash=$(printf '%s' "$password" | python3 -c 'import base64,hashlib,secrets,sys; p=sys.stdin.buffer.read(); i=310000; s=secrets.token_bytes(18); d=hashlib.pbkdf2_hmac("sha256",p,s,i); enc=lambda b:base64.urlsafe_b64encode(b).decode().rstrip("="); print(f"pbkdf2_sha256:{i}:{enc(s)}:{enc(d)}")')
+  fi
+
+  [ -n "$session_secret" ] || session_secret=$(python3 -c 'import secrets; print(secrets.token_urlsafe(48))')
+
+  upsert_env TUNNEL_TOKEN "$token"
+  upsert_env PUBLIC_DOMAIN "$PUBLIC_DOMAIN"
+  upsert_env PUBLIC_PATH "$PUBLIC_PATH"
+  upsert_env PUBLIC_URL "$PUBLIC_URL"
+  upsert_env ADMIN_USERNAME "$admin_username"
+  upsert_env ADMIN_PASSWORD_HASH "$admin_hash"
+  upsert_env ADMIN_SESSION_SECRET "$session_secret"
+  upsert_env ADMIN_COOKIE_SECURE "1"
+
+  export TUNNEL_TOKEN="$token" PUBLIC_DOMAIN PUBLIC_PATH PUBLIC_URL
+  export ADMIN_USERNAME="$admin_username" ADMIN_PASSWORD_HASH="$admin_hash"
+  export ADMIN_SESSION_SECRET="$session_secret" ADMIN_COOKIE_SECURE=1
+  export COMPOSE_PROFILES="${COMPOSE_PROFILES:-tunnel}"
+  log "Deployment configuration saved to .env (permissions 600)."
+  log "Admin URL: ${PUBLIC_URL}admin"
+}
+
+wait_for_docker() {
+  if docker info >/dev/null 2>&1; then
+    log "Docker engine is ready."
+    return 0
+  fi
+
+  log "Waiting for Docker engine..."
+  if command -v systemctl >/dev/null 2>&1; then
+    sudo systemctl start docker >/dev/null 2>&1 || true
+  fi
+  for _ in $(seq 1 60); do
+    sleep 2
+    if docker info >/dev/null 2>&1; then
+      log "Docker engine is ready."
+      return 0
+    fi
+  done
+  log "ERROR: Docker did not become ready within two minutes. Check: sudo systemctl status docker"
+  return 1
+}
+
+stop_previous_stack() {
+  log "Stopping the previous Oky-Docky stack, if present..."
+  $COMPOSE down --remove-orphans
+}
+
+wait_for_stack() {
+  log "Waiting for backend and frontend health checks..."
+  for _ in $(seq 1 60); do
+    if curl -fsS http://localhost:8000/api/meta >/dev/null 2>&1 \
+      && curl -fsS http://localhost:80/oky-docky/ >/dev/null 2>&1; then
+      log "Backend and frontend are ready."
+      return 0
+    fi
+    sleep 2
+  done
+  log "ERROR: The stack did not become ready within two minutes."
+  $COMPOSE ps || true
+  $COMPOSE logs --tail=80 backend frontend || true
+  return 1
 }
 
 # ------------------------------------------------------------------
@@ -159,10 +324,11 @@ start_tunnel() {
   nohup "$CLOUDFLARED_BIN" tunnel --no-autoupdate --url http://localhost:80       >> "$TUNNEL_LOG" 2>&1 &
 
   # Wait for the URL to appear in the fresh log
-  for i in $(seq 1 20); do
+  for _ in $(seq 1 20); do
     sleep 2
     TUNNEL_URL=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" "$TUNNEL_LOG" 2>/dev/null | tail -1 || true)
     if [ -n "$TUNNEL_URL" ]; then
+      TUNNEL_URL="${TUNNEL_URL%/}${PUBLIC_PATH}"
       write_tunnel_url "$TUNNEL_URL"
       log "============================================"
       log "  PUBLIC URL: ${TUNNEL_URL}"
@@ -309,11 +475,22 @@ hot_update() {
 
   local changed_parts=""
 
-  # Backend: uvicorn --reload picks up changes automatically
-  # via the volume mount — nothing to do.
-  if git diff --name-only "$LOCAL" "$REMOTE" | grep -q "^actual/back/"; then
-    log "Backend changes detected — uvicorn reload will apply them automatically."
+  # Source-only backend changes reload through the bind mount. Dependency and
+  # image changes need the same rebuild/recreate behavior as the Windows launcher.
+  if git diff --name-only "$LOCAL" "$REMOTE" | grep -Eq '^(actual/back/|actual/requirements\.txt$)'; then
+    if git diff --name-only "$LOCAL" "$REMOTE" | grep -Eq '^(actual/requirements\.txt|actual/back/Dockerfile)$'; then
+      log "Backend runtime changed - rebuilding and recreating backend..."
+      $COMPOSE up -d --build --force-recreate backend
+    else
+      log "Backend source changed - uvicorn reload will apply it automatically."
+    fi
     changed_parts="backend"
+  fi
+
+  if git diff --name-only "$LOCAL" "$REMOTE" | grep -Eq '^docker-compose(\.pi)?\.yml$'; then
+    log "Compose configuration changed - reconciling the whole stack..."
+    $COMPOSE up -d --build --remove-orphans
+    changed_parts="${changed_parts:+${changed_parts}+}compose"
   fi
 
   # Frontend: rebuild static files into the shared volume (async).
@@ -342,6 +519,9 @@ hot_update() {
 # ------------------------------------------------------------------
 initial_deploy() {
   log "=== Initial deploy ==="
+  check_prerequisites
+  configure_environment
+  wait_for_docker
   git checkout "$BRANCH" 2>/dev/null || git checkout -b "$BRANCH" "origin/${BRANCH}"
   if ! git_retry "git pull" git pull --ff-only origin "$BRANCH"; then
     if [ "$GIT_FORCE_SYNC" != "1" ]; then
@@ -356,11 +536,13 @@ initial_deploy() {
   fi
   log "✅ Initial git sync complete. Commit: $(git rev-parse --short HEAD)"
 
+  stop_previous_stack
+
   log "Building containers (this may take a while on Pi)..."
-  $COMPOSE build --parallel
+  $COMPOSE build
 
   log "Starting services..."
-  $COMPOSE up -d --remove-orphans
+  $COMPOSE up -d --remove-orphans --force-recreate
 
   # Populate the shared frontend-dist volume
   log "Building frontend dist into shared volume..."
@@ -380,8 +562,11 @@ initial_deploy() {
     return 1
   fi
 
+  wait_for_stack
+
   log "Initial deploy complete!"
   $COMPOSE ps
+  log "Local URL: http://localhost/oky-docky/"
 
   # Start Cloudflare tunnel for external access
   start_tunnel
@@ -394,7 +579,7 @@ ensure_containers_up() {
   # Check if Docker is ready
   if ! docker info >/dev/null 2>&1; then
     log "Waiting for Docker daemon..."
-    for i in $(seq 1 30); do
+    for _ in $(seq 1 30); do
       sleep 2
       if docker info >/dev/null 2>&1; then
         log "Docker daemon is ready."
@@ -432,7 +617,7 @@ ensure_containers_up() {
 
   # Wait for backend to respond
   log "Waiting for backend to be ready..."
-  for i in $(seq 1 30); do
+  for _ in $(seq 1 30); do
     if curl -sf http://localhost:8000/api/meta >/dev/null 2>&1; then
       log "Backend is ready."
       return 0
@@ -481,11 +666,12 @@ User=$(whoami)
 WorkingDirectory=${SCRIPT_DIR}
 Environment=DEPLOY_BRANCH=${BRANCH}
 Environment=CHECK_INTERVAL=${CHECK_INTERVAL}
-Environment=TUNNEL_TOKEN=${TUNNEL_TOKEN}
 Environment=PUBLIC_DOMAIN=${PUBLIC_DOMAIN}
+Environment=PUBLIC_PATH=${PUBLIC_PATH}
 Environment=PUBLIC_URL=${PUBLIC_URL}
 Environment=COMPOSE_PROFILES=${COMPOSE_PROFILES:-}
 Environment=GIT_FORCE_SYNC=${GIT_FORCE_SYNC}
+EnvironmentFile=-${SCRIPT_DIR}/.env
 ExecStart=${SCRIPT_DIR}/deploy-pi.sh --watch
 Restart=always
 RestartSec=10
@@ -496,7 +682,7 @@ UNIT
 
   sudo systemctl daemon-reload
   sudo systemctl enable oky-docky
-  sudo systemctl start oky-docky
+  sudo systemctl restart oky-docky
   log "Systemd service 'oky-docky' installed, enabled, and started."
   log "  Status:  sudo systemctl status oky-docky"
   log "  Logs:    journalctl -u oky-docky -f"
@@ -542,6 +728,13 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TUNNEL_LOG="${SCRIPT_DIR}/tunnel.log"
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.pi.yml"
+TUNNEL_TOKEN=""
+if [ -f "${SCRIPT_DIR}/.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "${SCRIPT_DIR}/.env"
+  set +a
+fi
 if [ -n "$TUNNEL_TOKEN" ]; then
   # Include the cloudflared profile in normal compose operations so backend,
   # frontend, and the named tunnel start as one stack.
@@ -900,6 +1093,8 @@ LXAUTO
 
   # Launch terminal for the current session
   if [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]; then
+    # TERM_CMD intentionally contains the emulator and its argument string.
+    # shellcheck disable=SC2086
     nohup ${TERM_CMD} "$SHOW_SCRIPT" >/dev/null 2>&1 &
     log "Launched Oky-Docky terminal for current session."
   else
@@ -920,6 +1115,21 @@ case "${1:-}" in
   --open-terminal)
     install_autostart_terminal
     ;;
+  --reset-admin)
+    check_prerequisites
+    ADMIN_PASSWORD_HASH=""
+    ADMIN_SESSION_SECRET=""
+    configure_environment
+    sudo systemctl restart oky-docky 2>/dev/null || true
+    log "Admin password changed and existing sessions invalidated."
+    ;;
+  --configure-tunnel)
+    check_prerequisites
+    TUNNEL_TOKEN=""
+    configure_environment
+    sudo systemctl restart oky-docky 2>/dev/null || true
+    log "Cloudflare tunnel token updated."
+    ;;
   --hot-update)
     hot_update || log "Already up to date."
     ;;
@@ -937,13 +1147,17 @@ case "${1:-}" in
     echo "  --tunnel           Start Cloudflare tunnel only"
     echo "  --install-service  (Re-)install systemd service only"
     echo "  --open-terminal    Recreate and launch Oky-Docky terminal UI now"
+    echo "  --reset-admin      Set a new admin password and invalidate old sessions"
+    echo "  --configure-tunnel Paste and save a new Cloudflare tunnel token"
     echo ""
     echo "Environment variables:"
     echo "  DEPLOY_BRANCH      Git branch to track (default: main)"
     echo "  CHECK_INTERVAL     Seconds between checks (default: 20)"
     echo "  TUNNEL_TOKEN       Cloudflare tunnel token for permanent domain (optional; can be set in .env)"
     echo "  PUBLIC_DOMAIN      Public domain shown in logs/UI (default: barckhat.com)"
-    echo "  GIT_FORCE_SYNC     1=auto-resolve local divergence on Pi (default: 1), 0=skip on conflict"
+    echo "  PUBLIC_PATH        Public app path (default: /oky-docky/)"
+    echo "  PUBLIC_URL         Full public URL (default: https://PUBLIC_DOMAIN/PUBLIC_PATH)"
+    echo "  GIT_FORCE_SYNC     1=auto-resolve local divergence on Pi, 0=preserve local changes (default: 0)"
     ;;
   *)
     initial_deploy
