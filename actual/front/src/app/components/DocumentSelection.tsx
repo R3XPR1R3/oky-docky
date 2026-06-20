@@ -6,6 +6,7 @@ import { Input } from './ui/input';
 import { LanguageSelector } from './LanguageSelector';
 import { useTranslation } from '../i18n/I18nContext';
 import type { TemplateMeta } from '../App';
+import { trackEvent } from '../lib/analytics';
 
 interface DocumentSelectionProps {
   apiUrl: string;
@@ -47,6 +48,13 @@ export function DocumentSelection({ apiUrl, onSelectDocument, onBack }: Document
     return () => clearTimeout(debounce);
   }, [apiUrl, searchQuery, selectedCategory]);
 
+  useEffect(() => {
+    const query = searchQuery.trim();
+    if (query.length < 2) return;
+    const debounce = setTimeout(() => trackEvent('search', { search_term: query }), 800);
+    return () => clearTimeout(debounce);
+  }, [searchQuery]);
+
   return (
     <div className="min-h-screen">
       <motion.header initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="border-b border-white/20 backdrop-blur-sm bg-white/40">
@@ -83,11 +91,11 @@ export function DocumentSelection({ apiUrl, onSelectDocument, onBack }: Document
 
         {categories.length > 0 && (
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }} className="flex items-center justify-center gap-4 mb-12 flex-wrap">
-            <Button variant={selectedCategory === 'all' ? 'default' : 'outline'} onClick={() => setSelectedCategory('all')} className={selectedCategory === 'all' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' : ''}>
+            <Button data-analytics="category:all" variant={selectedCategory === 'all' ? 'default' : 'outline'} onClick={() => setSelectedCategory('all')} className={selectedCategory === 'all' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' : ''}>
               {t('selection.allForms')}
             </Button>
             {categories.map((cat) => (
-              <Button key={cat} variant={selectedCategory === cat ? 'default' : 'outline'} onClick={() => setSelectedCategory(cat)} className={selectedCategory === cat ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' : ''}>
+              <Button key={cat} data-analytics={`category:${cat}`} variant={selectedCategory === cat ? 'default' : 'outline'} onClick={() => setSelectedCategory(cat)} className={selectedCategory === cat ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' : ''}>
                 {cat.charAt(0).toUpperCase() + cat.slice(1)}
               </Button>
             ))}

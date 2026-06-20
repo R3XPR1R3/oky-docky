@@ -9,6 +9,8 @@
   "category": "employment",
   "tags": ["direct deposit", "payroll", "bank", "paycheck", "hr", "employment"],
   "country": "US",
-  "popular": true,
+  "popular": false,
+  "published": false,
+  "unpublished_reason": "Placeholder PDF has no substantive document text; requires a jurisdiction-specific implementation.",
   "estimated_time": "3 min"
 }

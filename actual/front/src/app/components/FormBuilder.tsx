@@ -33,6 +33,7 @@ const TRANSFORM_TYPE_COLORS: Record<string, string> = {
   derive: 'bg-orange-100 text-orange-700',
   compute: 'bg-cyan-100 text-cyan-700',
   copy: 'bg-emerald-100 text-emerald-700',
+  concat: 'bg-violet-100 text-violet-700',
   auto_date: 'bg-rose-100 text-rose-700',
   set_value: 'bg-blue-100 text-blue-700',
 };
@@ -52,6 +53,8 @@ function transformSummary(t: SchemaTransform): string {
       return `${t.operation || 'multiply'}(${t.input || t.inputs?.join(', ') || '?'}) → ${t.output || '?'}`;
     case 'copy':
       return `copy ${t.from || '?'} → ${t.to || '?'}${t.if_empty ? ' (if empty)' : ''}`;
+    case 'concat':
+      return `join ${t.inputs?.join(', ') || '?'} → ${t.output || '?'}`;
     case 'auto_date':
       return `auto_date → ${t.field || '?'} (${t.format || 'MM/DD/YYYY'})`;
     case 'set_value':
@@ -63,6 +66,7 @@ function transformSummary(t: SchemaTransform): string {
 
 const FIELD_TYPE_COLORS: Record<string, string> = {
   text: 'bg-blue-100 text-blue-700',
+  date: 'bg-violet-100 text-violet-700',
   radio: 'bg-blue-100 text-blue-700',
   checkbox: 'bg-green-100 text-green-700',
   signature: 'bg-amber-100 text-amber-700',
@@ -92,6 +96,69 @@ function createEmptyField(): SchemaField {
   };
 }
 
+function validateBuilderSchema(fields: SchemaField[], transforms: SchemaTransform[]): string[] {
+  const issues: string[] = [];
+  const keyIndexes = new Map<string, number>();
+
+  fields.forEach((field, index) => {
+    const name = field.label || field.key || `Field ${index + 1}`;
+    if (!field.key.trim()) issues.push(`${name}: key is required`);
+    else if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(field.key)) issues.push(`${name}: key must start with a letter and contain only letters, numbers, and underscores`);
+    else if (keyIndexes.has(field.key)) issues.push(`${name}: duplicate key "${field.key}"`);
+    else keyIndexes.set(field.key, index);
+    if (!field.hidden && !field.label.trim()) issues.push(`Field ${index + 1}: question label is required`);
+
+    if (field.type === 'radio') {
+      const options = field.options || [];
+      if (options.length < 2) issues.push(`${name}: a choice field needs at least two options`);
+      if (options.some((option) => !option.value.trim() || !option.label.trim())) issues.push(`${name}: every option needs a value and label`);
+      const values = options.map((option) => option.value).filter(Boolean);
+      if (new Set(values).size !== values.length) issues.push(`${name}: option values must be unique`);
+    }
+  });
+
+  fields.forEach((field, index) => {
+    const conditionGroups = [field.visible_when, ...(field.visible_when_any || [])].filter(Boolean) as Record<string, string[]>[];
+    for (const conditions of conditionGroups) {
+      for (const [dependency, allowedValues] of Object.entries(conditions)) {
+        const dependencyIndex = keyIndexes.get(dependency);
+        if (dependencyIndex === undefined) issues.push(`${field.label || field.key}: condition references missing field "${dependency}"`);
+        else if (dependencyIndex >= index) issues.push(`${field.label || field.key}: conditions may only reference an earlier question`);
+        if (!allowedValues.length) issues.push(`${field.label || field.key}: condition for "${dependency}" has no accepted values`);
+        const source = dependencyIndex === undefined ? undefined : fields[dependencyIndex];
+        if (source?.options?.length) {
+          const validValues = new Set(source.options.map((option) => option.value));
+          const unknown = allowedValues.filter((value) => !validValues.has(value));
+          if (unknown.length) issues.push(`${field.label || field.key}: unknown values for "${dependency}": ${unknown.join(', ')}`);
+        }
+      }
+    }
+  });
+
+  const knownKeys = new Set(fields.map((field) => field.key).filter(Boolean));
+  transforms.forEach((transform, index) => {
+    const label = `Transform ${index + 1}`;
+    for (const key of Object.keys(transform.when || {})) {
+      if (!knownKeys.has(key)) issues.push(`${label}: condition references missing field "${key}"`);
+    }
+    const sourceKeys = [transform.input, transform.from, ...(transform.inputs || [])].filter(Boolean) as string[];
+    sourceKeys.forEach((key) => {
+      if (!knownKeys.has(key)) issues.push(`${label}: source field "${key}" does not exist`);
+    });
+    if (transform.type === 'compute' && !transform.output) issues.push(`${label}: output field is required`);
+    if (transform.type === 'copy' && (!transform.from || !transform.to)) issues.push(`${label}: source and target fields are required`);
+    if (transform.type === 'concat' && (!(transform.inputs || []).length || !transform.output)) issues.push(`${label}: input and output fields are required`);
+    if ((transform.type === 'auto_date' || transform.type === 'set_value') && !transform.field) issues.push(`${label}: target field is required`);
+
+    if (transform.output) knownKeys.add(transform.output);
+    if (transform.to) knownKeys.add(transform.to);
+    if (transform.field) knownKeys.add(transform.field);
+    Object.keys(transform.set || {}).forEach((key) => knownKeys.add(key));
+  });
+
+  return [...new Set(issues)];
+}
+
 export function FormBuilder({ onBack }: FormBuilderProps) {
   const [fields, setFields] = useState<SchemaField[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -114,6 +181,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
   const [creating, setCreating] = useState(false);
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [mapping, setMapping] = useState<Record<string, any>>({});
+  const validationIssues = useMemo(() => validateBuilderSchema(fields, transforms), [fields, transforms]);
 
   // --- Load templates list ---
   const loadTemplateList = useCallback(async () => {
@@ -155,6 +223,10 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
       toast.error('Load a template first before saving');
       return;
     }
+    if (validationIssues.length) {
+      toast.error(`Fix ${validationIssues.length} form issue${validationIssues.length === 1 ? '' : 's'} before saving`);
+      return;
+    }
     try {
       const res = await fetch(`/api/admin/templates/${selectedTemplate}/bundle`);
       if (!res.ok) throw new Error('Failed to fetch current bundle');
@@ -170,10 +242,13 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
       if (saveRes.ok) {
         toast.success(`Saved to ${selectedTemplate}`);
       } else {
-        toast.error('Failed to save');
+        const error = await saveRes.json().catch(() => null);
+        const detail = error?.detail;
+        const message = typeof detail === 'string' ? detail : detail?.message;
+        toast.error(message || 'Failed to save');
       }
     } catch { toast.error('Failed to save template'); }
-  }, [selectedTemplate, fields, transforms, mapping]);
+  }, [selectedTemplate, fields, transforms, mapping, validationIssues]);
 
   const createTemplate = useCallback(async () => {
     if (!newTemplate.id.trim() || !newTemplate.title.trim()) {
@@ -259,10 +334,23 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
   }, [fields.length]);
 
   const removeField = useCallback((index: number) => {
-    setFields((prev) => prev.filter((_, i) => i !== index));
+    const removedKey = fields[index]?.key;
+    setFields((prev) => prev.filter((_, i) => i !== index).map((field) => {
+      if (!removedKey || !field.visible_when?.[removedKey]) return field;
+      const visibleWhen = { ...field.visible_when };
+      delete visibleWhen[removedKey];
+      return { ...field, visible_when: Object.keys(visibleWhen).length ? visibleWhen : undefined };
+    }));
+    if (removedKey) {
+      setMapping((prev) => {
+        const next = { ...prev };
+        delete next[removedKey];
+        return next;
+      });
+    }
     if (expandedIndex === index) setExpandedIndex(null);
     else if (expandedIndex !== null && expandedIndex > index) setExpandedIndex(expandedIndex - 1);
-  }, [expandedIndex]);
+  }, [expandedIndex, fields]);
 
   const moveField = useCallback((index: number, direction: 'up' | 'down') => {
     setFields((prev) => {
@@ -280,6 +368,46 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
   const updateField = useCallback((index: number, updates: Partial<SchemaField>) => {
     setFields((prev) => prev.map((f, i) => i === index ? { ...f, ...updates } : f));
   }, []);
+
+  const renameFieldKey = useCallback((index: number, nextKey: string) => {
+    const previousKey = fields[index]?.key;
+    if (!previousKey || previousKey === nextKey) {
+      updateField(index, { key: nextKey });
+      return;
+    }
+
+    const renameRecordKey = <T,>(record: Record<string, T> | undefined) => {
+      if (!record || !(previousKey in record)) return record;
+      const next = { ...record };
+      next[nextKey] = next[previousKey];
+      delete next[previousKey];
+      return next;
+    };
+
+    setFields((prev) => prev.map((field, fieldIndex) => ({
+      ...field,
+      key: fieldIndex === index ? nextKey : field.key,
+      visible_when: renameRecordKey(field.visible_when),
+      visible_when_any: field.visible_when_any?.map((conditions) => renameRecordKey(conditions) || {}),
+    })));
+    setMapping((prev) => {
+      if (!(previousKey in prev)) return prev;
+      const next = { ...prev, [nextKey]: prev[previousKey] };
+      delete next[previousKey];
+      return next;
+    });
+    setTransforms((prev) => prev.map((transform) => ({
+      ...transform,
+      input: transform.input === previousKey ? nextKey : transform.input,
+      inputs: transform.inputs?.map((key) => key === previousKey ? nextKey : key),
+      from: transform.from === previousKey ? nextKey : transform.from,
+      to: transform.to === previousKey ? nextKey : transform.to,
+      field: transform.field === previousKey ? nextKey : transform.field,
+      output: transform.output === previousKey ? nextKey : transform.output,
+      when: renameRecordKey(transform.when),
+      set: renameRecordKey(transform.set),
+    })));
+  }, [fields, updateField]);
 
   // --- Options (for radio fields) ---
 
@@ -438,9 +566,9 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
 
   const [showUsagePanel, setShowUsagePanel] = useState(false);
 
-  // Preview schema — exclude hidden fields
+  // Keep hidden defaults available; QuestionFlow excludes hidden fields from the UI.
   const previewSchema: Schema = {
-    fields: fields.filter((f) => f.key && f.label && !f.hidden),
+    fields: fields.filter((f) => f.key && (f.label || f.hidden)),
     ...(transforms.length > 0 ? { transforms } : {}),
   };
 
@@ -483,6 +611,12 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                   {duplicateKeys.size} duplicate key{duplicateKeys.size !== 1 ? 's' : ''}
                 </Badge>
               )}
+              {validationIssues.length > 0 && (
+                <Badge variant="destructive" className="text-sm gap-1">
+                  <AlertTriangle className="w-3 h-3" />
+                  {validationIssues.length} issue{validationIssues.length !== 1 ? 's' : ''}
+                </Badge>
+              )}
               <Button
                 variant={showUsagePanel ? 'default' : 'outline'}
                 size="sm"
@@ -510,6 +644,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
       {showPreview ? (
         previewSchema.fields.length > 0 ? (
           <QuestionFlow
+            templateId={selectedTemplate}
             templateTitle="Preview"
             schema={previewSchema}
             initialData={{}}
@@ -539,7 +674,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
             <Button variant="outline" size="sm" onClick={() => setShowCreateTemplate(true)} className="gap-2">
               <FilePlus2 className="w-4 h-4" /> New Template
             </Button>
-            <Button variant="outline" size="sm" onClick={saveToTemplate} className="gap-2" disabled={!selectedTemplate || fields.length === 0}>
+            <Button variant="outline" size="sm" onClick={saveToTemplate} className="gap-2" disabled={!selectedTemplate || fields.length === 0 || validationIssues.length > 0}>
               <Download className="w-4 h-4" /> Save{selectedTemplate ? ` → ${selectedTemplate}` : ''}
             </Button>
             <Button variant="outline" size="sm" onClick={() => setShowImport(true)} className="gap-2">
@@ -570,6 +705,18 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
               <Code2 className="w-4 h-4" /> {showJson ? 'Hide' : 'Show'} JSON
             </Button>
           </motion.div>
+
+          {validationIssues.length > 0 && (
+            <div className="mb-6 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4">
+              <div className="mb-2 flex items-center gap-2 font-semibold text-amber-900">
+                <AlertTriangle className="h-4 w-4" /> Fix before saving
+              </div>
+              <ul className="space-y-1 text-sm text-amber-800">
+                {validationIssues.slice(0, 8).map((issue) => <li key={issue}>- {issue}</li>)}
+                {validationIssues.length > 8 && <li>- and {validationIssues.length - 8} more</li>}
+              </ul>
+            </div>
+          )}
 
           {/* Import Modal */}
           <AnimatePresence>
@@ -833,17 +980,18 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                     delete next[schemaKey];
                     return next;
                   });
-                  setFields((prev) => prev.filter((f) => f.key !== schemaKey));
-                  toast.info(`Removed mapping for "${schemaKey}"`);
+                  toast.info(`Removed PDF mapping for "${schemaKey}"; the question was kept`);
                 }}
-                onOverlayAdd={(schemaKey, overlayMapping) => {
+                onOverlayAdd={(schemaKey, overlayMapping, fieldType) => {
                   setMapping((prev) => ({ ...prev, [schemaKey]: overlayMapping }));
                   if (!fields.some((f) => f.key === schemaKey)) {
                     setFields((prev) => [...prev, {
                       key: schemaKey,
-                      type: 'text',
+                      type: fieldType,
                       required: false,
-                      label: schemaKey.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+                      label: fieldType === 'signature'
+                        ? 'Please sign here'
+                        : schemaKey.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
                       placeholder: '',
                       helpText: '',
                     }]);
@@ -1058,6 +1206,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="text">Text Input</SelectItem>
+                                  <SelectItem value="date">Date</SelectItem>
                                   <SelectItem value="radio">Radio / Choice</SelectItem>
                                   <SelectItem value="checkbox">Checkbox</SelectItem>
                                   <SelectItem value="signature">Signature</SelectItem>
@@ -1069,9 +1218,9 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                             </div>
                             <div className="space-y-1.5">
                               <Label className="text-xs font-medium text-slate-500">Key (ID)</Label>
-                              <Input
-                                value={field.key}
-                                onChange={(e) => updateField(index, { key: e.target.value })}
+                               <Input
+                                 value={field.key}
+                                 onChange={(e) => renameFieldKey(index, e.target.value)}
                                 placeholder="auto_generated"
                                 className="font-mono text-sm"
                               />
@@ -1084,11 +1233,14 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                             <Input
                               value={field.label}
                               onChange={(e) => {
-                                const updates: Partial<SchemaField> = { label: e.target.value };
-                                if (!field.key || field.key === generateKey(field.label)) {
-                                  updates.key = generateKey(e.target.value);
-                                }
-                                updateField(index, updates);
+                                 const updates: Partial<SchemaField> = { label: e.target.value };
+                                 if (!field.key || field.key === generateKey(field.label)) {
+                                   const generatedKey = generateKey(e.target.value);
+                                   updateField(index, updates);
+                                   renameFieldKey(index, generatedKey);
+                                   return;
+                                 }
+                                 updateField(index, updates);
                               }}
                               placeholder="e.g., What is your full name?"
                             />
@@ -1473,9 +1625,10 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                           if (i !== ti) return t;
                                           const base: SchemaTransform = { type: v as SchemaTransform['type'] };
                                           if (v === 'derive') return { ...base, when: {}, set: {} };
-                                          if (v === 'compute') return { ...base, operation: 'multiply', input: '', factor: 1, output: '' };
-                                          if (v === 'copy') return { ...base, from: '', to: '', if_empty: false };
-                                          if (v === 'auto_date') return { ...base, field: '', format: 'MM/DD/YYYY' };
+                                           if (v === 'compute') return { ...base, operation: 'multiply', input: '', factor: 1, output: '' };
+                                           if (v === 'copy') return { ...base, from: '', to: '', if_empty: false };
+                                           if (v === 'concat') return { ...base, inputs: [], output: '', separator: ' ', skip_empty: true };
+                                           if (v === 'auto_date') return { ...base, field: '', format: 'MM/DD/YYYY' };
                                           if (v === 'set_value') return { ...base, field: '', value: '' };
                                           return base;
                                         }));
@@ -1485,8 +1638,9 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                       <SelectContent>
                                         <SelectItem value="derive">Derive (conditional set)</SelectItem>
                                         <SelectItem value="compute">Compute (math)</SelectItem>
-                                        <SelectItem value="copy">Copy (field to field)</SelectItem>
-                                        <SelectItem value="auto_date">Auto Date</SelectItem>
+                                         <SelectItem value="copy">Copy (field to field)</SelectItem>
+                                         <SelectItem value="concat">Join text fields</SelectItem>
+                                         <SelectItem value="auto_date">Auto Date</SelectItem>
                                         <SelectItem value="set_value">Set Value</SelectItem>
                                       </SelectContent>
                                     </Select>
@@ -1641,6 +1795,48 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                         </div>
                                       </div>
                                     </>
+                                  )}
+
+                                  {tr.type === 'concat' && (
+                                    <div className="space-y-4">
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                          <Label className="text-xs font-medium text-slate-500">Input Fields (comma-separated)</Label>
+                                          <Input
+                                            value={(tr.inputs || []).join(', ')}
+                                            onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, inputs: e.target.value.split(',').map((value) => value.trim()).filter(Boolean) } : t))}
+                                            placeholder="first_name, last_name"
+                                            className="font-mono text-sm"
+                                          />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                          <Label className="text-xs font-medium text-slate-500">Output Field</Label>
+                                          <Input
+                                            value={tr.output || ''}
+                                            onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, output: e.target.value } : t))}
+                                            placeholder="full_name"
+                                            className="font-mono text-sm"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="grid grid-cols-[1fr_auto] gap-4 items-end">
+                                        <div className="space-y-1.5">
+                                          <Label className="text-xs font-medium text-slate-500">Separator</Label>
+                                          <Input
+                                            value={tr.separator ?? ' '}
+                                            onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, separator: e.target.value } : t))}
+                                            placeholder="space, comma, etc."
+                                          />
+                                        </div>
+                                        <div className="flex items-center gap-2 pb-1">
+                                          <Switch
+                                            checked={tr.skip_empty !== false}
+                                            onCheckedChange={(value) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, skip_empty: value } : t))}
+                                          />
+                                          <Label className="text-sm">Skip empty values</Label>
+                                        </div>
+                                      </div>
+                                    </div>
                                   )}
 
                                   {tr.type === 'auto_date' && (

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import smtplib
+import secrets
 import time
 import uuid
 from datetime import datetime, timezone
@@ -12,6 +13,7 @@ from io import BytesIO
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, Dict, Optional, Literal
+from urllib.parse import urlparse
 
 import base64
 import re
@@ -26,6 +28,16 @@ from pypdf import PdfReader
 from .core.mapping import build_pdf_field_values
 from .core.template_store import load_template, list_templates, load_template_meta
 from .core.transforms import apply_transforms
+from .core.admin_auth import (
+    ADMIN_USERNAME,
+    COOKIE_NAME,
+    SESSION_MAX_AGE,
+    create_session_token,
+    is_configured as admin_auth_configured,
+    verify_password,
+    verify_session_token,
+)
+from .core.analytics import metrics as analytics_metrics, record_event
 from .engines.acroform import fill_acroform_pdf
 
 app = FastAPI()
@@ -51,10 +63,11 @@ app.add_middleware(
 
 # Admin API key: set ADMIN_API_KEY env var to protect /api/admin/* endpoints
 ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
+ADMIN_COOKIE_SECURE = os.getenv("ADMIN_COOKIE_SECURE", "1") != "0"
 
 # Rate limiting: simple in-memory sliding window
 RATE_LIMIT_WINDOW = int(os.getenv("RATE_LIMIT_WINDOW", "60"))        # seconds
-RATE_LIMIT_MAX = int(os.getenv("RATE_LIMIT_MAX", "30"))              # requests per window
+RATE_LIMIT_MAX = int(os.getenv("RATE_LIMIT_MAX", "120"))             # requests per window
 RATE_LIMIT_RENDER_MAX = int(os.getenv("RATE_LIMIT_RENDER_MAX", "10"))  # PDF renders per window
 
 _rate_buckets: Dict[str, list[float]] = defaultdict(list)
@@ -80,16 +93,21 @@ def _check_rate_limit(ip: str, max_requests: int = RATE_LIMIT_MAX) -> None:
 
 
 def _require_admin_key(request: Request) -> None:
-    """Validate admin API key from header or query param."""
-    if not ADMIN_API_KEY:
-        return  # no key configured — open access (dev mode)
-    key = (
-        request.headers.get("x-admin-key")
-        or request.headers.get("authorization", "").removeprefix("Bearer ").strip()
-        or request.query_params.get("admin_key", "")
-    )
-    if key != ADMIN_API_KEY:
-        raise HTTPException(403, "Invalid or missing admin API key")
+    """Require a signed admin session, with API-key compatibility for automation."""
+    key = request.headers.get("x-admin-key") or request.headers.get("authorization", "").removeprefix("Bearer ").strip()
+    if ADMIN_API_KEY and key and secrets.compare_digest(key, ADMIN_API_KEY):
+        return
+
+    if not admin_auth_configured():
+        raise HTTPException(503, "Admin login is not configured. Run deploy-pi.sh to create credentials.")
+    username = verify_session_token(request.cookies.get(COOKIE_NAME, ""))
+    if not username:
+        raise HTTPException(401, "Admin login required")
+
+    if request.method not in {"GET", "HEAD", "OPTIONS"}:
+        origin = request.headers.get("origin", "")
+        if not origin or urlparse(origin).netloc.lower() != request.headers.get("host", "").lower():
+            raise HTTPException(403, "Invalid admin request origin")
 
 
 @app.middleware("http")
@@ -133,6 +151,25 @@ class FeedbackPayload(BaseModel):
 
 class ResolveQuestionsPayload(BaseModel):
     answers: dict = Field(default_factory=dict)
+
+
+class AdminLoginPayload(BaseModel):
+    username: str = Field(min_length=1, max_length=80)
+    password: str = Field(min_length=1, max_length=300)
+
+
+class AnalyticsEventPayload(BaseModel):
+    session_id: str = Field(min_length=8, max_length=64, pattern=r"^[A-Za-z0-9_-]+$")
+    event_type: Literal["page_view", "click", "search", "form_start", "form_complete", "download"]
+    path: str = Field(default="", max_length=180)
+    template_id: str = Field(default="", max_length=80)
+    source: str = Field(default="", max_length=80)
+    medium: str = Field(default="", max_length=80)
+    campaign: str = Field(default="", max_length=100)
+    referrer_host: str = Field(default="", max_length=120)
+    search_term: str = Field(default="", max_length=120)
+    element: str = Field(default="", max_length=120)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -283,7 +320,7 @@ def enrich_form_data(template_id: str, data: dict) -> dict:
         children_count = _to_non_negative_int(enriched.get("qualifying_children_count"))
         dependents_count = _to_non_negative_int(enriched.get("other_dependents_count"))
 
-        children_amount = children_count * 2000
+        children_amount = children_count * 2200
         dependents_amount = dependents_count * 500
         total_amount = children_amount + dependents_amount
 
@@ -388,6 +425,60 @@ def _send_feedback_sms(payload: FeedbackPayload) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Admin authentication and first-party analytics
+# ---------------------------------------------------------------------------
+
+@app.post("/api/admin/login")
+def api_admin_login(payload: AdminLoginPayload, request: Request):
+    _check_rate_limit(f"admin-login:{_get_client_ip(request)}", 5)
+    if not admin_auth_configured():
+        raise HTTPException(503, "Admin login is not configured. Run deploy-pi.sh first.")
+    if not verify_password(payload.username, payload.password):
+        raise HTTPException(401, "Invalid username or password")
+
+    response = JSONResponse({"authenticated": True, "username": ADMIN_USERNAME})
+    response.set_cookie(
+        COOKIE_NAME,
+        create_session_token(ADMIN_USERNAME),
+        max_age=SESSION_MAX_AGE,
+        httponly=True,
+        secure=ADMIN_COOKIE_SECURE,
+        samesite="strict",
+        path="/",
+    )
+    return response
+
+
+@app.post("/api/admin/logout")
+def api_admin_logout():
+    response = JSONResponse({"authenticated": False})
+    response.delete_cookie(COOKIE_NAME, path="/", secure=ADMIN_COOKIE_SECURE, samesite="strict")
+    return response
+
+
+@app.get("/api/admin/session")
+def api_admin_session(request: Request):
+    if not admin_auth_configured():
+        return JSONResponse(status_code=503, content={"authenticated": False, "configured": False})
+    username = verify_session_token(request.cookies.get(COOKIE_NAME, ""))
+    if not username:
+        return JSONResponse(status_code=401, content={"authenticated": False, "configured": True})
+    return {"authenticated": True, "configured": True, "username": username}
+
+
+@app.post("/api/analytics/events", status_code=202)
+def api_analytics_event(payload: AnalyticsEventPayload):
+    record_event(payload.model_dump())
+    return {"accepted": True}
+
+
+@app.get("/api/admin/analytics")
+def api_admin_analytics(request: Request, days: int = Query(30, ge=1, le=365)):
+    _require_admin_key(request)
+    return analytics_metrics(days)
+
+
+# ---------------------------------------------------------------------------
 # Admin endpoints
 # ---------------------------------------------------------------------------
 
@@ -402,11 +493,11 @@ def admin_scenario_builder(request: Request):
 @app.get("/api/admin/templates")
 def api_admin_list_templates(request: Request):
     _require_admin_key(request)
-    template_ids = list_templates(TEMPLATES_ROOT)
+    template_ids = list_templates(TEMPLATES_ROOT, include_unpublished=True)
     templates = []
     for tid in template_ids:
         try:
-            templates.append(load_template_meta(TEMPLATES_ROOT, tid))
+            templates.append(load_template_meta(TEMPLATES_ROOT, tid, include_unpublished=True))
         except Exception:
             continue
     return {"templates": templates}
@@ -416,7 +507,7 @@ def api_admin_list_templates(request: Request):
 def api_admin_get_bundle(template_id: str, request: Request):
     _require_admin_key(request)
     try:
-        bundle = load_template(TEMPLATES_ROOT, template_id)
+        bundle = load_template(TEMPLATES_ROOT, template_id, include_unpublished=True)
     except Exception as e:
         raise HTTPException(404, str(e))
 
@@ -425,6 +516,60 @@ def api_admin_get_bundle(template_id: str, request: Request):
         "schema": bundle.schema,
         "mapping": bundle.mapping,
     }
+
+
+@app.get("/api/admin/templates/{template_id}/pdf-fields")
+def api_admin_pdf_fields(template_id: str, request: Request):
+    _require_admin_key(request)
+    try:
+        bundle = load_template(TEMPLATES_ROOT, template_id, include_unpublished=True)
+    except Exception as exc:
+        raise HTTPException(404, str(exc))
+    fields = PdfReader(str(bundle.pdf_path)).get_fields() or {}
+    return {"count": len(fields), "fields": list(fields.keys())}
+
+
+@app.get("/api/admin/templates/{template_id}/pdf-field-rects")
+def api_admin_pdf_field_rects(template_id: str, request: Request):
+    _require_admin_key(request)
+    try:
+        bundle = load_template(TEMPLATES_ROOT, template_id, include_unpublished=True)
+    except Exception as exc:
+        raise HTTPException(404, str(exc))
+
+    reader = PdfReader(str(bundle.pdf_path))
+    result: list[dict] = []
+    for page_idx, page in enumerate(reader.pages):
+        for annot_ref in page.get("/Annots", []) or []:
+            annotation = annot_ref.get_object()
+            field_name = annotation.get("/T")
+            if not field_name:
+                parent = annotation.get("/Parent")
+                while parent and not field_name:
+                    parent_obj = parent.get_object() if hasattr(parent, "get_object") else parent
+                    field_name = parent_obj.get("/T")
+                    parent = parent_obj.get("/Parent")
+            rect = annotation.get("/Rect")
+            if not field_name or not rect:
+                continue
+            result.append({
+                "name": str(field_name),
+                "page": page_idx,
+                "rect": [float(value) for value in rect],
+                "page_width": float(page.mediabox.width),
+                "page_height": float(page.mediabox.height),
+            })
+    return {"count": len(result), "fields": result}
+
+
+@app.get("/api/admin/templates/{template_id}/pdf-file")
+def api_admin_pdf_file(template_id: str, request: Request):
+    _require_admin_key(request)
+    try:
+        bundle = load_template(TEMPLATES_ROOT, template_id, include_unpublished=True)
+    except Exception as exc:
+        raise HTTPException(404, str(exc))
+    return FileResponse(str(bundle.pdf_path), media_type="application/pdf", filename=f"{template_id}.pdf")
 
 
 @app.put("/api/admin/templates/{template_id}/bundle")
@@ -444,9 +589,75 @@ def api_admin_save_bundle(template_id: str, payload: dict, request: Request):
     if template_json.get("id") and template_json["id"] != template_id:
         raise HTTPException(400, "template.id must match URL template_id")
 
-    (target_dir / "template.json").write_text(json.dumps(template_json, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    (target_dir / "schema.json").write_text(json.dumps(schema_json, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    (target_dir / "mapping.json").write_text(json.dumps(mapping_json, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    fields = schema_json.get("fields")
+    if not isinstance(fields, list):
+        raise HTTPException(400, "schema.fields must be an array")
+
+    allowed_types = {"text", "date", "radio", "checkbox", "signature", "text_input", "checkbox_input", "signature_area"}
+    keys: dict[str, int] = {}
+    validation_errors: list[str] = []
+    for index, field in enumerate(fields):
+        if not isinstance(field, dict):
+            validation_errors.append(f"Field {index + 1} must be an object")
+            continue
+        key = str(field.get("key", "")).strip()
+        label = str(field.get("label", "")).strip()
+        if not key:
+            validation_errors.append(f"Field {index + 1} has no key")
+        elif not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", key):
+            validation_errors.append(f"Field key '{key}' is invalid")
+        elif key in keys:
+            validation_errors.append(f"Field key '{key}' is duplicated")
+        else:
+            keys[key] = index
+        if not field.get("hidden") and not label:
+            validation_errors.append(f"Field '{key or index + 1}' has no label")
+        if field.get("type") not in allowed_types:
+            validation_errors.append(f"Field '{key or index + 1}' has unsupported type '{field.get('type')}'")
+        if field.get("type") == "radio":
+            options = field.get("options") or []
+            option_values = [str(option.get("value", "")) for option in options if isinstance(option, dict)]
+            if len(options) < 2 or len(option_values) != len(options):
+                validation_errors.append(f"Radio field '{key}' needs at least two valid options")
+            elif any(not value for value in option_values) or len(set(option_values)) != len(option_values):
+                validation_errors.append(f"Radio field '{key}' has blank or duplicate option values")
+
+    for index, field in enumerate(fields):
+        if not isinstance(field, dict):
+            continue
+        for conditions in [field.get("visible_when"), *(field.get("visible_when_any") or [])]:
+            if not conditions:
+                continue
+            if not isinstance(conditions, dict):
+                validation_errors.append(f"Field '{field.get('key', index + 1)}' has invalid visibility conditions")
+                continue
+            for dependency, allowed_values in conditions.items():
+                if dependency not in keys:
+                    validation_errors.append(f"Field '{field.get('key')}' references missing condition field '{dependency}'")
+                elif keys[dependency] >= index:
+                    validation_errors.append(f"Field '{field.get('key')}' condition must reference an earlier field")
+                if not isinstance(allowed_values, list) or not allowed_values:
+                    validation_errors.append(f"Field '{field.get('key')}' condition '{dependency}' has no values")
+
+    if validation_errors:
+        raise HTTPException(400, {"message": "Invalid form schema", "errors": validation_errors})
+
+    pending_files: list[tuple[Path, Path]] = []
+    try:
+        for filename, data in (
+            ("template.json", template_json),
+            ("schema.json", schema_json),
+            ("mapping.json", mapping_json),
+        ):
+            target = target_dir / filename
+            temporary = target.with_name(f".{target.name}.tmp")
+            temporary.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            pending_files.append((temporary, target))
+        for temporary, target in pending_files:
+            temporary.replace(target)
+    finally:
+        for temporary, _ in pending_files:
+            temporary.unlink(missing_ok=True)
 
     return {"status": "saved", "template_id": template_id}
 
@@ -535,6 +746,7 @@ def api_admin_create_template(payload: CreateTemplatePayload, request: Request):
             "tags": payload.tags,
             "country": payload.country,
             "popular": False,
+            "published": False,
             "estimated_time": payload.estimated_time,
         }
         (target_dir / "template.json").write_text(
@@ -682,6 +894,7 @@ def api_admin_sync_to_repo(request: Request):
 # ---------------------------------------------------------------------------
 
 BASE_SITE_URL = os.getenv("SITE_URL", "https://oky-docky.com").rstrip("/")
+BASE_SITE_HOST = urlparse(BASE_SITE_URL).netloc
 
 STATIC_PAGES = [
     {"path": "/", "priority": "1.0", "changefreq": "daily"},
@@ -750,18 +963,20 @@ def robots_txt():
     content = (
         "User-agent: *\n"
         "Allow: /\n"
-        "Disallow: /builder\n"
+        "Disallow: /oky-docky/builder\n"
+        "Disallow: /oky-docky/admin\n"
         "Disallow: /api/admin/\n"
         "Disallow: /api/render/\n"
         "Disallow: /api/feedback\n"
         "\nUser-agent: Googlebot\n"
         "Allow: /\n"
-        "Disallow: /builder\n"
+        "Disallow: /oky-docky/builder\n"
+        "Disallow: /oky-docky/admin\n"
         "Disallow: /api/admin/\n"
         "Disallow: /api/render/\n"
         "Disallow: /api/feedback\n"
         f"\nSitemap: {BASE_SITE_URL}/sitemap.xml\n"
-        f"Host: {BASE_SITE_URL.replace('https://', '').replace('http://', '')}\n"
+        f"Host: {BASE_SITE_HOST}\n"
     )
     return Response(content=content, media_type="text/plain")
 
@@ -774,8 +989,8 @@ def api_seo_meta(template_id: str):
     except Exception:
         raise HTTPException(404, f"Template '{template_id}' not found")
 
-    title = f"{meta.get('title', template_id)} — Free Online Form | Oky-Docky"
-    description = (
+    title = meta.get("seo_title") or f"{meta.get('title', template_id)} — Free Online Form | Oky-Docky"
+    description = meta.get("seo_description") or (
         f"Fill out {meta.get('title', '')} online for free. "
         f"{meta.get('description', '')} "
         f"Guided step-by-step Q&A with instant PDF download."
@@ -785,6 +1000,7 @@ def api_seo_meta(template_id: str):
         "title": title,
         "description": description,
         "canonical": f"{BASE_SITE_URL}/{template_id}",
+        "keywords": meta.get("seo_keywords", meta.get("tags", [])),
         "og": {
             "type": "website",
             "title": title,
@@ -805,6 +1021,8 @@ def api_seo_meta(template_id: str):
                 "price": "0",
                 "priceCurrency": "USD",
             },
+            "isBasedOn": meta.get("source_url"),
+            "publisher": {"@type": "Organization", "name": "Oky-Docky"},
         },
     }
 

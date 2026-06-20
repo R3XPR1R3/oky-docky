@@ -271,12 +271,54 @@
       }
     },
     {
-      "key": "preparer_address",
+      "key": "preparer_middle_initial",
+      "type": "text",
+      "required": false,
+      "label": "Preparer's middle initial?",
+      "placeholder": "M",
+      "maxLength": 1,
+      "visible_when": {
+        "used_preparer": ["yes"]
+      }
+    },
+    {
+      "key": "preparer_address_street",
       "type": "text",
       "required": true,
-      "label": "Preparer's address?",
-      "placeholder": "456 Oak Avenue, Suite 200, Houston, TX 77001",
-      "helpText": "Full address of the person who helped you: street, city, state, and ZIP.",
+      "label": "Preparer's street address?",
+      "placeholder": "456 Oak Avenue, Suite 200",
+      "visible_when": {
+        "used_preparer": ["yes"]
+      }
+    },
+    {
+      "key": "preparer_city",
+      "type": "text",
+      "required": true,
+      "label": "Preparer's city or town?",
+      "placeholder": "Houston",
+      "visible_when": {
+        "used_preparer": ["yes"]
+      }
+    },
+    {
+      "key": "preparer_state",
+      "type": "text",
+      "required": true,
+      "label": "Preparer's state?",
+      "placeholder": "TX",
+      "maxLength": 2,
+      "visible_when": {
+        "used_preparer": ["yes"]
+      }
+    },
+    {
+      "key": "preparer_zip",
+      "type": "text",
+      "required": true,
+      "label": "Preparer's ZIP code?",
+      "placeholder": "77001",
+      "maxLength": 5,
       "visible_when": {
         "used_preparer": ["yes"]
       }
@@ -293,7 +335,7 @@
     },
     {
       "key": "preparer_sign_date",
-      "type": "text",
+      "type": "date",
       "required": true,
       "label": "Date of preparer's signature",
       "placeholder": "03/20/2026",
@@ -312,7 +354,7 @@
     },
     {
       "key": "sign_date",
-      "type": "text",
+      "type": "date",
       "required": true,
       "label": "Today's date",
       "placeholder": "03/20/2026",
@@ -324,14 +366,14 @@
   "transforms": [
     {
       "type": "auto_date",
-      "output": "sign_date",
+      "field": "sign_date",
       "format": "MM/DD/YYYY"
     },
     {
       "type": "concat",
-      "inputs": ["address_street", "address_apt", "address_city", "address_state", "address_zip"],
-      "separator": ", ",
-      "output": "full_address",
+      "inputs": ["foreign_passport_number", "foreign_passport_country"],
+      "separator": " / ",
+      "output": "foreign_passport_details",
       "skip_empty": true
     }
   ]

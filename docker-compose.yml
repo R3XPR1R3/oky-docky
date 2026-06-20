@@ -6,6 +6,14 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
+    environment:
+      SITE_URL: ${PUBLIC_URL:-https://barckhat.com/oky-docky/}
+      ANALYTICS_DB_PATH: /app_root/data/analytics.sqlite3
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
+      ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET:-}
+      ADMIN_COOKIE_SECURE: ${ADMIN_COOKIE_SECURE:-1}
+      ADMIN_API_KEY: ${ADMIN_API_KEY:-}
     volumes:
       - backend-data:/app_root/data
 
@@ -22,16 +30,18 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:latest
     restart: unless-stopped
-    # The named tunnel is configured in Cloudflare to reach the local origin.
-    # Use host networking so origin URLs like http://localhost:80 resolve to
-    # the host-published frontend port instead of the cloudflared container.
-    network_mode: host
+    # Share the frontend network namespace. A remotely configured tunnel
+    # origin such as http://localhost:80 then reaches nginx directly, including
+    # on Docker Desktop where host networking may be unavailable.
+    network_mode: "service:frontend"
     depends_on:
       - frontend
     command:
       [
         "tunnel",
         "--no-autoupdate",
+        "--url",
+        "http://localhost:80",
         "run",
         "--token",
         "${TUNNEL_TOKEN:?Set TUNNEL_TOKEN in .env or environment to start the named Cloudflare tunnel}"

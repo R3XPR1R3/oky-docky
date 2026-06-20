@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { Type, Pen, RotateCcw } from 'lucide-react';
+import { Check, Pen, RotateCcw, Type } from 'lucide-react';
 import { Button } from './ui/button';
 import { useTranslation } from '../i18n/I18nContext';
 
@@ -9,182 +9,189 @@ interface SignaturePadProps {
   onChange: (value: string) => void;
 }
 
-type Mode = 'type' | 'draw';
+type Mode = 'draw' | 'type';
 
 export function SignaturePad({ value, onChange }: SignaturePadProps) {
   const { t } = useTranslation();
-  const [mode, setMode] = useState<Mode>(() =>
-    value && value.startsWith('data:image') ? 'draw' : 'type'
-  );
-  const [typedName, setTypedName] = useState(() =>
-    value && !value.startsWith('data:image') ? value : ''
-  );
+  const initialIsImage = value.startsWith('data:image');
+  const [mode, setMode] = useState<Mode>(value && !initialIsImage ? 'type' : 'draw');
+  const [typedName, setTypedName] = useState(initialIsImage ? '' : value);
+  const [drawnValue, setDrawnValue] = useState(initialIsImage ? value : '');
+  const [hasDrawn, setHasDrawn] = useState(initialIsImage);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const isDrawingRef = useRef(false);
+  const drawingRef = useRef(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
-  const hasDrawnRef = useRef(false);
+
+  const configureCanvas = useCallback((imageValue = drawnValue) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, rect.width, rect.height);
+    ctx.strokeStyle = '#312e81';
+    ctx.fillStyle = '#312e81';
+    ctx.lineWidth = 2.4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    if (imageValue.startsWith('data:image')) {
+      const image = new Image();
+      image.onload = () => {
+        const current = canvasRef.current;
+        const currentCtx = current?.getContext('2d');
+        if (!current || !currentCtx) return;
+        const currentRect = current.getBoundingClientRect();
+        currentCtx.drawImage(image, 0, 0, currentRect.width, currentRect.height);
+      };
+      image.src = imageValue;
+    }
+  }, [drawnValue]);
 
   useEffect(() => {
     if (mode !== 'draw') return;
+    configureCanvas();
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!canvas || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => configureCanvas());
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, [mode, configureCanvas]);
 
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * 2;
-    canvas.height = rect.height * 2;
-    ctx.scale(2, 2);
-    ctx.clearRect(0, 0, rect.width, rect.height);
-
-    if (value && value.startsWith('data:image')) {
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, rect.width, rect.height);
-        hasDrawnRef.current = true;
-      };
-      img.src = value;
+  useEffect(() => {
+    if (value.startsWith('data:image') && value !== drawnValue) {
+      setDrawnValue(value);
+      setHasDrawn(true);
+      if (mode === 'draw') configureCanvas(value);
+    } else if (value && !value.startsWith('data:image') && value !== typedName) {
+      setTypedName(value);
     }
+  }, [value, drawnValue, typedName, mode, configureCanvas]);
 
-    ctx.strokeStyle = '#e2e8f0';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(16, rect.height - 20);
-    ctx.lineTo(rect.width - 16, rect.height - 20);
-    ctx.stroke();
-
-    ctx.strokeStyle = '#1e293b';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-  }, [mode]);
-
-  const getPoint = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return null;
-    const rect = canvas.getBoundingClientRect();
-    let clientX: number, clientY: number;
-    if ('touches' in e) {
-      if (e.touches.length === 0) return null;
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    }
-    return { x: clientX - rect.left, y: clientY - rect.top };
+  const getPoint = useCallback((event: React.PointerEvent<HTMLCanvasElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
   }, []);
 
-  const startDrawing = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    isDrawingRef.current = true;
-    lastPointRef.current = getPoint(e);
+  const startDrawing = useCallback((event: React.PointerEvent<HTMLCanvasElement>) => {
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const point = getPoint(event);
+    const ctx = event.currentTarget.getContext('2d');
+    if (!ctx) return;
+    drawingRef.current = true;
+    lastPointRef.current = point;
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+    setHasDrawn(true);
   }, [getPoint]);
 
-  const draw = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    if (!isDrawingRef.current) return;
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!ctx || !canvas) return;
-
-    const point = getPoint(e);
-    const last = lastPointRef.current;
-    if (!point || !last) return;
-
-    ctx.strokeStyle = '#1e293b';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+  const draw = useCallback((event: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!drawingRef.current) return;
+    event.preventDefault();
+    const point = getPoint(event);
+    const previous = lastPointRef.current;
+    const ctx = event.currentTarget.getContext('2d');
+    if (!ctx || !previous) return;
     ctx.beginPath();
-    ctx.moveTo(last.x, last.y);
+    ctx.moveTo(previous.x, previous.y);
     ctx.lineTo(point.x, point.y);
     ctx.stroke();
-
     lastPointRef.current = point;
-    hasDrawnRef.current = true;
   }, [getPoint]);
 
-  const stopDrawing = useCallback(() => {
-    if (!isDrawingRef.current) return;
-    isDrawingRef.current = false;
+  const stopDrawing = useCallback((event: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!drawingRef.current) return;
+    drawingRef.current = false;
     lastPointRef.current = null;
-    const canvas = canvasRef.current;
-    if (canvas && hasDrawnRef.current) {
-      const dataUrl = canvas.toDataURL('image/png');
-      onChange(dataUrl);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
     }
+    const dataUrl = event.currentTarget.toDataURL('image/png');
+    setDrawnValue(dataUrl);
+    onChange(dataUrl);
   }, [onChange]);
 
   const clearCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const rect = canvas.getBoundingClientRect();
-    ctx.clearRect(0, 0, rect.width * 2, rect.height * 2);
-    ctx.strokeStyle = '#e2e8f0';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(16, rect.height - 20);
-    ctx.lineTo(rect.width - 16, rect.height - 20);
-    ctx.stroke();
-    hasDrawnRef.current = false;
+    setDrawnValue('');
+    setHasDrawn(false);
+    configureCanvas('');
     onChange('');
-  }, [onChange]);
+  }, [configureCanvas, onChange]);
 
   const handleTypedChange = (text: string) => {
     setTypedName(text);
     onChange(text);
   };
 
-  const handleModeSwitch = (newMode: Mode) => {
-    setMode(newMode);
-    onChange('');
-    setTypedName('');
-    hasDrawnRef.current = false;
+  const switchMode = (nextMode: Mode) => {
+    setMode(nextMode);
+    onChange(nextMode === 'draw' ? drawnValue : typedName);
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex gap-2">
-        <button type="button" onClick={() => handleModeSwitch('type')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${mode === 'type' ? 'bg-indigo-100 text-indigo-700 border-2 border-indigo-300' : 'bg-slate-100 text-slate-500 border-2 border-transparent hover:bg-slate-200'}`}>
-          <Type className="w-4 h-4" />
-          {t('signature.type')}
-        </button>
-        <button type="button" onClick={() => handleModeSwitch('draw')} className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${mode === 'draw' ? 'bg-indigo-100 text-indigo-700 border-2 border-indigo-300' : 'bg-slate-100 text-slate-500 border-2 border-transparent hover:bg-slate-200'}`}>
-          <Pen className="w-4 h-4" />
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1.5">
+        <button type="button" onClick={() => switchMode('draw')} className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${mode === 'draw' ? 'bg-white text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-slate-500 hover:text-slate-700'}`}>
+          <Pen className="h-4 w-4" />
           {t('signature.draw')}
+        </button>
+        <button type="button" onClick={() => switchMode('type')} className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${mode === 'type' ? 'bg-white text-indigo-700 shadow-sm ring-1 ring-indigo-200' : 'text-slate-500 hover:text-slate-700'}`}>
+          <Type className="h-4 w-4" />
+          {t('signature.type')}
         </button>
       </div>
 
-      {mode === 'type' && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-          <input type="text" value={typedName} onChange={(e) => handleTypedChange(e.target.value)} placeholder={t('signature.typeNamePlaceholder')} className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-base focus:border-indigo-500 focus:outline-none transition-colors" />
-          {typedName && (
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center">
-              <p className="text-xs text-slate-400 mb-2">{t('signature.preview')}</p>
-              <p className="text-3xl text-slate-800" style={{ fontFamily: "'Brush Script MT', 'Segoe Script', 'Apple Chancery', cursive" }}>{typedName}</p>
-            </div>
-          )}
-        </motion.div>
-      )}
-
       {mode === 'draw' && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
-          <div className="relative bg-white border-2 border-slate-200 rounded-xl overflow-hidden">
-            <canvas ref={canvasRef} className="w-full cursor-crosshair touch-none" style={{ height: 140 }} onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={stopDrawing} onMouseLeave={stopDrawing} onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={stopDrawing} />
-            <div className="absolute bottom-2 left-3 text-xs text-slate-300 pointer-events-none select-none">
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+          <div className="relative overflow-hidden rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-white to-indigo-50/40 shadow-inner focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-100">
+            <canvas
+              ref={canvasRef}
+              aria-label={t('signature.draw')}
+              className="block h-44 w-full cursor-crosshair touch-none outline-none"
+              tabIndex={0}
+              onPointerDown={startDrawing}
+              onPointerMove={draw}
+              onPointerUp={stopDrawing}
+              onPointerCancel={stopDrawing}
+            />
+            <div className="pointer-events-none absolute inset-x-6 bottom-10 border-b border-dashed border-indigo-200" />
+            <div className="pointer-events-none absolute bottom-3 left-5 select-none text-xs font-medium text-indigo-300">
               {t('signature.drawHint')}
             </div>
+            {hasDrawn && (
+              <div className="pointer-events-none absolute right-3 top-3 flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">
+                <Check className="h-3.5 w-3.5" /> Saved
+              </div>
+            )}
           </div>
-          <div className="flex justify-end">
-            <Button type="button" variant="ghost" size="sm" onClick={clearCanvas} className="text-slate-500 hover:text-red-500">
-              <RotateCcw className="w-3.5 h-3.5 mr-1" />
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs text-slate-500">Use a mouse, touchpad, or touchscreen. Only your ink is added to the PDF.</p>
+            <Button type="button" variant="ghost" size="sm" onClick={clearCanvas} disabled={!hasDrawn} className="shrink-0 text-slate-500 hover:text-red-600">
+              <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
               {t('signature.clear')}
             </Button>
           </div>
+        </motion.div>
+      )}
+
+      {mode === 'type' && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+          <input type="text" value={typedName} onChange={(event) => handleTypedChange(event.target.value)} placeholder={t('signature.typeNamePlaceholder')} className="w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-base outline-none transition-colors focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100" />
+          {typedName && (
+            <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-6 text-center">
+              <p className="mb-2 text-xs text-slate-400">{t('signature.preview')}</p>
+              <p className="text-3xl text-indigo-950" style={{ fontFamily: "'Brush Script MT', 'Segoe Script', 'Apple Chancery', cursive" }}>{typedName}</p>
+            </div>
+          )}
         </motion.div>
       )}
     </div>

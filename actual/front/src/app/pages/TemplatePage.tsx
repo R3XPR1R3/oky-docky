@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
@@ -10,6 +10,7 @@ import { ErrorDialog } from '../components/ErrorDialog';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { useTranslation } from '../i18n/I18nContext';
 import type { TemplateMeta, Schema } from '../App';
+import { trackEvent } from '../lib/analytics';
 
 type Phase = 'loading' | 'questions' | 'review' | 'ad' | 'success';
 
@@ -25,16 +26,29 @@ export function TemplatePage() {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const startTracked = useRef(false);
 
   useDocumentMeta({
-    title: template ? `${template.title} — Free Online Form | Oky-Docky` : 'Loading... | Oky-Docky',
+    title: template ? (template.seo_title || `${template.title} — Free Online Form | Oky-Docky`) : 'Loading... | Oky-Docky',
     description: template
-      ? `Fill out ${template.title} online for free. ${template.description} Guided step-by-step Q&A with instant PDF download.`
+      ? (template.seo_description || `Fill out ${template.title} online for free. ${template.description} Guided step-by-step Q&A with instant PDF download.`)
       : undefined,
     canonical: `/${templateId}`,
     keywords: template
-      ? [template.title, template.category, template.country, ...template.tags, 'free online form', 'PDF form filler', 'document assistant'].filter(Boolean).join(', ')
+      ? (template.seo_keywords || [template.title, template.category, template.country, ...template.tags, 'free online form', 'PDF form filler', 'document assistant']).filter(Boolean).join(', ')
       : undefined,
+    structuredData: template ? {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: template.title,
+      description: template.seo_description || template.description,
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web',
+      isAccessibleForFree: true,
+      isBasedOn: template.source_url,
+      publisher: { '@type': 'Organization', name: 'Oky-Docky' },
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    } : undefined,
   });
 
   useEffect(() => {
@@ -62,6 +76,10 @@ export function TemplatePage() {
           setTemplate(metaData);
           setSchema(schemaData);
           setPhase('questions');
+          if (!startTracked.current) {
+            trackEvent('form_start', { template_id: templateId });
+            startTracked.current = true;
+          }
         }
       } catch {
         if (!cancelled) setError('Failed to load template');
@@ -93,6 +111,7 @@ export function TemplatePage() {
 
       const blob = await response.blob();
       setPdfUrl(URL.createObjectURL(blob));
+      trackEvent('form_complete', { template_id: template.id });
       setPhase('ad');
       toast.success(t('error.generatedToast'));
     } catch (err) {
@@ -165,6 +184,7 @@ export function TemplatePage() {
     return (
       <SuccessPage
         pdfUrl={pdfUrl}
+        templateId={template.id}
         templateTitle={template.title}
         onStartOver={() => navigate('/')}
       />
