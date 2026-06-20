@@ -615,7 +615,7 @@ ensure_containers_up() {
   # Check if frontend dist volume has content (nginx serves from it)
   local dist_check
   dist_check=$(docker compose -f docker-compose.yml -f docker-compose.pi.yml \
-    exec -T frontend ls /usr/share/nginx/html/index.html 2>/dev/null || echo "")
+    exec -T frontend ls /usr/share/nginx/html/oky-docky/index.html 2>/dev/null || echo "")
   if [ -z "$dist_check" ]; then
     log "Frontend dist volume is empty — rebuilding..."
     _rebuild_frontend_async &
