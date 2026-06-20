@@ -387,7 +387,8 @@ def fill_acroform_pdf(
     # so indirect references stay valid in the writer.
     writer = PdfWriter(clone_from=reader)
 
-    # Ensure viewers regenerate field appearances
+    # We generate appearances ourselves below. Asking a viewer to regenerate
+    # them can paint the same value over the flattened page content.
     acroform = writer._root_object.get("/AcroForm")
     if acroform is None:
         # No AcroForm — still apply text/signature overlays for flat PDFs
@@ -399,7 +400,7 @@ def fill_acroform_pdf(
 
     try:
         acro_obj = acroform.get_object() if hasattr(acroform, "get_object") else acroform
-        acro_obj[NameObject("/NeedAppearances")] = BooleanObject(True)
+        acro_obj[NameObject("/NeedAppearances")] = BooleanObject(False)
     except Exception:
         pass
 
@@ -414,6 +415,7 @@ def fill_acroform_pdf(
     # Generate and flatten appearance streams so completed values remain
     # visible in browser PDF renderers that do not regenerate AcroForm/XFA
     # appearances (including pdf.js and PDFium).
+    appearances_written = False
     try:
         writer.update_page_form_field_values(
             list(writer.pages),
@@ -421,11 +423,21 @@ def fill_acroform_pdf(
             auto_regenerate=False,
             flatten=True,
         )
+        appearances_written = True
     except Exception:
         pass
 
-    # update XFA datasets XML if present
-    _fill_xfa_datasets(writer, field_values)
+    if appearances_written:
+        # A completed PDF needs one rendering source. Keeping populated XFA
+        # beside flattened AcroForm appearances makes XFA-aware readers show
+        # values twice.
+        try:
+            del acro_obj[NameObject("/XFA")]
+        except (KeyError, TypeError):
+            pass
+    else:
+        # XFA remains a fallback for unusual PDFs without writable widgets.
+        _fill_xfa_datasets(writer, field_values)
 
     # apply drawn signature image overlays
     if signature_overlays:

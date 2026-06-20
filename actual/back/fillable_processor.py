@@ -28,6 +28,7 @@ from pypdf import PdfReader
 from .core.mapping import build_pdf_field_values
 from .core.template_store import load_template, list_templates, load_template_meta
 from .core.transforms import apply_transforms, matches_conditions
+from .core.tax_rules import calculate_standard_deduction
 from .core.admin_auth import (
     ADMIN_USERNAME,
     COOKIE_NAME,
@@ -41,6 +42,34 @@ from .core.analytics import metrics as analytics_metrics, record_event
 from .engines.acroform import fill_acroform_pdf
 
 app = FastAPI()
+
+
+@app.get("/api/tax-rules/{year}/standard-deduction")
+def standard_deduction(
+    year: int,
+    filing_status: str,
+    taxpayer_age_65: bool = False,
+    taxpayer_blind: bool = False,
+    spouse_age_65: bool = False,
+    spouse_blind: bool = False,
+    can_be_claimed_as_dependent: bool = False,
+    earned_income: Optional[float] = None,
+) -> Dict[str, Any]:
+    try:
+        from decimal import Decimal
+
+        return calculate_standard_deduction(
+            year=year,
+            filing_status=filing_status,
+            taxpayer_age_65=taxpayer_age_65,
+            taxpayer_blind=taxpayer_blind,
+            spouse_age_65=spouse_age_65,
+            spouse_blind=spouse_blind,
+            can_be_claimed_as_dependent=can_be_claimed_as_dependent,
+            earned_income=Decimal(str(earned_income)) if earned_income is not None else None,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 # ---------------------------------------------------------------------------
 # Security configuration

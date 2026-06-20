@@ -30,43 +30,6 @@
     "field": "c1_2[0]",
     "checked_value": "/1"
   },
-  "save_children_count": {
-    "type": "set_var",
-    "name": "children_count",
-    "from": "qualifying_children_count"
-  },
-  "save_other_dep_count": {
-    "type": "set_var",
-    "name": "other_dep_count",
-    "from": "other_dependents_count"
-  },
-  "calc_qualifying_children_amount": {
-    "type": "math",
-    "operation": "multiply",
-    "inputs": [
-      "var:children_count"
-    ],
-    "factor": 2200,
-    "output_key": "qualifying_children_amount"
-  },
-  "calc_other_dependents_amount": {
-    "type": "math",
-    "operation": "multiply",
-    "inputs": [
-      "var:other_dep_count"
-    ],
-    "factor": 500,
-    "output_key": "other_dependents_amount"
-  },
-  "calc_total_dependents_amount": {
-    "type": "math",
-    "operation": "sum",
-    "inputs": [
-      "qualifying_children_amount",
-      "other_dependents_amount"
-    ],
-    "output_key": "total_dependents_amount"
-  },
   "qualifying_children_amount": "f1_06[0]",
   "other_dependents_amount": "f1_07[0]",
   "total_dependents_amount": "f1_08[0]",

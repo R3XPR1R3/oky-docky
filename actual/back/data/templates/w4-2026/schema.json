@@ -212,7 +212,7 @@
     {
       "key": "qualifying_children_count",
       "type": "text",
-      "required": false,
+      "required": true,
       "label": "How many kids under 17 do you have?",
       "placeholder": "0",
       "helpText": "Children you support who are under 17. For 2026, multiply this count by $2,200. Put 0 if none.",
@@ -221,7 +221,7 @@
     {
       "key": "other_dependents_count",
       "type": "text",
-      "required": false,
+      "required": true,
       "label": "Do you support anyone else? (elderly parents, adult children, etc.)",
       "placeholder": "0",
       "helpText": "Other people who depend on you financially. Each one gets a $500 credit. Put 0 if none.",
@@ -325,14 +325,16 @@
       "operation": "multiply",
       "input": "qualifying_children_count",
       "factor": 2200,
-      "output": "qualifying_children_amount"
+      "output": "qualifying_children_amount",
+      "when": {"qualifying_children_count": {"empty": false}}
     },
     {
       "type": "compute",
       "operation": "multiply",
       "input": "other_dependents_count",
       "factor": 500,
-      "output": "other_dependents_amount"
+      "output": "other_dependents_amount",
+      "when": {"other_dependents_count": {"empty": false}}
     },
     {
       "type": "compute",
@@ -341,7 +343,11 @@
         "qualifying_children_amount",
         "other_dependents_amount"
       ],
-      "output": "total_dependents_amount"
+      "output": "total_dependents_amount",
+      "when": {
+        "qualifying_children_count": {"empty": false},
+        "other_dependents_count": {"empty": false}
+      }
     },
     {
       "type": "copy",
