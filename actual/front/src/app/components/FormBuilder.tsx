@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from './ui/select';
 import { toast } from 'sonner';
-import type { SchemaField, Schema, SchemaTransform, FieldStyle } from '../App';
+import type { ConditionExpected, ConditionSet, SchemaField, Schema, SchemaTransform, FieldStyle } from '../App';
 import { QuestionFlow } from './QuestionFlow';
 
 interface FormBuilderProps {
@@ -96,6 +96,16 @@ function createEmptyField(): SchemaField {
   };
 }
 
+function acceptedConditionValues(expected: ConditionExpected): string[] | null {
+  if (Array.isArray(expected)) return expected.map(String);
+  if (expected && typeof expected === 'object') {
+    if (expected.in) return expected.in.map(String);
+    if ('equals' in expected) return [String(expected.equals)];
+    return null;
+  }
+  return [String(expected)];
+}
+
 function validateBuilderSchema(fields: SchemaField[], transforms: SchemaTransform[]): string[] {
   const issues: string[] = [];
   const keyIndexes = new Map<string, number>();
@@ -118,15 +128,21 @@ function validateBuilderSchema(fields: SchemaField[], transforms: SchemaTransfor
   });
 
   fields.forEach((field, index) => {
-    const conditionGroups = [field.visible_when, ...(field.visible_when_any || [])].filter(Boolean) as Record<string, string[]>[];
+    const conditionGroups = [
+      field.visible_when,
+      ...(field.visible_when_any || []),
+      field.read_only_when,
+      ...(field.read_only_when_any || []),
+    ].filter(Boolean) as ConditionSet[];
     for (const conditions of conditionGroups) {
-      for (const [dependency, allowedValues] of Object.entries(conditions)) {
+      for (const [dependency, expected] of Object.entries(conditions)) {
         const dependencyIndex = keyIndexes.get(dependency);
         if (dependencyIndex === undefined) issues.push(`${field.label || field.key}: condition references missing field "${dependency}"`);
         else if (dependencyIndex >= index) issues.push(`${field.label || field.key}: conditions may only reference an earlier question`);
-        if (!allowedValues.length) issues.push(`${field.label || field.key}: condition for "${dependency}" has no accepted values`);
+        const allowedValues = acceptedConditionValues(expected);
+        if (allowedValues?.length === 0) issues.push(`${field.label || field.key}: condition for "${dependency}" has no accepted values`);
         const source = dependencyIndex === undefined ? undefined : fields[dependencyIndex];
-        if (source?.options?.length) {
+        if (allowedValues && source?.options?.length) {
           const validValues = new Set(source.options.map((option) => option.value));
           const unknown = allowedValues.filter((value) => !validValues.has(value));
           if (unknown.length) issues.push(`${field.label || field.key}: unknown values for "${dependency}": ${unknown.join(', ')}`);
@@ -138,7 +154,7 @@ function validateBuilderSchema(fields: SchemaField[], transforms: SchemaTransfor
   const knownKeys = new Set(fields.map((field) => field.key).filter(Boolean));
   transforms.forEach((transform, index) => {
     const label = `Transform ${index + 1}`;
-    for (const key of Object.keys(transform.when || {})) {
+    for (const key of [...Object.keys(transform.when || {}), ...Object.keys(transform.unless || {})]) {
       if (!knownKeys.has(key)) issues.push(`${label}: condition references missing field "${key}"`);
     }
     const sourceKeys = [transform.input, transform.from, ...(transform.inputs || [])].filter(Boolean) as string[];
@@ -389,6 +405,8 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
       key: fieldIndex === index ? nextKey : field.key,
       visible_when: renameRecordKey(field.visible_when),
       visible_when_any: field.visible_when_any?.map((conditions) => renameRecordKey(conditions) || {}),
+      read_only_when: renameRecordKey(field.read_only_when),
+      read_only_when_any: field.read_only_when_any?.map((conditions) => renameRecordKey(conditions) || {}),
     })));
     setMapping((prev) => {
       if (!(previousKey in prev)) return prev;
@@ -405,6 +423,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
       field: transform.field === previousKey ? nextKey : transform.field,
       output: transform.output === previousKey ? nextKey : transform.output,
       when: renameRecordKey(transform.when),
+      unless: renameRecordKey(transform.unless),
       set: renameRecordKey(transform.set),
     })));
   }, [fields, updateField]);
@@ -460,7 +479,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
     setFields((prev) => prev.map((f, i) => {
       if (i !== fieldIndex) return f;
       const vw = { ...(f.visible_when || {}) };
-      const current = vw[depKey] || [];
+      const current = acceptedConditionValues(vw[depKey] ?? []) || [];
       if (current.includes(val)) {
         vw[depKey] = current.filter((v) => v !== val);
       } else {
@@ -1271,6 +1290,13 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                 />
                                 <Label className="text-sm text-amber-700">Hidden</Label>
                               </div>
+                              <div className="flex items-center gap-2">
+                                <Switch
+                                  checked={!!field.readOnly}
+                                  onCheckedChange={(v) => updateField(index, { readOnly: v || undefined })}
+                                />
+                                <Label className="text-sm text-indigo-700">Read-only</Label>
+                              </div>
                             </div>
                           </div>
 
@@ -1468,9 +1494,10 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                               <p className="text-xs text-slate-400">Always visible (no conditions)</p>
                             )}
 
-                            {field.visible_when && Object.entries(field.visible_when).map(([depKey, values]) => {
+                            {field.visible_when && Object.entries(field.visible_when).map(([depKey, expected]) => {
                               const depField = fields.find((f) => f.key === depKey);
                               if (!depField) return null;
+                              const values = acceptedConditionValues(expected) || [];
 
                               return (
                                 <div key={depKey} className="bg-white rounded-lg border border-slate-200 p-3 space-y-2">
@@ -1522,6 +1549,32 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                 </div>
                               );
                             })}
+
+                            <div className="space-y-1.5 rounded-lg border border-indigo-100 bg-indigo-50/60 p-3">
+                              <Label className="text-xs font-medium text-indigo-700">Lock when (optional JSON condition or OR groups)</Label>
+                              <Input
+                                value={field.read_only_when_any
+                                  ? JSON.stringify(field.read_only_when_any)
+                                  : field.read_only_when
+                                    ? JSON.stringify(field.read_only_when)
+                                    : ''}
+                                onChange={(e) => {
+                                  if (!e.target.value.trim()) {
+                                    updateField(index, { read_only_when: undefined, read_only_when_any: undefined });
+                                    return;
+                                  }
+                                  try {
+                                    const parsed = JSON.parse(e.target.value);
+                                    updateField(index, Array.isArray(parsed)
+                                      ? { read_only_when: undefined, read_only_when_any: parsed }
+                                      : { read_only_when: parsed, read_only_when_any: undefined });
+                                  } catch { /* keep the last valid condition while typing */ }
+                                }}
+                                placeholder='{"auto_calculate": ["yes"]} or [{"income": {"lt": 75000}}, ...]'
+                                className="font-mono text-sm"
+                              />
+                              <p className="text-xs text-slate-500">Use this with a transform that sets the field value automatically.</p>
+                            </div>
                           </div>
                         </div>
                       </motion.div>
@@ -1694,6 +1747,16 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                               <SelectItem value="multiply">Multiply</SelectItem>
                                               <SelectItem value="sum">Sum</SelectItem>
                                               <SelectItem value="subtract">Subtract</SelectItem>
+                                              <SelectItem value="divide">Divide</SelectItem>
+                                              <SelectItem value="percent">Percent</SelectItem>
+                                              <SelectItem value="min">Minimum</SelectItem>
+                                              <SelectItem value="max">Maximum</SelectItem>
+                                              <SelectItem value="avg">Average</SelectItem>
+                                              <SelectItem value="round">Round</SelectItem>
+                                              <SelectItem value="abs">Absolute value</SelectItem>
+                                              <SelectItem value="negate">Negate</SelectItem>
+                                              <SelectItem value="pow">Power</SelectItem>
+                                              <SelectItem value="mod">Modulo</SelectItem>
                                             </SelectContent>
                                           </Select>
                                         </div>
@@ -1723,7 +1786,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                             <Input
                                               type="number"
                                               value={tr.factor ?? ''}
-                                              onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, factor: e.target.value ? parseInt(e.target.value) : undefined } : t))}
+                                              onChange={(e) => setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, factor: e.target.value ? parseFloat(e.target.value) : undefined } : t))}
                                               placeholder="1"
                                             />
                                           </div>
@@ -1742,6 +1805,24 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                           />
                                         </div>
                                       )}
+                                      <div className="space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-500">When (optional JSON condition)</Label>
+                                        <Input
+                                          value={tr.when ? JSON.stringify(tr.when) : ''}
+                                          onChange={(e) => {
+                                            if (!e.target.value.trim()) {
+                                              setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, when: undefined } : t));
+                                              return;
+                                            }
+                                            try {
+                                              const parsed = JSON.parse(e.target.value);
+                                              setTransforms((prev) => prev.map((t, i) => i === ti ? { ...t, when: parsed } : t));
+                                            } catch { /* keep the last valid condition while typing */ }
+                                          }}
+                                          placeholder='{"filing_status": ["single"], "income": {"lt": 75000}}'
+                                          className="font-mono text-sm"
+                                        />
+                                      </div>
                                     </>
                                   )}
 

@@ -27,7 +27,7 @@ from pypdf import PdfReader
 
 from .core.mapping import build_pdf_field_values
 from .core.template_store import load_template, list_templates, load_template_meta
-from .core.transforms import apply_transforms
+from .core.transforms import apply_transforms, matches_conditions
 from .core.admin_auth import (
     ADMIN_USERNAME,
     COOKIE_NAME,
@@ -237,13 +237,7 @@ def _apply_locale_to_schema(
 
 def _check_condition_group(group: dict, answers: dict) -> bool:
     """Check if ALL conditions in a group match (AND logic)."""
-    for dep_key, allowed_values in group.items():
-        current_value = answers.get(dep_key)
-        if current_value in (None, ""):
-            return False
-        if str(current_value) not in [str(v) for v in allowed_values]:
-            return False
-    return True
+    return matches_conditions(group, answers)
 
 
 def _is_field_visible(field: dict, answers: dict) -> bool:
@@ -263,7 +257,12 @@ def _is_field_visible(field: dict, answers: dict) -> bool:
 
 def _resolve_visible_fields(schema: dict, answers: dict) -> list[dict]:
     fields = schema.get("fields", []) if isinstance(schema, dict) else []
-    return [f for f in fields if not f.get("hidden") and _is_field_visible(f, answers)]
+    resolved_answers = dict(answers)
+    for field in fields:
+        if field.get("hidden") and "defaultValue" in field:
+            resolved_answers.setdefault(field.get("key"), field["defaultValue"])
+    resolved_answers = apply_transforms(resolved_answers, schema.get("transforms", []))
+    return [f for f in fields if not f.get("hidden") and _is_field_visible(f, resolved_answers)]
 
 
 def _collect_hidden_defaults(schema: dict) -> dict:

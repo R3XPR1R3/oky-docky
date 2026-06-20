@@ -41,6 +41,22 @@ export interface FieldStyle {
   fontFamily?: string;  // e.g. "Arial", "monospace"
 }
 
+export type ConditionPrimitive = string | number | boolean | null;
+export interface ConditionOperator {
+  equals?: ConditionPrimitive;
+  not_equals?: ConditionPrimitive;
+  in?: ConditionPrimitive[];
+  not_in?: ConditionPrimitive[];
+  gt?: number;
+  gte?: number;
+  lt?: number;
+  lte?: number;
+  empty?: boolean;
+  truthy?: boolean;
+}
+export type ConditionExpected = ConditionPrimitive | ConditionPrimitive[] | ConditionOperator;
+export type ConditionSet = Record<string, ConditionExpected>;
+
 export interface SchemaField {
   key: string;
   type: 'text' | 'date' | 'radio' | 'checkbox' | 'signature' | 'text_input' | 'checkbox_input' | 'signature_area';
@@ -54,22 +70,32 @@ export interface SchemaField {
   maxLength?: number;
   defaultValue?: string | number | boolean;
   options?: { value: string; label: string }[];
-  visible_when?: Record<string, string[]>;
-  visible_when_any?: Record<string, string[]>[];
+  visible_when?: ConditionSet;
+  visible_when_any?: ConditionSet[];
+  readOnly?: boolean;
+  read_only_when?: ConditionSet;
+  read_only_when_any?: ConditionSet[];
   fieldId?: string;     // custom ID for document mapping
   style?: FieldStyle;   // visual styling for document fields
 }
 
 export interface SchemaTransform {
   type: 'derive' | 'compute' | 'copy' | 'concat' | 'auto_date' | 'set_value';
-  when?: Record<string, string | string[] | boolean>;
+  when?: ConditionSet;
+  unless?: ConditionSet;
   set?: Record<string, any>;
+  else_set?: Record<string, any>;
   operation?: string;
   input?: string;
   inputs?: string[];
   separator?: string;
   skip_empty?: boolean;
   factor?: number;
+  divisor?: number;
+  percent?: number;
+  exp?: number;
+  mod?: number;
+  precision?: number;
   output?: string;
   from?: string;
   to?: string;
@@ -77,6 +103,7 @@ export interface SchemaTransform {
   field?: string;
   format?: string;
   value?: any;
+  else_value?: any;
 }
 
 export interface Schema {

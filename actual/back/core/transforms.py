@@ -67,20 +67,65 @@ def _fmt(value: float) -> str:
 # Condition matching
 # ---------------------------------------------------------------------------
 
-def _match(when: Dict[str, Any], data: Dict[str, Any]) -> bool:
-    """Return True when every key/value pair in *when* matches *data*."""
-    for key, expected in when.items():
-        actual = data.get(key)
-        if isinstance(expected, bool):
-            if bool(actual) != expected:
-                return False
-        elif isinstance(expected, list):
-            if str(actual) not in [str(v) for v in expected]:
-                return False
-        else:
-            if str(actual) != str(expected):
-                return False
+def _is_empty(value: Any) -> bool:
+    return value is None or value == "" or value == []
+
+
+def _to_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return value != 0
+    return str(value or "").strip().lower() in {"true", "yes", "1", "on"}
+
+
+def _equal(actual: Any, expected: Any) -> bool:
+    if isinstance(expected, bool):
+        return _to_bool(actual) == expected
+    if expected is None:
+        return actual is None
+    return str(actual) == str(expected)
+
+
+def _match_expected(actual: Any, expected: Any) -> bool:
+    if isinstance(expected, list):
+        return any(_equal(actual, item) for item in expected)
+    if not isinstance(expected, dict):
+        return _equal(actual, expected)
+
+    if "equals" in expected and not _equal(actual, expected["equals"]):
+        return False
+    if "not_equals" in expected and _equal(actual, expected["not_equals"]):
+        return False
+    if "in" in expected and not any(_equal(actual, item) for item in expected["in"]):
+        return False
+    if "not_in" in expected and any(_equal(actual, item) for item in expected["not_in"]):
+        return False
+    if "empty" in expected and _is_empty(actual) != bool(expected["empty"]):
+        return False
+    if "truthy" in expected and _to_bool(actual) != bool(expected["truthy"]):
+        return False
+
+    numeric = _to_num(actual)
+    if "gt" in expected and not numeric > _to_num(expected["gt"]):
+        return False
+    if "gte" in expected and not numeric >= _to_num(expected["gte"]):
+        return False
+    if "lt" in expected and not numeric < _to_num(expected["lt"]):
+        return False
+    if "lte" in expected and not numeric <= _to_num(expected["lte"]):
+        return False
     return True
+
+
+def _match(when: Dict[str, Any], data: Dict[str, Any]) -> bool:
+    """Return True when every field predicate in *when* matches *data*."""
+    return all(_match_expected(data.get(key), expected) for key, expected in when.items())
+
+
+def matches_conditions(conditions: Dict[str, Any] | None, data: Dict[str, Any]) -> bool:
+    """Public condition matcher shared by routing and transform evaluation."""
+    return conditions is None or _match(conditions, data)
 
 
 # ---------------------------------------------------------------------------
@@ -177,17 +222,20 @@ def apply_transforms(
 
     for rule in transforms:
         rtype = rule.get("type", "")
+        when = rule.get("when")
+        unless = rule.get("unless")
+        active = matches_conditions(when, result) and not (
+            unless is not None and matches_conditions(unless, result)
+        )
 
         # --- derive: conditional bulk-set ---
         if rtype == "derive":
-            when = rule.get("when")
-            if when and _match(when, result):
-                result.update(rule.get("set", {}))
+            result.update(rule.get("set", {}) if active else rule.get("else_set", {}))
 
         # --- compute: math → output ---
         elif rtype == "compute":
             output_key = rule.get("output")
-            if not output_key:
+            if not active or not output_key:
                 continue
             result[output_key] = _compute(rule, result)
 
@@ -196,11 +244,10 @@ def apply_transforms(
             src, dst = rule.get("from", ""), rule.get("to", "")
             if not src or not dst:
                 continue
-            when = rule.get("when")
-            if when and not _match(when, result):
+            if not active:
                 continue
             val = result.get(src, "")
-            if val:
+            if not _is_empty(val):
                 if rule.get("if_empty", False):
                     if result.get(dst) in (None, ""):
                         result[dst] = val
@@ -211,7 +258,7 @@ def apply_transforms(
         elif rtype == "concat":
             source_keys = rule.get("fields") or rule.get("inputs") or []
             output_key = rule.get("output", "")
-            if not isinstance(source_keys, list) or not output_key:
+            if not active or not isinstance(source_keys, list) or not output_key:
                 continue
             values = [str(result.get(key, "")).strip() for key in source_keys]
             if rule.get("skip_empty", True):
@@ -222,7 +269,7 @@ def apply_transforms(
         elif rtype == "auto_date":
             field = rule.get("field", "")
             fmt = rule.get("format", "MM/DD/YYYY")
-            if field:
+            if active and field:
                 py_fmt = (
                     fmt.replace("MM", "%m")
                     .replace("DD", "%d")
@@ -235,9 +282,10 @@ def apply_transforms(
         elif rtype == "set_value":
             field = rule.get("field", "")
             value = rule.get("value")
-            when = rule.get("when")
             if field:
-                if when is None or _match(when, result):
+                if active:
                     result[field] = value
+                elif "else_value" in rule:
+                    result[field] = rule.get("else_value")
 
     return result

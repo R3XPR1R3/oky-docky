@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { FileText, ArrowLeft, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { FileText, ArrowLeft, ArrowRight, Sparkles, CheckCircle2, Lock } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -11,6 +11,7 @@ import { SignaturePad } from './SignaturePad';
 import { useTranslation } from '../i18n/I18nContext';
 import type { Schema, SchemaField } from '../App';
 import { formatInputValue } from '../lib/inputFormatting';
+import { applyTransforms, isFieldReadOnly, isFieldVisible } from '../lib/formRules';
 
 interface QuestionFlowProps {
   templateId?: string;
@@ -19,23 +20,6 @@ interface QuestionFlowProps {
   initialData: Record<string, any>;
   onComplete: (data: Record<string, any>) => void;
   onBack: () => void;
-}
-
-function matchesConditions(conditions: Record<string, string[]> | undefined, answers: Record<string, any>) {
-  if (!conditions) return true;
-  return Object.entries(conditions).every(([key, allowed]) => {
-    const answer = answers[key];
-    return answer !== undefined && answer !== null && answer !== ''
-      && allowed.map(String).includes(String(answer));
-  });
-}
-
-function isVisible(field: SchemaField, answers: Record<string, any>) {
-  if (field.hidden) return false;
-  if (field.visible_when_any?.length) {
-    return field.visible_when_any.some((conditions) => matchesConditions(conditions, answers));
-  }
-  return matchesConditions(field.visible_when, answers);
 }
 
 function formatDateAnswer(isoDate: string) {
@@ -49,14 +33,6 @@ function dateAnswerToIso(value: unknown) {
   return match ? `${match[3]}-${match[1]}-${match[2]}` : raw;
 }
 
-function todayForFormat(format = 'MM/DD/YYYY') {
-  const now = new Date();
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  const yyyy = String(now.getFullYear());
-  return format.replace('MM', mm).replace('DD', dd).replace('YYYY', yyyy);
-}
-
 export function QuestionFlow({ templateId, templateTitle, schema, initialData, onComplete, onBack }: QuestionFlowProps) {
   const { t } = useTranslation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -67,15 +43,10 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
         values[field.key] = field.defaultValue;
       }
     }
-    for (const transform of schema.transforms || []) {
-      if (transform.type === 'auto_date' && transform.field && !values[transform.field]) {
-        values[transform.field] = todayForFormat(transform.format);
-      }
-    }
-    return values;
+    return applyTransforms(values, schema.transforms);
   });
   const visibleQuestions = useMemo(
-    () => schema.fields.filter((field) => isVisible(field, answers)),
+    () => schema.fields.filter((field) => isFieldVisible(field, answers)),
     [schema.fields, answers],
   );
 
@@ -86,6 +57,7 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
   }, [currentQuestionIndex, visibleQuestions.length]);
 
   const currentQuestion = visibleQuestions[currentQuestionIndex];
+  const currentQuestionReadOnly = currentQuestion ? isFieldReadOnly(currentQuestion, answers) : false;
   const progress = visibleQuestions.length > 0
     ? ((currentQuestionIndex + 1) / visibleQuestions.length) * 100
     : 0;
@@ -99,7 +71,7 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
       for (const [key, value] of Object.entries(answers)) {
         if (visibleKeys.has(key)) cleanData[key] = value;
       }
-      onComplete(cleanData);
+      onComplete(applyTransforms(cleanData, schema.transforms));
     }
   };
 
@@ -112,13 +84,16 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
   };
 
   const handleAnswerChange = (value: any) => {
-    if (!currentQuestion) return;
+    if (!currentQuestion || currentQuestionReadOnly) return;
 
     const nextValue = (currentQuestion.type === 'text' || currentQuestion.type === 'text_input') && typeof value === 'string'
       ? formatInputValue(currentQuestion.key, value, currentQuestion.inputMask)
       : value;
 
-    setAnswers((prev) => ({ ...prev, [currentQuestion.key]: nextValue }));
+    setAnswers((prev) => applyTransforms(
+      { ...prev, [currentQuestion.key]: nextValue },
+      schema.transforms,
+    ));
   };
 
   const isCurrentAnswerValid = () => {
@@ -176,6 +151,11 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
                     {currentQuestion.helpText && (
                       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-slate-600">{currentQuestion.helpText}</motion.p>
                     )}
+                    {currentQuestionReadOnly && (
+                      <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-700">
+                        <Lock className="h-3.5 w-3.5" /> Calculated automatically from your answers
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -183,7 +163,7 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
               <div className="p-8">
                 {currentQuestion.type === 'text' && (
                   <div className="space-y-2">
-                    <Input value={answers[currentQuestion.key] || ''} onChange={(e) => handleAnswerChange(e.target.value)} placeholder={currentQuestion.placeholder} maxLength={currentQuestion.maxLength} className="text-lg px-6 py-6 rounded-xl border-2 focus:border-indigo-500 transition-colors" autoFocus />
+                    <Input value={answers[currentQuestion.key] || ''} onChange={(e) => handleAnswerChange(e.target.value)} placeholder={currentQuestion.placeholder} maxLength={currentQuestion.maxLength} disabled={currentQuestionReadOnly} className="text-lg px-6 py-6 rounded-xl border-2 focus:border-indigo-500 transition-colors disabled:bg-slate-100 disabled:text-slate-700" autoFocus />
                     {currentQuestion.inputMask && (
                       <p className="text-xs text-slate-400 font-mono pl-2">
                         Format: {currentQuestion.inputMask.replace(/D/g, '#').replace(/L/g, 'A').replace(/A/g, '*')}
@@ -198,6 +178,7 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
                       type="date"
                       value={dateAnswerToIso(answers[currentQuestion.key])}
                       onChange={(e) => handleAnswerChange(formatDateAnswer(e.target.value))}
+                      disabled={currentQuestionReadOnly}
                       className="text-lg px-6 py-6 rounded-xl border-2 focus:border-indigo-500 transition-colors"
                       autoFocus
                     />
@@ -206,7 +187,7 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
                 )}
 
                 {currentQuestion.type === 'radio' && currentQuestion.options && (
-                  <RadioGroup value={answers[currentQuestion.key]} onValueChange={handleAnswerChange} className="space-y-3">
+                  <RadioGroup value={answers[currentQuestion.key]} onValueChange={handleAnswerChange} disabled={currentQuestionReadOnly} className="space-y-3">
                     {currentQuestion.options.map((option) => (
                       <motion.div key={option.value} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className={`relative flex items-center space-x-4 p-5 rounded-xl border-2 cursor-pointer transition-all ${answers[currentQuestion.key] === option.value ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 bg-white hover:border-indigo-300'}`}>
                         <RadioGroupItem value={option.value} id={option.value} />
@@ -223,7 +204,7 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
 
                 {currentQuestion.type === 'checkbox' && (
                   <div className="flex items-center space-x-4 p-5 rounded-xl border-2 border-slate-200">
-                    <Checkbox id={currentQuestion.key} checked={!!answers[currentQuestion.key]} onCheckedChange={(checked) => handleAnswerChange(checked)} />
+                    <Checkbox id={currentQuestion.key} checked={!!answers[currentQuestion.key]} disabled={currentQuestionReadOnly} onCheckedChange={(checked) => handleAnswerChange(checked)} />
                     <Label htmlFor={currentQuestion.key} className="flex-1 cursor-pointer text-base">{currentQuestion.helpText || t('questionFlow.yes')}</Label>
                   </div>
                 )}
@@ -239,6 +220,7 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
                       onChange={(e) => handleAnswerChange(e.target.value)}
                       placeholder={currentQuestion.placeholder}
                       maxLength={currentQuestion.maxLength}
+                      disabled={currentQuestionReadOnly}
                       id={currentQuestion.fieldId || currentQuestion.key}
                       className="rounded-xl border-2 focus:border-indigo-500 transition-colors"
                       style={{
@@ -264,6 +246,7 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
                     <Checkbox
                       id={currentQuestion.fieldId || currentQuestion.key}
                       checked={!!answers[currentQuestion.key]}
+                      disabled={currentQuestionReadOnly}
                       onCheckedChange={(checked) => handleAnswerChange(checked)}
                     />
                     <Label
