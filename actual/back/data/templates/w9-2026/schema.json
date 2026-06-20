@@ -87,13 +87,17 @@
       "type": "radio",
       "required": true,
       "label": "How is your LLC taxed?",
-      "helpText": "Not sure? Most single-member LLCs are taxed as sole proprietors — pick C if your accountant said C-corp, S if S-corp, P if partnership.",
+      "helpText": "Most single-member LLCs are disregarded entities by default. Choose C, S, or P only if the LLC elected that federal tax classification.",
       "visible_when": {
         "tax_class": [
           "llc"
         ]
       },
       "options": [
+        {
+          "value": "disregarded_individual",
+          "label": "Disregarded entity / sole proprietor (default for most single-member LLCs)"
+        },
         {
           "value": "C",
           "label": "As a C Corporation"
@@ -211,7 +215,7 @@
         },
         {
           "value": "ein",
-          "label": "My LLC's Employer ID Number (EIN)"
+          "label": "The EIN used on the owner's or entity's federal tax return"
         }
       ]
     },
@@ -246,7 +250,7 @@
       "required": true,
       "label": "What is your Employer Identification Number (EIN)?",
       "placeholder": "12-3456789",
-      "helpText": "Your 9-digit EIN. This is the tax ID the IRS gave your business.",
+      "helpText": "Enter the 9-digit EIN shown on the federal tax return for the owner or entity. A disregarded LLC generally uses its owner's SSN or EIN on Form W-9.",
       "visible_when_any": [
         {
           "tax_class": [
@@ -278,6 +282,37 @@
     }
   ],
   "transforms": [
+    {
+      "type": "copy",
+      "from": "tax_class",
+      "to": "pdf_tax_class"
+    },
+    {
+      "type": "derive",
+      "when": {
+        "tax_class": "llc",
+        "taxpayer_classification": "disregarded_individual"
+      },
+      "set": {
+        "pdf_tax_class": "individual",
+        "llc_classification_letter": ""
+      }
+    },
+    {
+      "type": "derive",
+      "when": {"tax_class": "llc", "taxpayer_classification": "C"},
+      "set": {"pdf_tax_class": "llc", "llc_classification_letter": "C"}
+    },
+    {
+      "type": "derive",
+      "when": {"tax_class": "llc", "taxpayer_classification": "S"},
+      "set": {"pdf_tax_class": "llc", "llc_classification_letter": "S"}
+    },
+    {
+      "type": "derive",
+      "when": {"tax_class": "llc", "taxpayer_classification": "P"},
+      "set": {"pdf_tax_class": "llc", "llc_classification_letter": "P"}
+    },
     {
       "type": "copy",
       "from": "person_name",

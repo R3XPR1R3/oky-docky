@@ -435,6 +435,53 @@ def fill_acroform_pdf(
             del acro_obj[NameObject("/XFA")]
         except (KeyError, TypeError):
             pass
+
+        # flatten=True merges appearances into the page but leaves the form
+        # widgets active. Mobile viewers render both unless we remove them.
+        selected_buttons: List[tuple[int, List[float]]] = []
+        for page_idx, page in enumerate(writer.pages):
+            annotations = page.get("/Annots")
+            if not annotations:
+                continue
+            remaining = ArrayObject()
+            for annotation_ref in annotations:
+                try:
+                    annotation = annotation_ref.get_object()
+                    if annotation.get("/Subtype") == "/Widget":
+                        if (
+                            annotation.get("/FT") == "/Btn"
+                            and str(annotation.get("/AS", "/Off")) != "/Off"
+                            and annotation.get("/Rect")
+                        ):
+                            selected_buttons.append(
+                                (page_idx, [float(value) for value in annotation["/Rect"]])
+                            )
+                        continue
+                except Exception:
+                    pass
+                remaining.append(annotation_ref)
+            if remaining:
+                page[NameObject("/Annots")] = remaining
+            else:
+                del page[NameObject("/Annots")]
+        acro_obj[NameObject("/Fields")] = ArrayObject()
+
+        # IRS checkbox appearances are not consistently merged by pypdf.
+        # Stamp the selected state into the static page before delivery.
+        for page_idx, rect in selected_buttons:
+            x1, y1, x2, y2 = rect
+            _stamp_text_with_fpdf2(
+                writer,
+                page_idx,
+                "X",
+                x1,
+                y1,
+                x2 - x1,
+                y2 - y1,
+                font_size=max(6, (y2 - y1) * 0.9),
+                font_style="B",
+                align="C",
+            )
     else:
         # XFA remains a fallback for unusual PDFs without writable widgets.
         _fill_xfa_datasets(writer, field_values)
