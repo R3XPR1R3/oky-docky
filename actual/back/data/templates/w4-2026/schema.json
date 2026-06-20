@@ -62,47 +62,6 @@
       ]
     },
     {
-      "key": "employee_age_65",
-      "type": "radio",
-      "required": true,
-      "routing": true,
-      "label": "Will you be age 65 or older by the end of 2026?",
-      "helpText": "The official 2026 W-4 Deductions Worksheet may allow a $6,000 senior deduction, subject to its income limit.",
-      "options": [
-        {
-          "value": "no",
-          "label": "No"
-        },
-        {
-          "value": "yes",
-          "label": "Yes"
-        }
-      ]
-    },
-    {
-      "key": "spouse_age_65",
-      "type": "radio",
-      "required": true,
-      "routing": true,
-      "label": "Will your spouse be age 65 or older by the end of 2026?",
-      "helpText": "For the W-4 worksheet, your spouse must also have a Social Security number valid for employment.",
-      "options": [
-        {
-          "value": "no",
-          "label": "No"
-        },
-        {
-          "value": "yes",
-          "label": "Yes"
-        }
-      ],
-      "visible_when": {
-        "filing_status": [
-          "mfj_qss"
-        ]
-      }
-    },
-    {
       "key": "has_multiple_jobs",
       "type": "radio",
       "required": true,
@@ -277,77 +236,6 @@
       "helpText": "Money from interest, dividends, rental property, side gigs, retirement, etc. Enter the yearly amount. Put 0 or leave blank if none."
     },
     {
-      "key": "senior_total_income",
-      "type": "text",
-      "required": true,
-      "label": "What do you expect your total 2026 income to be?",
-      "placeholder": "65000",
-      "helpText": "The W-4 worksheet's automatic $6,000 senior amount applies below $75,000, or below $150,000 if married filing jointly. At or above that amount, enter the result from Schedule 1-A manually.",
-      "visible_when_any": [
-        {
-          "employee_age_65": [
-            "yes"
-          ]
-        },
-        {
-          "spouse_age_65": [
-            "yes"
-          ]
-        }
-      ]
-    },
-    {
-      "key": "has_other_deductions",
-      "type": "radio",
-      "required": true,
-      "routing": true,
-      "label": "Do you have any other amounts for the 2026 Deductions Worksheet?",
-      "helpText": "Choose Yes for qualified tips or overtime, vehicle-loan interest, adjustments, itemized deductions, cash gifts, or if your income is at or above the senior limit and Schedule 1-A gives you an amount.",
-      "options": [
-        {
-          "value": "no",
-          "label": "No, only the senior deduction applies"
-        },
-        {
-          "value": "yes",
-          "label": "Yes, I will enter the worksheet result manually"
-        }
-      ],
-      "visible_when_any": [
-        {
-          "employee_age_65": [
-            "yes"
-          ]
-        },
-        {
-          "spouse_age_65": [
-            "yes"
-          ]
-        }
-      ]
-    },
-    {
-      "key": "employee_senior_deduction",
-      "type": "text",
-      "hidden": true,
-      "label": "Employee senior deduction",
-      "defaultValue": "0"
-    },
-    {
-      "key": "spouse_senior_deduction",
-      "type": "text",
-      "hidden": true,
-      "label": "Spouse senior deduction",
-      "defaultValue": "0"
-    },
-    {
-      "key": "senior_deduction_total",
-      "type": "text",
-      "hidden": true,
-      "label": "Total senior deduction",
-      "defaultValue": "0"
-    },
-    {
       "key": "use_deductions_worksheet",
       "type": "radio",
       "required": false,
@@ -363,28 +251,6 @@
           "value": "yes",
           "label": "Yes, I want to fill out the Deductions Worksheet"
         }
-      ],
-      "visible_when_any": [
-        {
-          "filing_status": [
-            "single_mfs",
-            "hoh"
-          ],
-          "employee_age_65": [
-            "no"
-          ]
-        },
-        {
-          "filing_status": [
-            "mfj_qss"
-          ],
-          "employee_age_65": [
-            "no"
-          ],
-          "spouse_age_65": [
-            "no"
-          ]
-        }
       ]
     },
     {
@@ -393,37 +259,7 @@
       "required": false,
       "label": "Step 4(b): Deductions amount",
       "placeholder": "0",
-      "helpText": "This is Line 15 of the official 2026 Deductions Worksheet. It is calculated automatically when only the senior deduction applies below the worksheet income limit; otherwise enter the official worksheet result.",
-      "visible_when": {
-        "use_deductions_worksheet": [
-          "yes"
-        ]
-      },
-      "read_only_when_any": [
-        {
-          "has_other_deductions": [
-            "no"
-          ],
-          "filing_status": [
-            "single_mfs",
-            "hoh"
-          ],
-          "senior_total_income": {
-            "lt": 75000
-          }
-        },
-        {
-          "has_other_deductions": [
-            "no"
-          ],
-          "filing_status": [
-            "mfj_qss"
-          ],
-          "senior_total_income": {
-            "lt": 150000
-          }
-        }
-      ]
+      "helpText": "If you used the official 2026 Deductions Worksheet, enter Line 15 here. Otherwise enter 0."
     },
     {
       "key": "extra_withholding",
@@ -484,109 +320,6 @@
     }
   ],
   "transforms": [
-    {
-      "type": "derive",
-      "when": {
-        "employee_age_65": "yes"
-      },
-      "set": {
-        "use_deductions_worksheet": "yes"
-      }
-    },
-    {
-      "type": "derive",
-      "when": {
-        "spouse_age_65": "yes"
-      },
-      "set": {
-        "use_deductions_worksheet": "yes"
-      }
-    },
-    {
-      "type": "set_value",
-      "field": "employee_senior_deduction",
-      "value": "0"
-    },
-    {
-      "type": "set_value",
-      "field": "spouse_senior_deduction",
-      "value": "0"
-    },
-    {
-      "type": "set_value",
-      "field": "employee_senior_deduction",
-      "value": "6000",
-      "when": {
-        "employee_age_65": "yes",
-        "filing_status": [
-          "single_mfs",
-          "hoh"
-        ],
-        "senior_total_income": {
-          "lt": 75000
-        }
-      }
-    },
-    {
-      "type": "set_value",
-      "field": "employee_senior_deduction",
-      "value": "6000",
-      "when": {
-        "employee_age_65": "yes",
-        "filing_status": "mfj_qss",
-        "senior_total_income": {
-          "lt": 150000
-        }
-      }
-    },
-    {
-      "type": "set_value",
-      "field": "spouse_senior_deduction",
-      "value": "6000",
-      "when": {
-        "spouse_age_65": "yes",
-        "filing_status": "mfj_qss",
-        "senior_total_income": {
-          "lt": 150000
-        }
-      }
-    },
-    {
-      "type": "compute",
-      "operation": "sum",
-      "inputs": [
-        "employee_senior_deduction",
-        "spouse_senior_deduction"
-      ],
-      "output": "senior_deduction_total"
-    },
-    {
-      "type": "copy",
-      "from": "senior_deduction_total",
-      "to": "deductions",
-      "when": {
-        "has_other_deductions": "no",
-        "filing_status": [
-          "single_mfs",
-          "hoh"
-        ],
-        "senior_total_income": {
-          "lt": 75000
-        }
-      }
-    },
-    {
-      "type": "copy",
-      "from": "senior_deduction_total",
-      "to": "deductions",
-      "when": {
-        "has_other_deductions": "no",
-        "filing_status": "mfj_qss",
-        "senior_total_income": {
-          "lt": 150000
-        }
-      }
-    },
     {
       "type": "compute",
       "operation": "multiply",

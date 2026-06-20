@@ -1,4 +1,3 @@
-import json
 import sys
 import unittest
 from pathlib import Path
@@ -41,54 +40,6 @@ class TransformEngineTests(unittest.TestCase):
         ]
         self.assertTrue(apply_transforms({"accepted": "yes", "note": ""}, transforms)["ready"])
         self.assertFalse(apply_transforms({"accepted": "no", "note": ""}, transforms)["ready"])
-
-
-class W4SeniorDeductionTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        schema_path = BACKEND_ROOT / "data" / "templates" / "w4-2026" / "schema.json"
-        cls.transforms = json.loads(schema_path.read_text(encoding="utf-8"))["transforms"]
-
-    def test_single_senior_below_limit_is_automatic(self):
-        result = apply_transforms(
-            {
-                "filing_status": "single_mfs",
-                "employee_age_65": "yes",
-                "senior_total_income": "65000",
-                "has_other_deductions": "no",
-            },
-            self.transforms,
-        )
-        self.assertEqual(result["use_deductions_worksheet"], "yes")
-        self.assertEqual(result["employee_senior_deduction"], "6000")
-        self.assertEqual(result["deductions"], "6000")
-
-    def test_married_two_seniors_below_limit_get_twelve_thousand(self):
-        result = apply_transforms(
-            {
-                "filing_status": "mfj_qss",
-                "employee_age_65": "yes",
-                "spouse_age_65": "yes",
-                "senior_total_income": "120000",
-                "has_other_deductions": "no",
-            },
-            self.transforms,
-        )
-        self.assertEqual(result["deductions"], "12000")
-
-    def test_above_limit_keeps_manual_worksheet_value(self):
-        result = apply_transforms(
-            {
-                "filing_status": "single_mfs",
-                "employee_age_65": "yes",
-                "senior_total_income": "90000",
-                "has_other_deductions": "yes",
-                "deductions": "3456",
-            },
-            self.transforms,
-        )
-        self.assertEqual(result["employee_senior_deduction"], "0")
-        self.assertEqual(result["deductions"], "3456")
 
 
 if __name__ == "__main__":
