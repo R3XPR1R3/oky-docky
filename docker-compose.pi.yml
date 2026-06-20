@@ -36,7 +36,9 @@ services:
       - ./actual/front/vite.config.ts:/app/vite.config.ts
       - ./actual/front/postcss.config.mjs:/app/postcss.config.mjs
       - frontend-dist:/output
-    command: ["sh", "-c", "npm run build && rm -rf /output/* && cp -r dist/* /output/"]
+    # The image build already runs Vite. Copy its finished dist instead of
+    # compiling a second time inside the one-shot container.
+    command: ["sh", "-c", "rm -rf /output/* && cp -r dist/* /output/"]
     profiles: ["build"]
 
 volumes:
