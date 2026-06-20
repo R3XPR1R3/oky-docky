@@ -7,3 +7,7 @@ dist/
 deploy.log
 tunnel.log
 .env
+.env.backup-*
+.frontend-build.lock
+.update-status
+tunnel-url.txt

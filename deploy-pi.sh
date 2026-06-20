@@ -373,11 +373,17 @@ FRONTEND_BUILD_LOCK="${SCRIPT_DIR}/.frontend-build.lock"
 _rebuild_frontend_async() {
   # Prevent concurrent builds
   if [ -f "$FRONTEND_BUILD_LOCK" ]; then
-    log "Frontend build already in progress — skipping."
-    return 0
+    local lock_pid
+    lock_pid=$(cat "$FRONTEND_BUILD_LOCK" 2>/dev/null || true)
+    if [[ "$lock_pid" =~ ^[0-9]+$ ]] && kill -0 "$lock_pid" 2>/dev/null; then
+      log "Frontend build already in progress (PID ${lock_pid}) — skipping."
+      return 0
+    fi
+    log "Removing stale frontend build lock${lock_pid:+ (PID ${lock_pid})}."
+    rm -f "$FRONTEND_BUILD_LOCK"
   fi
   trap 'rm -f "$FRONTEND_BUILD_LOCK"' EXIT
-  touch "$FRONTEND_BUILD_LOCK"
+  printf '%s\n' "${BASHPID:-$$}" > "$FRONTEND_BUILD_LOCK"
 
   # Rebuild the builder image if deps/Dockerfile changed
   if git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -Eq '^actual/front/(package\.json|package-lock\.json|pnpm-lock\.yaml|Dockerfile)$'; then
