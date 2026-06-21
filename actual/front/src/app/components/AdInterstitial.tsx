@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { FileText, ArrowRight } from 'lucide-react';
 import { Button } from './ui/button';
@@ -38,6 +38,7 @@ export function AdInterstitial({
 }: AdInterstitialProps) {
   const adRef = useRef<HTMLModElement>(null);
   const adPushedRef = useRef(false);
+  const [adStatus, setAdStatus] = useState<'loading' | 'filled' | 'unfilled'>('loading');
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -46,18 +47,42 @@ export function AdInterstitial({
 
   // Load and push an ad only when real AdSense IDs are configured.
   useEffect(() => {
-    if (!hasAdsenseConfig || adPushedRef.current) return;
+    if (!hasAdsenseConfig) return;
+
+    const adElement = adRef.current;
+    if (!adElement) return;
+
+    const readAdStatus = () => {
+      const status = adElement.getAttribute('data-ad-status');
+      if (status === 'filled' || status === 'unfilled') setAdStatus(status);
+    };
+    const observer = new MutationObserver(readAdStatus);
+    observer.observe(adElement, { attributes: true, attributeFilter: ['data-ad-status'] });
+    readAdStatus();
 
     ensureAdsenseScript();
 
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-      adPushedRef.current = true;
-    } catch {
-      // AdSense can be unavailable in dev, before domain approval, or when blocked by an extension.
-      // The document flow still remains usable after the timer finishes.
+    if (!adPushedRef.current) {
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        adPushedRef.current = true;
+      } catch {
+        setAdStatus('unfilled');
+      }
     }
+
+    const timeout = window.setTimeout(() => {
+      if (adElement.getAttribute('data-ad-status') !== 'filled') setAdStatus('unfilled');
+    }, 10000);
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(timeout);
+    };
   }, []);
+
+  useEffect(() => {
+    if (adStatus === 'unfilled') onComplete();
+  }, [adStatus, onComplete]);
 
   const handleContinue = useCallback(() => {
     onComplete();
@@ -113,7 +138,10 @@ export function AdInterstitial({
             </span>
           </div>
 
-          <div className="min-h-[280px] flex items-center justify-center p-4">
+          <div className="relative min-h-[280px] flex items-center justify-center p-4">
+            {adStatus === 'loading' && (
+              <div className="absolute h-24 w-3/4 max-w-md animate-pulse rounded-xl bg-slate-100" />
+            )}
             <ins
               ref={adRef}
               className="adsbygoogle"
