@@ -16,7 +16,7 @@ declare global {
 }
 
 const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT?.trim() || 'ca-pub-8314082563234213';
-const ADSENSE_SLOT = import.meta.env.VITE_ADSENSE_SLOT?.trim() || '';
+const ADSENSE_SLOT = import.meta.env.VITE_ADSENSE_SLOT?.trim() || '1815198011';
 const ADSENSE_SCRIPT_ID = 'adsense-script';
 const hasAdsenseConfig = /^ca-pub-\d+$/.test(ADSENSE_CLIENT) && /^\d+$/.test(ADSENSE_SLOT);
 

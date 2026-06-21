@@ -32,7 +32,7 @@ services:
       target: build
       args:
         VITE_ADSENSE_CLIENT: ${VITE_ADSENSE_CLIENT:-ca-pub-8314082563234213}
-        VITE_ADSENSE_SLOT: ${VITE_ADSENSE_SLOT:-}
+        VITE_ADSENSE_SLOT: ${VITE_ADSENSE_SLOT:-1815198011}
     volumes:
       - ./actual/front/src:/app/src
       - ./actual/front/index.html:/app/index.html
