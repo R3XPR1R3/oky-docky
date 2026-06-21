@@ -1,13 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { motion } from 'motion/react';
-import { FileText, Clock, ArrowRight, Loader2 } from 'lucide-react';
+import { FileText, ArrowRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { useTranslation } from '../i18n/I18nContext';
 
 interface AdInterstitialProps {
-  /** How many seconds to wait before allowing skip */
-  duration?: number;
-  /** Called when user can proceed (timer done or skip) */
   onComplete: () => void;
   templateTitle: string;
 }
@@ -21,11 +18,10 @@ declare global {
 const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT?.trim() || 'ca-pub-8314082563234213';
 const ADSENSE_SLOT = import.meta.env.VITE_ADSENSE_SLOT?.trim() || '';
 const ADSENSE_SCRIPT_ID = 'adsense-script';
-const hasAdsenseClient = /^ca-pub-\d+$/.test(ADSENSE_CLIENT);
-const hasAdsenseConfig = hasAdsenseClient && /^\d+$/.test(ADSENSE_SLOT);
+const hasAdsenseConfig = /^ca-pub-\d+$/.test(ADSENSE_CLIENT) && /^\d+$/.test(ADSENSE_SLOT);
 
 function ensureAdsenseScript() {
-  if (!hasAdsenseClient || typeof document === 'undefined') return;
+  if (!hasAdsenseConfig || typeof document === 'undefined') return;
   if (document.getElementById(ADSENSE_SCRIPT_ID)) return;
 
   const script = document.createElement('script');
@@ -37,35 +33,16 @@ function ensureAdsenseScript() {
 }
 
 export function AdInterstitial({
-  duration = 7,
   onComplete,
   templateTitle,
 }: AdInterstitialProps) {
-  const safeDuration = hasAdsenseConfig ? Math.max(0, duration) : 0;
-  const [secondsLeft, setSecondsLeft] = useState(safeDuration);
-  const [canSkip, setCanSkip] = useState(safeDuration === 0);
   const adRef = useRef<HTMLModElement>(null);
   const adPushedRef = useRef(false);
   const { t } = useTranslation();
 
   useEffect(() => {
-    setSecondsLeft(safeDuration);
-    setCanSkip(safeDuration === 0);
-
-    if (safeDuration === 0) return;
-
-    const timer = window.setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s <= 1) {
-          window.clearInterval(timer);
-          setCanSkip(true);
-          return 0;
-        }
-        return s - 1;
-      });
-    }, 1000);
-    return () => window.clearInterval(timer);
-  }, [safeDuration]);
+    if (!hasAdsenseConfig) onComplete();
+  }, [onComplete]);
 
   // Load and push an ad only when real AdSense IDs are configured.
   useEffect(() => {
@@ -83,11 +60,10 @@ export function AdInterstitial({
   }, []);
 
   const handleContinue = useCallback(() => {
-    if (!canSkip) return;
     onComplete();
-  }, [canSkip, onComplete]);
+  }, [onComplete]);
 
-  const progress = safeDuration > 0 ? ((safeDuration - secondsLeft) / safeDuration) * 100 : 100;
+  if (!hasAdsenseConfig) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -116,10 +92,6 @@ export function AdInterstitial({
           animate={{ y: 0, opacity: 1 }}
           className="text-center mb-6"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 text-green-700 text-sm font-medium mb-4">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            {t('ad.preparing')}
-          </div>
           <h2 className="text-2xl font-bold text-slate-800 mb-1">
             {t('ad.almostReady')}
           </h2>
@@ -135,76 +107,39 @@ export function AdInterstitial({
           transition={{ delay: 0.2 }}
           className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-6"
         >
-          <div className="px-4 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <div className="px-4 py-2 bg-slate-50 border-b border-slate-200">
             <span className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">
               {t('ad.sponsored')}
             </span>
-            <div className="flex items-center gap-2">
-              <Clock className="w-3 h-3 text-slate-400" />
-              <span className="text-xs text-slate-500">
-                {canSkip ? t('ad.ready') : `${secondsLeft}s`}
-              </span>
-            </div>
           </div>
 
           <div className="min-h-[280px] flex items-center justify-center p-4">
-            {hasAdsenseConfig ? (
-              <ins
-                ref={adRef}
-                className="adsbygoogle"
-                style={{ display: 'block', width: '100%', minHeight: '250px' }}
-                data-ad-client={ADSENSE_CLIENT}
-                data-ad-slot={ADSENSE_SLOT}
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-              />
-            ) : (
-              <div className="text-center text-slate-400 text-sm px-6">
-                Auto Ads is connected. Create a Display ad unit and set VITE_ADSENSE_SLOT to use this reserved placement.
-              </div>
-            )}
+            <ins
+              ref={adRef}
+              className="adsbygoogle"
+              style={{ display: 'block', width: '100%', minHeight: '250px' }}
+              data-ad-client={ADSENSE_CLIENT}
+              data-ad-slot={ADSENSE_SLOT}
+              data-ad-format="auto"
+              data-full-width-responsive="true"
+            />
           </div>
         </motion.div>
 
-        {/* Progress bar + skip button */}
+        {/* The ad is optional; access to the completed PDF is never timed or gated. */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="space-y-4"
+          className="flex justify-center"
         >
-          <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
-              initial={{ width: '0%' }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-
-          <div className="flex justify-center">
-            <Button
-              size="lg"
-              onClick={handleContinue}
-              disabled={!canSkip}
-              className={`px-8 py-6 rounded-xl text-base transition-all ${
-                canSkip
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              }`}
-            >
-              {canSkip ? (
-                <>
-                  {t('ad.continue')} <ArrowRight className="w-5 h-5 ml-2" />
-                </>
-              ) : (
-                <>
-                  <Clock className="w-4 h-4 mr-2" />
-                  {t('ad.waitSeconds', { seconds: String(secondsLeft) })}
-                </>
-              )}
-            </Button>
-          </div>
+          <Button
+            size="lg"
+            onClick={handleContinue}
+            className="px-8 py-6 rounded-xl text-base bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl"
+          >
+            {t('ad.continue')} <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
         </motion.div>
       </div>
     </div>

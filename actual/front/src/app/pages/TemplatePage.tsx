@@ -173,7 +173,6 @@ export function TemplatePage() {
   if (phase === 'ad' && pdfUrl && template) {
     return (
       <AdInterstitial
-        duration={7}
         templateTitle={template.title}
         onComplete={() => setPhase('success')}
       />
