@@ -2,6 +2,11 @@ FROM node:20-slim AS build
 
 WORKDIR /app
 
+ARG VITE_ADSENSE_CLIENT=ca-pub-8314082563234213
+ARG VITE_ADSENSE_SLOT=
+ENV VITE_ADSENSE_CLIENT=$VITE_ADSENSE_CLIENT
+ENV VITE_ADSENSE_SLOT=$VITE_ADSENSE_SLOT
+
 COPY package.json package-lock.json* pnpm-lock.yaml* ./
 RUN npm install --legacy-peer-deps
 

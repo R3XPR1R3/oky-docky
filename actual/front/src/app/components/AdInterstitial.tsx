@@ -18,13 +18,14 @@ declare global {
   }
 }
 
-const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT?.trim() || '';
+const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT?.trim() || 'ca-pub-8314082563234213';
 const ADSENSE_SLOT = import.meta.env.VITE_ADSENSE_SLOT?.trim() || '';
 const ADSENSE_SCRIPT_ID = 'adsense-script';
-const hasAdsenseConfig = /^ca-pub-\d+$/.test(ADSENSE_CLIENT) && /^\d+$/.test(ADSENSE_SLOT);
+const hasAdsenseClient = /^ca-pub-\d+$/.test(ADSENSE_CLIENT);
+const hasAdsenseConfig = hasAdsenseClient && /^\d+$/.test(ADSENSE_SLOT);
 
 function ensureAdsenseScript() {
-  if (!hasAdsenseConfig || typeof document === 'undefined') return;
+  if (!hasAdsenseClient || typeof document === 'undefined') return;
   if (document.getElementById(ADSENSE_SCRIPT_ID)) return;
 
   const script = document.createElement('script');
@@ -40,7 +41,7 @@ export function AdInterstitial({
   onComplete,
   templateTitle,
 }: AdInterstitialProps) {
-  const safeDuration = Math.max(0, duration);
+  const safeDuration = hasAdsenseConfig ? Math.max(0, duration) : 0;
   const [secondsLeft, setSecondsLeft] = useState(safeDuration);
   const [canSkip, setCanSkip] = useState(safeDuration === 0);
   const adRef = useRef<HTMLModElement>(null);
@@ -159,7 +160,7 @@ export function AdInterstitial({
               />
             ) : (
               <div className="text-center text-slate-400 text-sm px-6">
-                AdSense is not configured yet. Set VITE_ADSENSE_CLIENT and VITE_ADSENSE_SLOT after the production domain is approved.
+                Auto Ads is connected. Create a Display ad unit and set VITE_ADSENSE_SLOT to use this reserved placement.
               </div>
             )}
           </div>

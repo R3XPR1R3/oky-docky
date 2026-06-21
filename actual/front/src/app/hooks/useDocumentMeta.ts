@@ -23,7 +23,7 @@ function getBaseUrl() {
   if (typeof window !== 'undefined' && window.location.origin) {
     return `${window.location.origin}${appBasePath}`;
   }
-  return 'https://oky-docky.com';
+  return 'https://barckhat.com/oky-docky';
 }
 
 function buildCanonicalUrl(path?: string) {
