@@ -6,6 +6,7 @@ import type {
   SchemaField,
   SchemaTransform,
 } from '../App';
+import { evaluateFormula } from './formula';
 
 function isOperator(value: ConditionExpected): value is ConditionOperator {
   return !!value && typeof value === 'object' && !Array.isArray(value);
@@ -123,6 +124,11 @@ export function applyTransforms(values: Record<string, any>, transforms: SchemaT
       Object.assign(result, active ? (rule.set || {}) : (rule.else_set || {}));
     } else if (rule.type === 'compute') {
       if (active && rule.output) result[rule.output] = compute(rule, result);
+    } else if (rule.type === 'formula') {
+      if (!active) continue;
+      for (const [output, expression] of Object.entries(rule.outputs || {})) {
+        if (output && expression) result[output] = evaluateFormula(expression, result);
+      }
     } else if (rule.type === 'copy') {
       if (!active || !rule.from || !rule.to) continue;
       const source = result[rule.from];

@@ -118,7 +118,7 @@ export function DocumentSelection({ apiUrl, onSelectDocument, onBack }: Document
         {!loading && templates.length > 0 && (
           <div className="grid md:grid-cols-2 gap-6">
             {templates.map((template, index) => (
-              <motion.div key={template.id} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: index * 0.1 }} onHoverStart={() => setHoveredId(template.id)} onHoverEnd={() => setHoveredId(null)} onClick={() => onSelectDocument(template)} className="relative group cursor-pointer">
+              <motion.a href={`/oky-docky/${template.id}`} key={template.id} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: index * 0.1 }} onHoverStart={() => setHoveredId(template.id)} onHoverEnd={() => setHoveredId(null)} onClick={(event) => { event.preventDefault(); onSelectDocument(template); }} className="relative group cursor-pointer">
                 <div className="relative bg-white rounded-2xl p-8 shadow-lg border-2 border-slate-200 hover:border-indigo-400 transition-all duration-300 hover:shadow-xl">
                   {template.popular && (
                     <div className="absolute -top-3 -right-3">
@@ -166,7 +166,7 @@ export function DocumentSelection({ apiUrl, onSelectDocument, onBack }: Document
                   )}
                   <motion.div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-600/5 to-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 </div>
-              </motion.div>
+              </motion.a>
             ))}
           </div>
         )}

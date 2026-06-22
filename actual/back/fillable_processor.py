@@ -28,6 +28,7 @@ from pypdf import PdfReader
 from .core.mapping import build_pdf_field_values
 from .core.template_store import load_template, list_templates, load_template_meta
 from .core.transforms import apply_transforms, matches_conditions
+from .core.formula import FormulaError, formula_dependencies
 from .core.tax_rules import calculate_standard_deduction
 from .core.admin_auth import (
     ADMIN_USERNAME,
@@ -667,6 +668,43 @@ def api_admin_save_bundle(template_id: str, payload: dict, request: Request):
                 if not isinstance(allowed_values, list) or not allowed_values:
                     validation_errors.append(f"Field '{field.get('key')}' condition '{dependency}' has no values")
 
+    known_keys = set(keys)
+    transforms = schema_json.get("transforms", [])
+    if not isinstance(transforms, list):
+        validation_errors.append("schema.transforms must be an array")
+        transforms = []
+    for index, transform in enumerate(transforms):
+        label = f"Transform {index + 1}"
+        if not isinstance(transform, dict):
+            validation_errors.append(f"{label} must be an object")
+            continue
+        for dependency in [*(transform.get("when") or {}), *(transform.get("unless") or {})]:
+            if dependency not in known_keys:
+                validation_errors.append(f"{label} references unknown condition field '{dependency}'")
+        for dependency in filter(None, [transform.get("input"), transform.get("from"), *(transform.get("inputs") or [])]):
+            if dependency not in known_keys:
+                validation_errors.append(f"{label} references unknown source field '{dependency}'")
+        if transform.get("type") == "formula":
+            outputs = transform.get("outputs")
+            if not isinstance(outputs, dict) or not outputs:
+                validation_errors.append(f"{label} needs at least one formula variable")
+                continue
+            for name, expression in outputs.items():
+                if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", str(name)):
+                    validation_errors.append(f"{label} has invalid variable name '{name}'")
+                try:
+                    for dependency in formula_dependencies(expression):
+                        if dependency not in known_keys:
+                            validation_errors.append(f"{label} variable '{name}' references unknown or later variable '{dependency}'")
+                except FormulaError as exc:
+                    validation_errors.append(f"{label} variable '{name}' has invalid formula: {exc}")
+                if name:
+                    known_keys.add(name)
+        for output in [transform.get("output"), transform.get("to"), transform.get("field")]:
+            if output:
+                known_keys.add(output)
+        known_keys.update((transform.get("set") or {}).keys())
+
     if validation_errors:
         raise HTTPException(400, {"message": "Invalid form schema", "errors": validation_errors})
 
@@ -991,6 +1029,7 @@ def robots_txt():
     content = (
         "User-agent: *\n"
         "Allow: /\n"
+        "Disallow: /api/\n"
         "Disallow: /oky-docky/builder\n"
         "Disallow: /oky-docky/admin\n"
         "Disallow: /api/admin/\n"
@@ -998,6 +1037,7 @@ def robots_txt():
         "Disallow: /api/feedback\n"
         "\nUser-agent: Googlebot\n"
         "Allow: /\n"
+        "Disallow: /api/\n"
         "Disallow: /oky-docky/builder\n"
         "Disallow: /oky-docky/admin\n"
         "Disallow: /api/admin/\n"
@@ -1023,6 +1063,21 @@ def api_seo_meta(template_id: str):
         f"{meta.get('description', '')} "
         f"Guided step-by-step Q&A with instant PDF download."
     )
+    faq_items = [
+        item for item in meta.get("seo_faq", [])
+        if isinstance(item, dict) and item.get("question") and item.get("answer")
+    ]
+    web_application = {
+        "@type": "WebApplication",
+        "name": meta.get("title", template_id),
+        "description": description,
+        "url": f"{BASE_SITE_URL}/{template_id}",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+        "isBasedOn": meta.get("source_url"),
+        "publisher": {"@type": "Organization", "name": "Oky-Docky"},
+    }
 
     return {
         "title": title,
@@ -1031,26 +1086,22 @@ def api_seo_meta(template_id: str):
         "keywords": meta.get("seo_keywords", meta.get("tags", [])),
         "og": {
             "type": "website",
-            "title": title,
-            "description": description,
+            "title": meta.get("og_title") or title,
+            "description": meta.get("og_description") or description,
             "url": f"{BASE_SITE_URL}/{template_id}",
             "site_name": "Oky-Docky",
+            "image": meta.get("og_image"),
         },
         "structured_data": {
             "@context": "https://schema.org",
-            "@type": "WebApplication",
-            "name": meta.get("title", template_id),
-            "description": description,
-            "url": f"{BASE_SITE_URL}/{template_id}",
-            "applicationCategory": "BusinessApplication",
-            "operatingSystem": "Web",
-            "offers": {
-                "@type": "Offer",
-                "price": "0",
-                "priceCurrency": "USD",
-            },
-            "isBasedOn": meta.get("source_url"),
-            "publisher": {"@type": "Organization", "name": "Oky-Docky"},
+            "@graph": [web_application] + ([{
+                "@type": "FAQPage",
+                "mainEntity": [{
+                    "@type": "Question",
+                    "name": item["question"],
+                    "acceptedAnswer": {"@type": "Answer", "text": item["answer"]},
+                } for item in faq_items],
+            }] if faq_items else []),
         },
     }
 
@@ -1119,8 +1170,11 @@ def api_list_templates(
             query = q.lower()
             title = meta.get("title", "").lower()
             desc = meta.get("description", "").lower()
-            tags = [t.lower() for t in meta.get("tags", [])]
-            if not (query in title or query in desc or any(query in t for t in tags)):
+            searchable = [
+                *meta.get("tags", []), *meta.get("seo_keywords", []),
+                meta.get("seo_title", ""), meta.get("seo_heading", ""), meta.get("seo_intro", ""),
+            ]
+            if not (query in title or query in desc or any(query in str(value).lower() for value in searchable)):
                 continue
 
         results.append(meta)

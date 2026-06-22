@@ -32,6 +32,8 @@ from __future__ import annotations
 from datetime import date as _date
 from typing import Any, Dict, List
 
+from .formula import evaluate_formula
+
 
 # ---------------------------------------------------------------------------
 # Numeric helpers
@@ -238,6 +240,17 @@ def apply_transforms(
             if not active or not output_key:
                 continue
             result[output_key] = _compute(rule, result)
+
+        # Ordered outputs let one answer populate an entire group of PDF lines.
+        elif rtype == "formula":
+            if not active:
+                continue
+            outputs = rule.get("outputs", {})
+            if not isinstance(outputs, dict):
+                continue
+            for output_key, expression in outputs.items():
+                if output_key and isinstance(expression, str):
+                    result[output_key] = evaluate_formula(expression, result)
 
         # --- copy: field → field ---
         elif rtype == "copy":

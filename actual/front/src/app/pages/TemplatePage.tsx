@@ -34,6 +34,7 @@ export function TemplatePage() {
       ? (template.seo_description || `Fill out ${template.title} online for free. ${template.description} Guided step-by-step Q&A with instant PDF download.`)
       : undefined,
     canonical: `/${templateId}`,
+    robots: 'noindex,follow',
     keywords: template
       ? (template.seo_keywords || [template.title, template.category, template.country, ...template.tags, 'free online form', 'PDF form filler', 'document assistant']).filter(Boolean).join(', ')
       : undefined,
@@ -147,7 +148,7 @@ export function TemplatePage() {
           schema={schema}
           initialData={formData}
           onComplete={handleComplete}
-          onBack={() => navigate('/templates')}
+          onBack={() => navigate(`/${template.id}`)}
         />
         <ErrorDialog isOpen={!!error} message={error || ''} onClose={() => setError(null)} />
       </>

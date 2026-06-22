@@ -4,11 +4,12 @@ import {
   FileText, ArrowLeft, Plus, Trash2, ChevronUp, ChevronDown,
   ChevronRight, Copy, Download, Upload, Eye, EyeOff, GripVertical,
   Settings2, X, Code2, EyeOff as EyeOffIcon, Hash, AlertTriangle,
-  FilePlus2, GitBranch, FileImage
+  FilePlus2, GitBranch, FileImage, Search, Globe2
 } from 'lucide-react';
 import PdfFieldPreview from './PdfFieldPreview';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import { Badge } from './ui/badge';
@@ -22,8 +23,9 @@ import {
   SelectValue,
 } from './ui/select';
 import { toast } from 'sonner';
-import type { ConditionExpected, ConditionSet, SchemaField, Schema, SchemaTransform, FieldStyle } from '../App';
+import type { ConditionExpected, ConditionSet, SchemaField, Schema, SchemaTransform, FieldStyle, TemplateMeta } from '../App';
 import { QuestionFlow } from './QuestionFlow';
+import { formulaDependencies, renameFormulaIdentifier } from '../lib/formula';
 
 interface FormBuilderProps {
   onBack: () => void;
@@ -32,6 +34,7 @@ interface FormBuilderProps {
 const TRANSFORM_TYPE_COLORS: Record<string, string> = {
   derive: 'bg-orange-100 text-orange-700',
   compute: 'bg-cyan-100 text-cyan-700',
+  formula: 'bg-purple-100 text-purple-700',
   copy: 'bg-emerald-100 text-emerald-700',
   concat: 'bg-violet-100 text-violet-700',
   auto_date: 'bg-rose-100 text-rose-700',
@@ -39,7 +42,7 @@ const TRANSFORM_TYPE_COLORS: Record<string, string> = {
 };
 
 function createEmptyTransform(): SchemaTransform {
-  return { type: 'derive', when: {}, set: {} };
+  return { type: 'formula', outputs: { result: '' } };
 }
 
 function transformSummary(t: SchemaTransform): string {
@@ -51,6 +54,8 @@ function transformSummary(t: SchemaTransform): string {
     }
     case 'compute':
       return `${t.operation || 'multiply'}(${t.input || t.inputs?.join(', ') || '?'}) → ${t.output || '?'}`;
+    case 'formula':
+      return Object.entries(t.outputs || {}).map(([name, expression]) => `${name} = ${expression || '?'}`).join('; ') || 'no variables';
     case 'copy':
       return `copy ${t.from || '?'} → ${t.to || '?'}${t.if_empty ? ' (if empty)' : ''}`;
     case 'concat':
@@ -161,6 +166,21 @@ function validateBuilderSchema(fields: SchemaField[], transforms: SchemaTransfor
     sourceKeys.forEach((key) => {
       if (!knownKeys.has(key)) issues.push(`${label}: source field "${key}" does not exist`);
     });
+    if (transform.type === 'formula') {
+      const outputs = Object.entries(transform.outputs || {});
+      if (!outputs.length) issues.push(`${label}: add at least one variable`);
+      outputs.forEach(([name, expression]) => {
+        if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(name)) issues.push(`${label}: variable "${name || '?'}" needs a valid key`);
+        try {
+          formulaDependencies(expression).forEach((dependency) => {
+            if (!knownKeys.has(dependency)) issues.push(`${label}: formula for "${name}" references unknown or later variable "${dependency}"`);
+          });
+        } catch (error) {
+          issues.push(`${label}: formula for "${name}" is invalid (${error instanceof Error ? error.message : 'syntax error'})`);
+        }
+        if (name) knownKeys.add(name);
+      });
+    }
     if (transform.type === 'compute' && !transform.output) issues.push(`${label}: output field is required`);
     if (transform.type === 'copy' && (!transform.from || !transform.to)) issues.push(`${label}: source and target fields are required`);
     if (transform.type === 'concat' && (!(transform.inputs || []).length || !transform.output)) issues.push(`${label}: input and output fields are required`);
@@ -186,7 +206,9 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
   const [expandedTransform, setExpandedTransform] = useState<number | null>(null);
   const [showTransforms, setShowTransforms] = useState(false);
   const [templates, setTemplates] = useState<any[]>([]);
+  const [templateSearch, setTemplateSearch] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
+  const [templateMeta, setTemplateMeta] = useState<TemplateMeta | null>(null);
   const [showLoadTemplate, setShowLoadTemplate] = useState(false);
   const [showCreateTemplate, setShowCreateTemplate] = useState(false);
   const [newTemplate, setNewTemplate] = useState({
@@ -198,6 +220,14 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [mapping, setMapping] = useState<Record<string, any>>({});
   const validationIssues = useMemo(() => validateBuilderSchema(fields, transforms), [fields, transforms]);
+  const filteredTemplates = useMemo(() => {
+    const query = templateSearch.trim().toLowerCase();
+    if (!query) return templates;
+    return templates.filter((template) => [
+      template.id, template.title, template.description, template.category,
+      ...(template.tags || []), ...(template.seo_keywords || []),
+    ].some((value) => String(value || '').toLowerCase().includes(query)));
+  }, [templates, templateSearch]);
 
   // --- Load templates list ---
   const loadTemplateList = useCallback(async () => {
@@ -220,6 +250,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
           setFields(schema.fields);
           setTransforms(schema.transforms || []);
           setMapping(data.mapping || {});
+          setTemplateMeta(data.template || null);
           setSelectedTemplate(templateId);
           setShowLoadTemplate(false);
           setShowPdfPreview(true);
@@ -253,7 +284,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
       const saveRes = await fetch(`/api/admin/templates/${selectedTemplate}/bundle`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ template: bundle.template, schema: updatedSchema, mapping: updatedMapping }),
+        body: JSON.stringify({ template: templateMeta || bundle.template, schema: updatedSchema, mapping: updatedMapping }),
       });
       if (saveRes.ok) {
         toast.success(`Saved to ${selectedTemplate}`);
@@ -264,7 +295,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
         toast.error(message || 'Failed to save');
       }
     } catch { toast.error('Failed to save template'); }
-  }, [selectedTemplate, fields, transforms, mapping, validationIssues]);
+  }, [selectedTemplate, fields, transforms, mapping, validationIssues, templateMeta]);
 
   const createTemplate = useCallback(async () => {
     if (!newTemplate.id.trim() || !newTemplate.title.trim()) {
@@ -422,6 +453,10 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
       to: transform.to === previousKey ? nextKey : transform.to,
       field: transform.field === previousKey ? nextKey : transform.field,
       output: transform.output === previousKey ? nextKey : transform.output,
+      outputs: transform.outputs && Object.fromEntries(Object.entries(transform.outputs).map(([name, expression]) => [
+        name === previousKey ? nextKey : name,
+        renameFormulaIdentifier(expression, previousKey, nextKey),
+      ])),
       when: renameRecordKey(transform.when),
       unless: renameRecordKey(transform.unless),
       set: renameRecordKey(transform.set),
@@ -687,7 +722,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
             animate={{ y: 0, opacity: 1 }}
             className="flex flex-wrap items-center gap-3 mb-8"
           >
-            <Button variant="outline" size="sm" onClick={() => { loadTemplateList(); setShowLoadTemplate(true); }} className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => { setTemplateSearch(''); loadTemplateList(); setShowLoadTemplate(true); }} className="gap-2">
               <FileText className="w-4 h-4" /> Load Template
             </Button>
             <Button variant="outline" size="sm" onClick={() => setShowCreateTemplate(true)} className="gap-2">
@@ -735,6 +770,142 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                 {validationIssues.length > 8 && <li>- and {validationIssues.length - 8} more</li>}
               </ul>
             </div>
+          )}
+
+          {templateMeta && selectedTemplate && (
+            <details className="mb-6 rounded-2xl border-2 border-indigo-100 bg-white shadow-sm" open>
+              <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-4 font-semibold text-slate-800">
+                <Globe2 className="h-5 w-5 text-indigo-600" /> Search & SEO
+                <Badge className={templateMeta.published === false ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}>
+                  {templateMeta.published === false ? 'Draft / noindex' : 'Published'}
+                </Badge>
+              </summary>
+              <Separator />
+              <div className="space-y-5 p-5">
+                <div className="flex items-center justify-between rounded-xl bg-slate-50 p-3">
+                  <div>
+                    <Label className="font-medium">Publish and allow indexing</Label>
+                    <p className="text-xs text-slate-500">Draft templates are excluded from public pages and sitemap.xml.</p>
+                  </div>
+                  <Switch
+                    checked={templateMeta.published !== false}
+                    onCheckedChange={(published) => setTemplateMeta((current) => current ? { ...current, published } : current)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between"><Label>Search result title</Label><span className="text-xs text-slate-400">{templateMeta.seo_title?.length || 0}/60</span></div>
+                  <Input
+                    value={templateMeta.seo_title || ''}
+                    onChange={(event) => setTemplateMeta({ ...templateMeta, seo_title: event.target.value })}
+                    placeholder={`${templateMeta.title} - Free Online Form | Oky-Docky`}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between"><Label>Meta description</Label><span className="text-xs text-slate-400">{templateMeta.seo_description?.length || 0}/160</span></div>
+                  <Textarea
+                    value={templateMeta.seo_description || ''}
+                    onChange={(event) => setTemplateMeta({ ...templateMeta, seo_description: event.target.value })}
+                    placeholder="Explain exactly what the visitor can complete and download."
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Page heading</Label>
+                  <Input
+                    value={templateMeta.seo_heading || ''}
+                    onChange={(event) => setTemplateMeta({ ...templateMeta, seo_heading: event.target.value })}
+                    placeholder={`Fill out ${templateMeta.title} online`}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Indexable page introduction</Label>
+                  <Textarea
+                    value={templateMeta.seo_intro || ''}
+                    onChange={(event) => setTemplateMeta({ ...templateMeta, seo_intro: event.target.value })}
+                    placeholder="Write a useful, original explanation: who needs the form, what information is required, and what the generated PDF contains."
+                    className="min-h-28"
+                  />
+                  <p className="text-xs text-slate-500">This becomes visible HTML for Google, Bing, Yahoo, and visitors. Avoid copying official instructions verbatim.</p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Target search phrases</Label>
+                  <Input
+                    value={(templateMeta.seo_keywords || []).join(', ')}
+                    onChange={(event) => setTemplateMeta({ ...templateMeta, seo_keywords: event.target.value.split(',').map((value) => value.trim()).filter(Boolean) })}
+                    placeholder="W-9 form online, free W-9 filler, complete W-9 PDF"
+                  />
+                  <p className="text-xs text-slate-500">Used by internal search and editorial planning. Search engines primarily rank the actual page content, not the keywords tag.</p>
+                </div>
+                <details className="rounded-xl border border-slate-200 p-4">
+                  <summary className="cursor-pointer font-semibold text-slate-700">Page sections</summary>
+                  <div className="mt-4 space-y-4">
+                    {(templateMeta.seo_sections || []).map((section, sectionIndex) => (
+                      <div key={sectionIndex} className="rounded-xl bg-slate-50 p-3">
+                        <div className="flex gap-2">
+                          <Input
+                            value={section.heading}
+                            onChange={(event) => setTemplateMeta({ ...templateMeta, seo_sections: (templateMeta.seo_sections || []).map((item, index) => index === sectionIndex ? { ...item, heading: event.target.value } : item) })}
+                            placeholder="What is this form?"
+                          />
+                          <Button variant="ghost" size="icon" className="text-red-500" onClick={() => setTemplateMeta({ ...templateMeta, seo_sections: (templateMeta.seo_sections || []).filter((_, index) => index !== sectionIndex) })}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                        <Textarea
+                          value={section.body}
+                          onChange={(event) => setTemplateMeta({ ...templateMeta, seo_sections: (templateMeta.seo_sections || []).map((item, index) => index === sectionIndex ? { ...item, body: event.target.value } : item) })}
+                          placeholder="Original, useful explanation for visitors."
+                          className="mt-2 min-h-24"
+                        />
+                      </div>
+                    ))}
+                    <Button variant="outline" size="sm" onClick={() => setTemplateMeta({ ...templateMeta, seo_sections: [...(templateMeta.seo_sections || []), { heading: '', body: '' }] })}><Plus className="mr-1 h-3 w-3" /> Add section</Button>
+                  </div>
+                </details>
+                <details className="rounded-xl border border-slate-200 p-4">
+                  <summary className="cursor-pointer font-semibold text-slate-700">Frequently asked questions</summary>
+                  <div className="mt-4 space-y-4">
+                    {(templateMeta.seo_faq || []).map((item, faqIndex) => (
+                      <div key={faqIndex} className="rounded-xl bg-slate-50 p-3">
+                        <div className="flex gap-2">
+                          <Input
+                            value={item.question}
+                            onChange={(event) => setTemplateMeta({ ...templateMeta, seo_faq: (templateMeta.seo_faq || []).map((faq, index) => index === faqIndex ? { ...faq, question: event.target.value } : faq) })}
+                            placeholder="Who needs to complete this form?"
+                          />
+                          <Button variant="ghost" size="icon" className="text-red-500" onClick={() => setTemplateMeta({ ...templateMeta, seo_faq: (templateMeta.seo_faq || []).filter((_, index) => index !== faqIndex) })}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                        <Textarea
+                          value={item.answer}
+                          onChange={(event) => setTemplateMeta({ ...templateMeta, seo_faq: (templateMeta.seo_faq || []).map((faq, index) => index === faqIndex ? { ...faq, answer: event.target.value } : faq) })}
+                          placeholder="Clear answer written for a person, not a search engine."
+                          className="mt-2"
+                        />
+                      </div>
+                    ))}
+                    <Button variant="outline" size="sm" onClick={() => setTemplateMeta({ ...templateMeta, seo_faq: [...(templateMeta.seo_faq || []), { question: '', answer: '' }] })}><Plus className="mr-1 h-3 w-3" /> Add FAQ</Button>
+                  </div>
+                </details>
+                <details className="rounded-xl border border-slate-200 p-4">
+                  <summary className="cursor-pointer font-semibold text-slate-700">Social sharing preview</summary>
+                  <div className="mt-4 space-y-3">
+                    <div><Label>Open Graph title</Label><Input value={templateMeta.og_title || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, og_title: event.target.value })} placeholder="Defaults to search title" className="mt-1" /></div>
+                    <div><Label>Open Graph description</Label><Textarea value={templateMeta.og_description || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, og_description: event.target.value })} placeholder="Defaults to meta description" className="mt-1" /></div>
+                    <div><Label>Share image URL</Label><Input value={templateMeta.og_image || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, og_image: event.target.value })} placeholder="https://barckhat.com/oky-docky/images/w4-share.png" className="mt-1" /><p className="mt-1 text-xs text-slate-500">Use an absolute HTTPS image, ideally 1200 × 630.</p></div>
+                  </div>
+                </details>
+                <details className="rounded-xl border border-slate-200 p-4">
+                  <summary className="cursor-pointer font-semibold text-slate-700">Official source and revision</summary>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div><Label>Source authority</Label><Input value={templateMeta.source_authority || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, source_authority: event.target.value })} placeholder="Internal Revenue Service" className="mt-1" /></div>
+                    <div><Label>Form revision</Label><Input value={templateMeta.form_revision || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, form_revision: event.target.value })} placeholder="2026" className="mt-1" /></div>
+                    <div className="sm:col-span-2"><Label>Official source URL</Label><Input value={templateMeta.source_url || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, source_url: event.target.value })} placeholder="https://www.irs.gov/..." className="mt-1" /></div>
+                  </div>
+                </details>
+                <div className="rounded-xl border border-slate-200 p-4">
+                  <div className="truncate text-xs text-emerald-700">barckhat.com/oky-docky/{selectedTemplate}</div>
+                  <div className="mt-1 text-lg text-blue-700">{templateMeta.seo_title || `${templateMeta.title} - Free Online Form | Oky-Docky`}</div>
+                  <div className="mt-1 text-sm text-slate-600">{templateMeta.seo_description || templateMeta.description}</div>
+                </div>
+              </div>
+            </details>
           )}
 
           {/* Import Modal */}
@@ -790,7 +961,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                   animate={{ scale: 1 }}
                   exit={{ scale: 0.95 }}
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md"
+                  className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-3xl max-h-[85vh] flex flex-col"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold">Load Template</h3>
@@ -798,17 +969,30 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
-                  <div className="space-y-2">
+                  <div className="relative mb-4">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Input
+                      autoFocus
+                      value={templateSearch}
+                      onChange={(event) => setTemplateSearch(event.target.value)}
+                      placeholder="Search by title, ID, category, tag, or keyword..."
+                      className="pl-9"
+                    />
+                  </div>
+                  <div className="grid gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
                     {templates.length === 0 ? (
                       <p className="text-sm text-slate-500 py-4 text-center">No templates found</p>
+                    ) : filteredTemplates.length === 0 ? (
+                      <p className="col-span-full text-sm text-slate-500 py-8 text-center">No templates match “{templateSearch}”</p>
                     ) : (
-                      templates.map((t) => (
+                      filteredTemplates.map((t) => (
                         <button
                           key={t.id}
                           onClick={() => loadTemplateSchema(t.id)}
                           className="w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition-colors"
                         >
                           <div className="font-medium">{t.title || t.id}</div>
+                          <div className="mt-1 font-mono text-xs text-indigo-600">{t.id}</div>
                           {t.description && <div className="text-sm text-slate-500 mt-1">{t.description}</div>}
                         </button>
                       ))
@@ -1595,7 +1779,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                 <div className="flex items-center gap-2">
                   <ChevronRight className={`w-4 h-4 text-slate-500 transition-transform ${showTransforms ? 'rotate-90' : ''}`} />
                   <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
-                    Transform Rules
+                    Variables & Logic
                   </h3>
                   <Badge variant="secondary" className="text-xs">{transforms.length}</Badge>
                 </div>
@@ -1624,7 +1808,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                   >
                     {transforms.length === 0 && (
                       <p className="text-sm text-slate-400 py-4 text-center">
-                        No transform rules. Add rules to compute, derive, or copy field values automatically.
+                        Add a formula rule to turn one answer into multiple calculated PDF fields.
                       </p>
                     )}
 
@@ -1678,6 +1862,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                           if (i !== ti) return t;
                                           const base: SchemaTransform = { type: v as SchemaTransform['type'] };
                                           if (v === 'derive') return { ...base, when: {}, set: {} };
+                                          if (v === 'formula') return { ...base, outputs: { result: '' } };
                                            if (v === 'compute') return { ...base, operation: 'multiply', input: '', factor: 1, output: '' };
                                            if (v === 'copy') return { ...base, from: '', to: '', if_empty: false };
                                            if (v === 'concat') return { ...base, inputs: [], output: '', separator: ' ', skip_empty: true };
@@ -1690,6 +1875,7 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                       <SelectTrigger><SelectValue /></SelectTrigger>
                                       <SelectContent>
                                         <SelectItem value="derive">Derive (conditional set)</SelectItem>
+                                        <SelectItem value="formula">Formula variables</SelectItem>
                                         <SelectItem value="compute">Compute (math)</SelectItem>
                                          <SelectItem value="copy">Copy (field to field)</SelectItem>
                                          <SelectItem value="concat">Join text fields</SelectItem>
@@ -1731,6 +1917,103 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                                         />
                                       </div>
                                     </>
+                                  )}
+
+                                  {tr.type === 'formula' && (
+                                    <div className="space-y-4">
+                                      <div className="rounded-lg border border-purple-200 bg-purple-50 p-3 text-xs text-purple-900">
+                                        Variables run from top to bottom. Use question keys and earlier variables, for example
+                                        <code className="mx-1 rounded bg-white px-1.5 py-0.5">amount / 2</code>,
+                                        <code className="mx-1 rounded bg-white px-1.5 py-0.5">percent(amount, 20)</code>, or
+                                        <code className="mx-1 rounded bg-white px-1.5 py-0.5">ifelse(age &gt;= 65, base + extra, base)</code>.
+                                      </div>
+                                      <div className="grid grid-cols-[1fr_2fr_1.3fr_36px] gap-2 px-1 text-xs font-medium text-slate-500">
+                                        <span>Variable</span><span>Formula</span><span>PDF field(s)</span><span />
+                                      </div>
+                                      {Object.entries(tr.outputs || {}).map(([name, expression], variableIndex) => (
+                                        <div key={`${name}-${variableIndex}`} className="grid grid-cols-[1fr_2fr_1.3fr_36px] gap-2 items-center">
+                                          <Input
+                                            value={name}
+                                            onChange={(event) => {
+                                              const nextName = event.target.value;
+                                              setTransforms((prev) => prev.map((item, index) => {
+                                                if (index !== ti) return item;
+                                                const entries = Object.entries(item.outputs || {});
+                                                entries[variableIndex] = [nextName, entries[variableIndex]?.[1] || ''];
+                                                return { ...item, outputs: Object.fromEntries(entries) };
+                                              }));
+                                              if (name && nextName && name !== nextName) setMapping((prev) => {
+                                                if (!(name in prev)) return prev;
+                                                const next = { ...prev, [nextName]: prev[name] };
+                                                delete next[name]; return next;
+                                              });
+                                            }}
+                                            placeholder="line_total"
+                                            className="font-mono text-sm"
+                                          />
+                                          <Input
+                                            value={expression}
+                                            onChange={(event) => setTransforms((prev) => prev.map((item, index) => {
+                                              if (index !== ti) return item;
+                                              const entries = Object.entries(item.outputs || {});
+                                              entries[variableIndex] = [entries[variableIndex]?.[0] || '', event.target.value];
+                                              return { ...item, outputs: Object.fromEntries(entries) };
+                                            }))}
+                                            placeholder="amount - percent(amount, 20)"
+                                            className="font-mono text-sm"
+                                          />
+                                          <Input
+                                            value={Array.isArray(mapping[name]) ? mapping[name].join(', ') : typeof mapping[name] === 'string' ? mapping[name] : ''}
+                                            onChange={(event) => {
+                                              const targets = event.target.value.split(',').map((value) => value.trim()).filter(Boolean);
+                                              setMapping((prev) => {
+                                                const next = { ...prev };
+                                                if (!targets.length) delete next[name];
+                                                else next[name] = targets.length === 1 ? targets[0] : targets;
+                                                return next;
+                                              });
+                                            }}
+                                            placeholder="PDF field name"
+                                            className="font-mono text-sm"
+                                          />
+                                          <Button
+                                            variant="ghost" size="icon" className="h-8 w-8 text-red-500"
+                                            onClick={() => {
+                                              setTransforms((prev) => prev.map((item, index) => {
+                                                if (index !== ti) return item;
+                                                const entries = Object.entries(item.outputs || {}).filter((_, row) => row !== variableIndex);
+                                                return { ...item, outputs: Object.fromEntries(entries) };
+                                              }));
+                                              setMapping((prev) => { const next = { ...prev }; delete next[name]; return next; });
+                                            }}
+                                          ><Trash2 className="h-4 w-4" /></Button>
+                                        </div>
+                                      ))}
+                                      <Button
+                                        type="button" variant="outline" size="sm" className="gap-1"
+                                        onClick={() => setTransforms((prev) => prev.map((item, index) => index === ti
+                                          ? { ...item, outputs: { ...(item.outputs || {}), [`variable_${Object.keys(item.outputs || {}).length + 1}`]: '' } }
+                                          : item))}
+                                      ><Plus className="h-3 w-3" /> Add variable</Button>
+                                      <div className="space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-500">Run only when (optional JSON condition)</Label>
+                                        <Input
+                                          value={tr.when ? JSON.stringify(tr.when) : ''}
+                                          onChange={(event) => {
+                                            if (!event.target.value.trim()) {
+                                              setTransforms((prev) => prev.map((item, index) => index === ti ? { ...item, when: undefined } : item));
+                                              return;
+                                            }
+                                            try {
+                                              const parsed = JSON.parse(event.target.value);
+                                              setTransforms((prev) => prev.map((item, index) => index === ti ? { ...item, when: parsed } : item));
+                                            } catch { /* keep last valid JSON while typing */ }
+                                          }}
+                                          placeholder='{"filing_status": "single"}'
+                                          className="font-mono text-sm"
+                                        />
+                                      </div>
+                                    </div>
                                   )}
 
                                   {tr.type === 'compute' && (

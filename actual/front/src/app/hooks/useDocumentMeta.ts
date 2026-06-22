@@ -7,6 +7,7 @@ interface DocumentMeta {
   ogTitle?: string;
   ogDescription?: string;
   ogUrl?: string;
+  ogImage?: string;
   keywords?: string;
   robots?: string;
   structuredData?: Record<string, unknown>;
@@ -86,14 +87,16 @@ export function useDocumentMeta(meta: DocumentMeta) {
     setMetaTag('og:description', meta.ogDescription || desc, true);
     setMetaTag('og:type', 'website', true);
     setMetaTag('og:url', meta.ogUrl ? buildCanonicalUrl(meta.ogUrl) : url, true);
+    if (meta.ogImage) setMetaTag('og:image', buildCanonicalUrl(meta.ogImage), true);
     setMetaTag('twitter:title', meta.ogTitle || title);
     setMetaTag('twitter:description', meta.ogDescription || desc);
     setMetaTag('twitter:card', 'summary_large_image');
+    if (meta.ogImage) setMetaTag('twitter:image', buildCanonicalUrl(meta.ogImage));
     setCanonical(url);
     setStructuredData(meta.structuredData);
 
     return () => {
       document.title = DEFAULT_TITLE;
     };
-  }, [meta.title, meta.description, meta.canonical, meta.ogTitle, meta.ogDescription, meta.ogUrl, meta.keywords, meta.robots, meta.structuredData]);
+  }, [meta.title, meta.description, meta.canonical, meta.ogTitle, meta.ogDescription, meta.ogUrl, meta.ogImage, meta.keywords, meta.robots, meta.structuredData]);
 }

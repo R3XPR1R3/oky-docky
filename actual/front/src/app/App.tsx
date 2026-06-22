@@ -14,6 +14,7 @@ import { HowItWorks } from './components/HowItWorks';
 import { PricingPage } from './components/PricingPage';
 import { DisclaimerPage } from './components/DisclaimerPage';
 import { TemplatePage } from './pages/TemplatePage';
+import { TemplateLandingPage } from './pages/TemplateLandingPage';
 import { useDocumentMeta } from './hooks/useDocumentMeta';
 import { AnalyticsTracker, trackEvent } from './lib/analytics';
 
@@ -26,9 +27,17 @@ export interface TemplateMeta {
   country: string;
   popular: boolean;
   estimated_time: string;
+  published?: boolean;
   seo_title?: string;
   seo_description?: string;
   seo_keywords?: string[];
+  seo_heading?: string;
+  seo_intro?: string;
+  seo_sections?: { heading: string; body: string }[];
+  seo_faq?: { question: string; answer: string }[];
+  og_title?: string;
+  og_description?: string;
+  og_image?: string;
   source_url?: string;
   source_authority?: string;
   form_revision?: string;
@@ -80,7 +89,7 @@ export interface SchemaField {
 }
 
 export interface SchemaTransform {
-  type: 'derive' | 'compute' | 'copy' | 'concat' | 'auto_date' | 'set_value';
+  type: 'derive' | 'compute' | 'formula' | 'copy' | 'concat' | 'auto_date' | 'set_value';
   when?: ConditionSet;
   unless?: ConditionSet;
   set?: Record<string, any>;
@@ -97,6 +106,7 @@ export interface SchemaTransform {
   mod?: number;
   precision?: number;
   output?: string;
+  outputs?: Record<string, string>;
   from?: string;
   to?: string;
   if_empty?: boolean;
@@ -225,7 +235,8 @@ function AppRoutes() {
             <Route path="/builder" element={<BuilderRoute />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/:templateId" element={<TemplatePage />} />
+            <Route path="/:templateId/start" element={<TemplatePage />} />
+            <Route path="/:templateId" element={<TemplateLandingPage />} />
           </Routes>
         </AnimatePresence>
       </div>

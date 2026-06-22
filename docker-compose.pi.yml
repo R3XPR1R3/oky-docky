@@ -27,17 +27,18 @@ services:
 
   frontend-builder:
     build:
-      context: ./actual/front
-      dockerfile: Dockerfile
+      context: ./actual
+      dockerfile: front/Dockerfile
       target: build
       args:
         VITE_ADSENSE_CLIENT: ${VITE_ADSENSE_CLIENT:-ca-pub-8314082563234213}
         VITE_ADSENSE_SLOT: ${VITE_ADSENSE_SLOT:-1815198011}
     volumes:
-      - ./actual/front/src:/app/src
-      - ./actual/front/index.html:/app/index.html
-      - ./actual/front/vite.config.ts:/app/vite.config.ts
-      - ./actual/front/postcss.config.mjs:/app/postcss.config.mjs
+      - ./actual/front/src:/app/front/src
+      - ./actual/front/index.html:/app/front/index.html
+      - ./actual/front/vite.config.ts:/app/front/vite.config.ts
+      - ./actual/front/postcss.config.mjs:/app/front/postcss.config.mjs
+      - ./actual/back/data/templates:/app/back/data/templates:ro
       - frontend-dist:/output
     # The image build already runs Vite. Copy its finished dist instead of
     # compiling a second time inside the one-shot container.
