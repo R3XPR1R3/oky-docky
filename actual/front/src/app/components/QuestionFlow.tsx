@@ -36,6 +36,7 @@ function dateAnswerToIso(value: unknown) {
 export function QuestionFlow({ templateId, templateTitle, schema, initialData, onComplete, onBack }: QuestionFlowProps) {
   const { t } = useTranslation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [acceptedPolicies, setAcceptedPolicies] = useState(false);
   const [answers, setAnswers] = useState<Record<string, any>>(() => {
     const values = { ...initialData };
     for (const field of schema.fields) {
@@ -57,12 +58,14 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
   }, [currentQuestionIndex, visibleQuestions.length]);
 
   const currentQuestion = visibleQuestions[currentQuestionIndex];
+  const isLastQuestion = currentQuestionIndex === visibleQuestions.length - 1;
   const currentQuestionReadOnly = currentQuestion ? isFieldReadOnly(currentQuestion, answers) : false;
   const progress = visibleQuestions.length > 0
     ? ((currentQuestionIndex + 1) / visibleQuestions.length) * 100
     : 0;
 
   const handleNext = () => {
+    if (isLastQuestion && !acceptedPolicies) return;
     if (currentQuestionIndex < visibleQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
@@ -109,7 +112,7 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
     return true;
   };
 
-  const canProceed = isCurrentAnswerValid();
+  const canProceed = isCurrentAnswerValid() && (!isLastQuestion || acceptedPolicies);
 
   if (!currentQuestion) return null;
 
@@ -272,13 +275,25 @@ export function QuestionFlow({ templateId, templateTitle, schema, initialData, o
               </div>
             </div>
 
+            {isLastQuestion && (
+              <div className={`rounded-2xl border-2 bg-white p-5 shadow-sm transition-colors ${acceptedPolicies ? 'border-indigo-300' : 'border-slate-200'}`}>
+                <div className="flex items-start gap-3">
+                  <Checkbox id="policy-consent" checked={acceptedPolicies} onCheckedChange={(checked) => setAcceptedPolicies(checked === true)} className="mt-1" />
+                  <Label htmlFor="policy-consent" className="cursor-pointer text-sm font-normal leading-6 text-slate-700">
+                    I have reviewed and agree to the <a href="/oky-docky/disclaimer" target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()} className="font-semibold text-indigo-700 underline underline-offset-2">Terms of Service</a> and acknowledge the <a href="/oky-docky/privacy" target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()} className="font-semibold text-indigo-700 underline underline-offset-2">Privacy Policy</a> before generating my document.
+                  </Label>
+                </div>
+                {!acceptedPolicies && <p className="mt-2 pl-7 text-xs text-slate-500">Required to continue to review and PDF generation.</p>}
+              </div>
+            )}
+
             <div className="flex items-center justify-between gap-4">
               <Button variant="outline" size="lg" onClick={handlePrevious} className="px-8 py-6 rounded-xl text-base">
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 {t('questionFlow.back')}
               </Button>
               <Button size="lg" onClick={handleNext} disabled={!canProceed} className={`px-8 py-6 rounded-xl text-base ${canProceed ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-300 text-slate-500 cursor-not-allowed'}`}>
-                {currentQuestionIndex === visibleQuestions.length - 1 ? t('questionFlow.review') : t('questionFlow.continue')}
+                {isLastQuestion ? t('questionFlow.review') : t('questionFlow.continue')}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>

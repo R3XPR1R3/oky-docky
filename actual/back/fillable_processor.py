@@ -22,6 +22,7 @@ import httpx
 from fastapi import FastAPI, HTTPException, Query, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, Response, JSONResponse
+from starlette.background import BackgroundTask
 from pydantic import BaseModel, Field
 from pypdf import PdfReader
 
@@ -1004,6 +1005,7 @@ STATIC_PAGES = [
     {"path": "/how-it-works", "priority": "0.8", "changefreq": "weekly"},
     {"path": "/pricing", "priority": "0.7", "changefreq": "weekly"},
     {"path": "/disclaimer", "priority": "0.4", "changefreq": "monthly"},
+    {"path": "/privacy", "priority": "0.4", "changefreq": "monthly"},
 ]
 
 
@@ -1383,6 +1385,7 @@ def api_render(template_id: str, payload: dict):
         path=str(out_path),
         media_type="application/pdf",
         filename=f"{template_id}.pdf",
+        background=BackgroundTask(out_path.unlink, missing_ok=True),
     )
 
 

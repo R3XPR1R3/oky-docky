@@ -13,6 +13,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { HowItWorks } from './components/HowItWorks';
 import { PricingPage } from './components/PricingPage';
 import { DisclaimerPage } from './components/DisclaimerPage';
+import { PrivacyPolicyPage } from './components/PrivacyPolicyPage';
 import { TemplatePage } from './pages/TemplatePage';
 import { TemplateLandingPage } from './pages/TemplateLandingPage';
 import { SeoGuidePage } from './pages/SeoGuidePage';
@@ -239,6 +240,16 @@ function DisclaimerRoute() {
   );
 }
 
+function PrivacyRoute() {
+  const navigate = useNavigate();
+  useDocumentMeta({
+    title: 'Privacy Policy | Oky-Docky',
+    description: 'How Oky-Docky and Barckhat LLC handle form answers, generated documents, analytics, advertising, and service-provider data.',
+    canonical: '/privacy',
+  });
+  return <PrivacyPolicyPage onBack={() => navigate(-1)} />;
+}
+
 function BuilderRoute() {
   return <Navigate to="/admin?tab=builder" replace />;
 }
@@ -256,6 +267,7 @@ function AppRoutes() {
             <Route path="/how-it-works" element={<HowItWorksRoute />} />
             <Route path="/pricing" element={<PricingRoute />} />
             <Route path="/disclaimer" element={<DisclaimerRoute />} />
+            <Route path="/privacy" element={<PrivacyRoute />} />
             <Route path="/builder" element={<BuilderRoute />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />

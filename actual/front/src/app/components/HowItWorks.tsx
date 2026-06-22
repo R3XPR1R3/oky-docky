@@ -40,59 +40,54 @@ const STEP_ICONS = [MousePointerClick, MessageCircle, Download];
 const STEP_COLORS = ['from-indigo-500 to-blue-500', 'from-purple-500 to-pink-500', 'from-teal-500 to-green-500'];
 const STEP_ACCENTS = ['bg-indigo-100 text-indigo-600', 'bg-purple-100 text-purple-600', 'bg-teal-100 text-teal-600'];
 
+function MiniFormPicker() {
+  return (
+    <div className="grid w-full max-w-sm grid-cols-2 gap-3">
+      {['Form W-4', 'Form W-9'].map((name, index) => (
+        <motion.div key={name} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.15 }} viewport={{ once: true }} className={`relative rounded-2xl border-2 bg-white p-4 shadow-lg ${index === 0 ? 'border-indigo-400' : 'border-slate-200'}`}>
+          <div className={`mb-4 flex h-10 w-10 items-center justify-center rounded-xl ${index === 0 ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-500'}`}><FileText className="h-5 w-5" /></div>
+          <p className="text-sm font-bold text-slate-800">{name}</p>
+          <p className="mt-1 text-[10px] text-slate-500">Guided PDF form</p>
+          {index === 0 && <motion.span animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600"><CheckCircle className="h-5 w-5 text-white" /></motion.span>}
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+function MiniQuestionCard() {
+  return (
+    <div className="w-full max-w-sm overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-xl">
+      <div className="border-b bg-gradient-to-r from-indigo-50 to-purple-50 p-4">
+        <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600"><MessageCircle className="h-4 w-4 text-white" /></div><div><p className="text-sm font-bold text-slate-900">What is your full name?</p><p className="text-[10px] text-slate-500">Question 1 of 6</p></div></div>
+      </div>
+      <div className="p-4">
+        <div className="rounded-xl border-2 border-indigo-300 bg-white px-4 py-3 text-sm text-slate-800">Jane Doe<span className="ml-0.5 animate-pulse text-indigo-600">|</span></div>
+        <div className="mt-4 flex justify-end"><div className="rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-xs font-bold text-white">Continue →</div></div>
+      </div>
+    </div>
+  );
+}
+
+function MiniDownloadCard() {
+  return (
+    <div className="w-full max-w-sm rounded-2xl border-2 border-slate-200 bg-white p-5 text-center shadow-xl">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100"><CheckCircle className="h-7 w-7 text-emerald-600" /></div>
+      <p className="mt-3 text-base font-bold text-slate-900">Your document is ready</p>
+      <p className="mt-1 text-[11px] text-slate-500">Review and download your completed PDF.</p>
+      <div className="mx-auto mt-4 flex max-w-[210px] items-center gap-3 rounded-xl border bg-slate-50 p-3 text-left"><div className="flex h-10 w-9 items-center justify-center rounded bg-white shadow"><FileText className="h-5 w-5 text-indigo-600" /></div><div><p className="text-xs font-semibold text-slate-800">completed-form.pdf</p><p className="text-[10px] text-slate-500">PDF document</p></div></div>
+      <div className="mx-auto mt-4 inline-flex items-center rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-xs font-bold text-white shadow"><Download className="mr-2 h-3.5 w-3.5" /> Download PDF</div>
+    </div>
+  );
+}
+
 export function HowItWorks({ onBack, onGetStarted }: HowItWorksProps) {
   const { t } = useTranslation();
 
   const illustrations = [
-    // Step 1 - Pick form
-    <div key="1" className="relative w-full h-48 flex items-center justify-center">
-      <motion.div initial={{ rotate: -8, x: -20 }} whileInView={{ rotate: -8, x: -20 }} className="absolute w-36 h-44 bg-white rounded-xl shadow-lg border border-slate-200 p-4">
-        <div className="w-full h-3 bg-slate-200 rounded mb-2" /><div className="w-3/4 h-3 bg-slate-100 rounded mb-4" />
-        <div className="space-y-2"><div className="w-full h-2 bg-slate-100 rounded" /><div className="w-full h-2 bg-slate-100 rounded" /><div className="w-2/3 h-2 bg-slate-100 rounded" /></div>
-      </motion.div>
-      <motion.div initial={{ rotate: 4, x: 20, y: 10 }} whileInView={{ rotate: 4, x: 20, y: 10 }} className="absolute w-36 h-44 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl shadow-xl border-2 border-indigo-200 p-4">
-        <div className="w-full h-3 bg-indigo-200 rounded mb-2" /><div className="w-3/4 h-3 bg-indigo-100 rounded mb-4" />
-        <div className="space-y-2"><div className="w-full h-2 bg-indigo-100 rounded" /><div className="w-full h-2 bg-indigo-100 rounded" /><div className="w-2/3 h-2 bg-indigo-100 rounded" /></div>
-        <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="absolute -top-2 -right-2 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
-          <CheckCircle className="w-5 h-5 text-white" />
-        </motion.div>
-      </motion.div>
-    </div>,
-    // Step 2 - Q&A
-    <div key="2" className="relative w-full h-48 flex items-center justify-center">
-      <div className="space-y-3 w-56">
-        <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} viewport={{ once: true }} className="flex items-start gap-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex-shrink-0" />
-          <div className="bg-slate-100 rounded-2xl rounded-tl-none px-4 py-2 text-sm text-slate-700">{t('howItWorks.chatQuestion')}</div>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }} viewport={{ once: true }} className="flex justify-end">
-          <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl rounded-tr-none px-4 py-2 text-sm text-white">{t('howItWorks.chatAnswer')}</div>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ delay: 1.0 }} viewport={{ once: true }} className="flex items-start gap-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex-shrink-0" />
-          <div className="bg-slate-100 rounded-2xl rounded-tl-none px-4 py-2 text-sm text-slate-700">{t('howItWorks.chatFollowUp')}</div>
-        </motion.div>
-      </div>
-    </div>,
-    // Step 3 - Download
-    <div key="3" className="relative w-full h-48 flex items-center justify-center">
-      <motion.div className="relative">
-        <div className="w-40 h-48 bg-white rounded-xl shadow-xl border-2 border-green-200 p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <FileText className="w-5 h-5 text-green-600" />
-            <span className="text-xs font-bold text-green-700">{t('howItWorks.formW9')}</span>
-          </div>
-          <div className="space-y-2"><div className="w-full h-2 bg-green-100 rounded" /><div className="w-full h-2 bg-green-100 rounded" /><div className="w-3/4 h-2 bg-green-100 rounded" /></div>
-          <div className="mt-3 flex items-center gap-1">
-            <div className="w-6 h-6 rounded border border-green-300 flex items-center justify-center"><CheckCircle className="w-4 h-4 text-green-500" /></div>
-            <span className="text-xs text-green-600 font-medium">{t('success.verified')}</span>
-          </div>
-        </div>
-        <motion.div animate={{ y: [0, 5, 0] }} transition={{ duration: 2, repeat: Infinity }} className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-teal-500 to-green-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
-          <Download className="w-3 h-3" /> {t('success.statusReady')}!
-        </motion.div>
-      </motion.div>
-    </div>,
+    <div key="1" className="flex min-h-56 w-full items-center justify-center"><MiniFormPicker /></div>,
+    <div key="2" className="flex min-h-56 w-full items-center justify-center"><MiniQuestionCard /></div>,
+    <div key="3" className="flex min-h-64 w-full items-center justify-center"><MiniDownloadCard /></div>,
   ];
 
   return (
@@ -134,14 +129,14 @@ export function HowItWorks({ onBack, onGetStarted }: HowItWorksProps) {
             const isReversed = index % 2 !== 0;
             const Icon = STEP_ICONS[index];
             return (
-              <motion.div key={index} initial={{ y: 40, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6, delay: 0.1 }} className={`flex flex-col ${isReversed ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-12`}>
-                <div className="flex-1 relative">
+              <motion.div key={index} initial={{ y: 40, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6, delay: 0.1 }} className={`flex flex-col ${isReversed ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-8 md:gap-12`}>
+                <div className="relative w-full flex-1 md:w-auto">
                   <MemphisShapes variant={(index + 1) as 1 | 2 | 3} />
-                  <div className="bg-gradient-to-br from-slate-50 to-white rounded-3xl p-8 border border-slate-200 shadow-lg relative overflow-hidden">
+                  <div className="relative w-full overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-5 shadow-lg sm:p-8">
                     {illustrations[index]}
                   </div>
                 </div>
-                <div className="flex-1 space-y-4">
+                <div className="w-full flex-1 space-y-4 md:w-auto">
                   <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-bold ${STEP_ACCENTS[index]}`}>
                     <Icon className="w-4 h-4" />
                     Step {t(`howItWorks.steps.${index}.number` as any)}

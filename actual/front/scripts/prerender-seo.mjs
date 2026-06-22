@@ -137,4 +137,11 @@ listing = replaceMeta(listing, 'description', 'Browse free guided tax, employmen
 listing = listing.replace(/<link\s+rel="canonical"[^>]*>/i, `<link rel="canonical" href="${siteUrl}/templates" />`);
 await writeFile(path.join(distDir, 'templates.html'), listing, 'utf8');
 
+let privacy = shell
+  .replace(/<title>[\s\S]*?<\/title>/i, '<title>Privacy Policy | Oky-Docky</title>')
+  .replace('<div id="root"></div>', `<div id="root"><main style="max-width:800px;margin:60px auto;padding:24px;font-family:system-ui,sans-serif"><h1>Privacy Policy</h1><p>Last updated: June 22, 2026</p><p>This policy explains how Oky-Docky and Barckhat LLC handle information when visitors browse the site, complete a guided questionnaire, and generate a document.</p><h2>Document information</h2><p>Answers are sent to the server when a visitor requests a PDF. The server uses them to create the requested document, delivers the PDF to the browser, and deletes the temporary generated file after delivery. Form answers, signatures, tax identifiers, and PDF contents are not added to analytics.</p><h2>Analytics and service providers</h2><p>Oky-Docky records first-party usage and attribution events using a random session identifier. Cloudflare, hosting infrastructure, advertising providers, and optional external partners may process limited technical information under their own terms.</p><h2>Contact</h2><p>Privacy questions: legal@barckhat.com.</p></main></div>`);
+privacy = replaceMeta(privacy, 'description', 'How Oky-Docky handles form answers, generated documents, analytics, advertising, and service-provider data.');
+privacy = privacy.replace(/<link\s+rel="canonical"[^>]*>/i, `<link rel="canonical" href="${siteUrl}/privacy" />`);
+await writeFile(path.join(distDir, 'privacy.html'), privacy, 'utf8');
+
 console.log(`Generated ${generated} indexable template pages.`);

@@ -118,6 +118,7 @@ export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaime
               <button onClick={onHowItWorks} className="hover:text-indigo-600 transition-colors">{t('nav.howItWorks')}</button>
               <button onClick={onPricing} className="hover:text-indigo-600 transition-colors">{t('nav.pricing')}</button>
               <button onClick={onDisclaimer} className="hover:text-indigo-600 transition-colors">{t('nav.termsDisclaimer')}</button>
+              <a href="/oky-docky/privacy" className="hover:text-indigo-600 transition-colors">Privacy</a>
             </div>
           </div>
         </div>
