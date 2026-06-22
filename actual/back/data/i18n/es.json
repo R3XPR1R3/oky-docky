@@ -208,7 +208,7 @@
   },
   "disclaimer": {
     "title": "Términos de servicio y aviso legal",
-    "lastUpdated": "Última actualización: febrero 2026",
+    "lastUpdated": "Última actualización: 22 de junio de 2026",
     "importantNotice": "Aviso importante",
     "importantNoticeText": "Oky-Docky es una <strong>herramienta de preparación de documentos</strong> operada por <strong>Barckhat LLC</strong>, no un servicio de asesoría legal o profesional. No proporcionamos asesoramiento legal, financiero ni contable. La información y los formularios generados por este servicio se basan únicamente en los datos que usted proporciona. Siempre consulte a un profesional calificado para obtener asesoramiento específico a su situación.",
     "sections": [
@@ -243,7 +243,7 @@
       {
         "title": "4. Privacidad y manejo de datos",
         "paragraphs": [
-          "Nos tomamos su privacidad en serio. La información sensible (como números de seguro social y números de identificación de empleador) se procesa únicamente en memoria y no se almacena en nuestros servidores después de generar su PDF.",
+          "Nos tomamos su privacidad en serio. La información sensible se procesa temporalmente para generar su documento. El PDF temporal se elimina de nuestro servidor después de entregarse a su navegador.",
           "No vendemos, compartimos ni distribuimos su información personal a terceros.",
           "Los archivos PDF generados se crean bajo demanda y se entregan directamente a su navegador. No conservamos copias de los formularios completados.",
           "Usted es responsable de la seguridad de los documentos descargados en sus propios dispositivos."

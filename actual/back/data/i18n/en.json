@@ -243,7 +243,7 @@
       {
         "title": "4. Privacy & Data Handling",
         "paragraphs": [
-          "We take your privacy seriously. Sensitive information (such as Social Security Numbers and Employer Identification Numbers) is processed in memory only and is not stored on our servers after your PDF is generated.",
+          "We take your privacy seriously. Sensitive information is processed transiently to generate your document. A temporary PDF is deleted from our server after it is delivered to your browser.",
           "We do not sell form answers or completed document contents. Infrastructure and advertising providers may process limited technical data as described in our Privacy Policy.",
           "Generated PDF files are created on-demand and delivered directly to your browser. We do not retain copies of completed forms.",
           "You are responsible for the security of downloaded documents on your own devices."

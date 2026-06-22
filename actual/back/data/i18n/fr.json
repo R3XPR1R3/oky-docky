@@ -208,7 +208,7 @@
   },
   "disclaimer": {
     "title": "Conditions d\u2019utilisation et avertissement",
-    "lastUpdated": "Derni\u00e8re mise \u00e0 jour\u00a0: f\u00e9vrier 2026",
+    "lastUpdated": "Derni\u00e8re mise \u00e0 jour\u00a0: 22 juin 2026",
     "importantNotice": "Avis important",
     "importantNoticeText": "Oky-Docky est un <strong>outil de pr\u00e9paration de documents</strong> exploit\u00e9 par <strong>Barckhat LLC</strong>, et non un service de conseil juridique ou professionnel. Nous ne fournissons aucun conseil juridique, financier ou comptable. Les informations et formulaires g\u00e9n\u00e9r\u00e9s par ce service sont bas\u00e9s uniquement sur les donn\u00e9es que vous fournissez. Consultez toujours un professionnel qualifi\u00e9 pour des conseils adapt\u00e9s \u00e0 votre situation.",
     "sections": [
@@ -243,7 +243,7 @@
       {
         "title": "4. Confidentialit\u00e9 et traitement des donn\u00e9es",
         "paragraphs": [
-          "Nous prenons votre confidentialit\u00e9 au s\u00e9rieux. Les informations sensibles (telles que les num\u00e9ros SSN et EIN) sont trait\u00e9es uniquement en m\u00e9moire et ne sont pas stock\u00e9es sur nos serveurs apr\u00e8s la g\u00e9n\u00e9ration de votre PDF.",
+          "Nous prenons votre confidentialit\u00e9 au s\u00e9rieux. Les informations sensibles sont trait\u00e9es temporairement pour g\u00e9n\u00e9rer votre document. Le PDF temporaire est supprim\u00e9 de notre serveur apr\u00e8s sa livraison \u00e0 votre navigateur.",
           "Nous ne vendons, ne partageons ni ne distribuons vos informations personnelles \u00e0 des tiers.",
           "Les fichiers PDF g\u00e9n\u00e9r\u00e9s sont cr\u00e9\u00e9s \u00e0 la demande et livr\u00e9s directement \u00e0 votre navigateur. Nous ne conservons pas de copies des formulaires remplis.",
           "Vous \u00eates responsable de la s\u00e9curit\u00e9 des documents t\u00e9l\u00e9charg\u00e9s sur vos propres appareils."

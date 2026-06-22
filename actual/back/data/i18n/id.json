@@ -208,7 +208,7 @@
   },
   "disclaimer": {
     "title": "Ketentuan Layanan & Penyangkalan",
-    "lastUpdated": "Terakhir diperbarui: Februari 2026",
+    "lastUpdated": "Terakhir diperbarui: 22 Juni 2026",
     "importantNotice": "Pemberitahuan Penting",
     "importantNoticeText": "Oky-Docky adalah <strong>alat persiapan dokumen</strong> yang dioperasikan oleh <strong>Barckhat LLC</strong>, bukan layanan hukum atau konsultasi. Kami tidak memberikan nasihat hukum, keuangan, atau akuntansi. Informasi dan formulir yang dihasilkan oleh layanan ini semata-mata berdasarkan data yang Anda berikan. Selalu konsultasikan dengan profesional yang berkualifikasi untuk nasihat yang spesifik sesuai situasi Anda.",
     "sections": [
@@ -243,7 +243,7 @@
       {
         "title": "4. Privasi & Penanganan Data",
         "paragraphs": [
-          "Kami menjaga privasi Anda dengan serius. Informasi sensitif (seperti SSN dan EIN) diproses hanya di memori dan tidak disimpan di server kami setelah PDF Anda dihasilkan.",
+          "Kami menjaga privasi Anda dengan serius. Informasi sensitif diproses sementara untuk menghasilkan dokumen Anda. PDF sementara dihapus dari server kami setelah dikirim ke browser Anda.",
           "Kami tidak menjual, membagikan, atau mendistribusikan informasi pribadi Anda kepada pihak ketiga.",
           "File PDF yang dihasilkan dibuat sesuai permintaan dan dikirimkan langsung ke browser Anda. Kami tidak menyimpan salinan formulir yang sudah selesai.",
           "Anda bertanggung jawab atas keamanan dokumen yang diunduh di perangkat Anda sendiri."
