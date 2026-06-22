@@ -15,6 +15,7 @@ import { PricingPage } from './components/PricingPage';
 import { DisclaimerPage } from './components/DisclaimerPage';
 import { TemplatePage } from './pages/TemplatePage';
 import { TemplateLandingPage } from './pages/TemplateLandingPage';
+import { SeoGuidePage } from './pages/SeoGuidePage';
 import { useDocumentMeta } from './hooks/useDocumentMeta';
 import { AnalyticsTracker, trackEvent } from './lib/analytics';
 
@@ -35,9 +36,11 @@ export interface TemplateMeta {
   seo_intro?: string;
   seo_sections?: { heading: string; body: string }[];
   seo_faq?: { question: string; answer: string }[];
+  seo_guides?: SeoGuide[];
   og_title?: string;
   og_description?: string;
   og_image?: string;
+  partner_resources?: PartnerResource[];
   source_url?: string;
   source_authority?: string;
   form_revision?: string;
@@ -48,6 +51,27 @@ export interface FieldStyle {
   height?: string;      // e.g. "40px", "200px"
   fontSize?: string;    // e.g. "14px", "1.2rem"
   fontFamily?: string;  // e.g. "Arial", "monospace"
+}
+
+export interface SeoGuide {
+  slug: string;
+  title: string;
+  description: string;
+  heading: string;
+  intro: string;
+  keywords?: string[];
+  sections: { heading: string; body: string }[];
+  faq?: { question: string; answer: string }[];
+  published?: boolean;
+}
+
+export interface PartnerResource {
+  title: string;
+  description: string;
+  button_label: string;
+  url: string;
+  placement: 'landing' | 'before_download' | 'both';
+  disclosure?: string;
 }
 
 export type ConditionPrimitive = string | number | boolean | null;
@@ -236,6 +260,7 @@ function AppRoutes() {
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/:templateId/start" element={<TemplatePage />} />
+            <Route path="/:templateId/:guideSlug" element={<SeoGuidePage />} />
             <Route path="/:templateId" element={<TemplateLandingPage />} />
           </Routes>
         </AnimatePresence>

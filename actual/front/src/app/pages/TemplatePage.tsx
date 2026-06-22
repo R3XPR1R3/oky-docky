@@ -186,6 +186,7 @@ export function TemplatePage() {
         pdfUrl={pdfUrl}
         templateId={template.id}
         templateTitle={template.title}
+        partnerResources={template.partner_resources}
         onStartOver={() => navigate('/')}
       />
     );

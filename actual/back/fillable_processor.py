@@ -814,6 +814,42 @@ def api_admin_create_template(payload: CreateTemplatePayload, request: Request):
             "popular": False,
             "published": False,
             "estimated_time": payload.estimated_time,
+            "seo_title": f"{payload.title} - Free Online Form | Oky-Docky",
+            "seo_description": (
+                f"Complete {payload.title} online with guided questions and download a prepared PDF. "
+                f"{payload.description}"
+            ).strip(),
+            "seo_heading": f"Complete {payload.title} online",
+            "seo_intro": (
+                f"Use this guided assistant to prepare {payload.title}. "
+                "Answer a series of plain-language questions, review your information, and download the prepared PDF."
+            ),
+            "seo_sections": [
+                {
+                    "heading": f"What is {payload.title}?",
+                    "body": payload.description or f"{payload.title} is a document you can prepare with the guided Oky-Docky workflow.",
+                },
+                {
+                    "heading": "What information will you need?",
+                    "body": "Have the names, dates, addresses, identification details, and supporting records requested by the document available before you begin.",
+                },
+                {
+                    "heading": "How the guided form works",
+                    "body": "Answer the questions, review the generated values, then download the prepared PDF. Check the document instructions and any filing, witness, or notarization requirements before using it.",
+                },
+            ],
+            "seo_faq": [
+                {
+                    "question": f"Can I complete {payload.title} online?",
+                    "answer": "You can use Oky-Docky to prepare the document and download a PDF. Any filing, delivery, signature, witness, or notarization steps must still be completed as required.",
+                },
+                {
+                    "question": "Does Oky-Docky file the document for me?",
+                    "answer": "No. Oky-Docky prepares a PDF from your answers. Review the official instructions to determine where and how the document must be submitted.",
+                },
+            ],
+            "seo_guides": [],
+            "partner_resources": [],
         }
         (target_dir / "template.json").write_text(
             json.dumps(template_meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
@@ -1009,8 +1045,21 @@ def sitemap_xml():
 
     for tid in template_ids:
         try:
-            load_template_meta(TEMPLATES_ROOT, tid)
-            urls.append(_url_entry(f"/{tid}", "weekly", "0.9", _template_lastmod(tid)))
+            meta = load_template_meta(TEMPLATES_ROOT, tid)
+            lastmod = _template_lastmod(tid)
+            urls.append(_url_entry(f"/{tid}", "weekly", "0.9", lastmod))
+            for guide in meta.get("seo_guides", []):
+                if not isinstance(guide, dict) or guide.get("published", True) is False:
+                    continue
+                slug = str(guide.get("slug", "")).strip()
+                sections = guide.get("sections", [])
+                if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
+                    continue
+                if not guide.get("title") or not guide.get("heading") or not guide.get("description"):
+                    continue
+                if not any(isinstance(section, dict) and section.get("heading") and section.get("body") for section in sections):
+                    continue
+                urls.append(_url_entry(f"/{tid}/{slug}", "monthly", "0.7", lastmod))
         except Exception:
             continue
 

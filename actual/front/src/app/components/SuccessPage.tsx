@@ -4,16 +4,21 @@ import { Button } from './ui/button';
 import { toast } from 'sonner';
 import { useTranslation } from '../i18n/I18nContext';
 import { trackEvent } from '../lib/analytics';
+import type { PartnerResource } from '../App';
 
 interface SuccessPageProps {
   pdfUrl: string;
   templateId: string;
   templateTitle: string;
   onStartOver: () => void;
+  partnerResources?: PartnerResource[];
 }
 
-export function SuccessPage({ pdfUrl, templateId, templateTitle, onStartOver }: SuccessPageProps) {
+export function SuccessPage({ pdfUrl, templateId, templateTitle, onStartOver, partnerResources = [] }: SuccessPageProps) {
   const { t } = useTranslation();
+  const downloadResources = partnerResources.filter((item) =>
+    (item.placement === 'before_download' || item.placement === 'both') && /^https?:\/\//i.test(item.url)
+  );
 
   const handleDownload = () => {
     trackEvent('download', { template_id: templateId });
@@ -54,6 +59,29 @@ export function SuccessPage({ pdfUrl, templateId, templateTitle, onStartOver }: 
             {t('success.ready', { template: templateTitle })}
           </motion.p>
         </motion.div>
+
+        {downloadResources.length > 0 && (
+          <motion.section initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="mb-8 rounded-2xl border border-indigo-200 bg-indigo-50 p-6">
+            <h2 className="text-xl font-bold text-slate-900">Optional services for this document</h2>
+            <p className="mt-1 text-sm text-slate-600">Your PDF is ready regardless of whether you use these third-party services.</p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              {downloadResources.map((resource) => (
+                <article key={`${resource.title}-${resource.url}`} className="rounded-xl bg-white p-5 shadow-sm">
+                  <h3 className="font-semibold text-slate-900">{resource.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{resource.description}</p>
+                  <a
+                    href={resource.url}
+                    target="_blank"
+                    rel="sponsored noreferrer"
+                    onClick={() => trackEvent('click', { element: `partner_resource:${resource.title}`, template_id: templateId })}
+                    className="mt-4 inline-flex rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white"
+                  >{resource.button_label || 'View service'}</a>
+                  <p className="mt-3 text-xs text-slate-500">{resource.disclosure || 'Optional third-party service. Oky-Docky may receive compensation for referrals.'}</p>
+                </article>
+              ))}
+            </div>
+          </motion.section>
+        )}
 
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }} className="bg-white rounded-2xl shadow-2xl border-2 border-slate-200 overflow-hidden mb-8">
           <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-8 py-6 border-b border-slate-200">

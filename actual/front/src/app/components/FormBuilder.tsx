@@ -219,7 +219,23 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
   const [creating, setCreating] = useState(false);
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [mapping, setMapping] = useState<Record<string, any>>({});
-  const validationIssues = useMemo(() => validateBuilderSchema(fields, transforms), [fields, transforms]);
+  const validationIssues = useMemo(() => {
+    const issues = validateBuilderSchema(fields, transforms);
+    const guideSlugs = new Set<string>();
+    (templateMeta?.seo_guides || []).forEach((guide, index) => {
+      if (guide.published === false) return;
+      const label = `SEO guide ${index + 1}`;
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(guide.slug)) issues.push(`${label} needs a valid URL slug`);
+      if (guideSlugs.has(guide.slug)) issues.push(`${label} duplicates URL slug '${guide.slug}'`);
+      guideSlugs.add(guide.slug);
+      if (!guide.title.trim()) issues.push(`${label} needs a search title`);
+      if (!guide.description.trim()) issues.push(`${label} needs a meta description`);
+      if (!guide.heading.trim()) issues.push(`${label} needs an H1`);
+      if (!guide.intro.trim()) issues.push(`${label} needs an introduction`);
+      if (!(guide.sections || []).some((section) => section.heading.trim() && section.body.trim())) issues.push(`${label} needs at least one complete section`);
+    });
+    return issues;
+  }, [fields, transforms, templateMeta]);
   const filteredTemplates = useMemo(() => {
     const query = templateSearch.trim().toLowerCase();
     if (!query) return templates;
@@ -782,6 +798,16 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
               </summary>
               <Separator />
               <div className="space-y-5 p-5">
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
+                  <div className="font-semibold">How this page is generated</div>
+                  <ol className="mt-2 list-decimal space-y-1 pl-5">
+                    <li>New templates start as drafts with a generated title, introduction, three sections, and two FAQs.</li>
+                    <li>Replace generic text with document-specific guidance and verify it against the official source.</li>
+                    <li>Map and test the Q&amp;A form before enabling publication.</li>
+                    <li>Save, sync, and redeploy. The build creates the indexable HTML page and adds it to the sitemap.</li>
+                  </ol>
+                  <p className="mt-2 text-xs text-blue-800">Title controls the search-result heading. Description is the proposed snippet. H1, sections, and FAQs are the mini-blog content that can affect relevance. Keywords are planning notes, not a ranking switch.</p>
+                </div>
                 <div className="flex items-center justify-between rounded-xl bg-slate-50 p-3">
                   <div>
                     <Label className="font-medium">Publish and allow indexing</Label>
@@ -884,11 +910,63 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                   </div>
                 </details>
                 <details className="rounded-xl border border-slate-200 p-4">
+                  <summary className="cursor-pointer font-semibold text-slate-700">Search-intent guide pages</summary>
+                  <div className="mt-3 rounded-lg bg-amber-50 p-3 text-xs leading-5 text-amber-900">
+                    Create a guide only when it answers a distinct visitor question. Each published guide needs original text, a unique title/H1, and at least one useful section. Its URL is <code>/{templateMeta.id}/guide-slug</code>.
+                  </div>
+                  <div className="mt-4 space-y-5">
+                    {(templateMeta.seo_guides || []).map((guide, guideIndex) => {
+                      const updateGuide = (changes: Partial<typeof guide>) => setTemplateMeta({
+                        ...templateMeta,
+                        seo_guides: (templateMeta.seo_guides || []).map((item, index) => index === guideIndex ? { ...item, ...changes } : item),
+                      });
+                      return (
+                        <div key={guideIndex} className="space-y-3 rounded-xl bg-slate-50 p-4">
+                          <div className="flex items-center gap-2">
+                            <Switch checked={guide.published !== false} onCheckedChange={(published) => updateGuide({ published })} />
+                            <span className="text-xs font-medium">{guide.published === false ? 'Draft' : 'Published'}</span>
+                            <Button variant="ghost" size="icon" className="ml-auto text-red-500" onClick={() => setTemplateMeta({ ...templateMeta, seo_guides: (templateMeta.seo_guides || []).filter((_, index) => index !== guideIndex) })}><Trash2 className="h-4 w-4" /></Button>
+                          </div>
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <div><Label>URL slug</Label><Input className="mt-1" value={guide.slug} onChange={(event) => updateGuide({ slug: event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') })} placeholder="how-to-fill-out-w4" /></div>
+                            <div><Label>Target phrases</Label><Input className="mt-1" value={(guide.keywords || []).join(', ')} onChange={(event) => updateGuide({ keywords: event.target.value.split(',').map((value) => value.trim()).filter(Boolean) })} placeholder="how to fill out W-4, W-4 instructions" /></div>
+                          </div>
+                          <div><Label>Search result title</Label><Input className="mt-1" value={guide.title} onChange={(event) => updateGuide({ title: event.target.value })} placeholder="How to Fill Out Form W-4 in 2026 | Oky-Docky" /></div>
+                          <div><Label>Meta description</Label><Textarea className="mt-1" value={guide.description} onChange={(event) => updateGuide({ description: event.target.value })} placeholder="Describe the exact question this guide answers." /></div>
+                          <div><Label>Page H1</Label><Input className="mt-1" value={guide.heading} onChange={(event) => updateGuide({ heading: event.target.value })} placeholder="How to fill out Form W-4 in 2026" /></div>
+                          <div><Label>Introduction</Label><Textarea className="mt-1 min-h-24" value={guide.intro} onChange={(event) => updateGuide({ intro: event.target.value })} placeholder="Give a direct, useful answer before the detailed sections." /></div>
+                          <div className="space-y-3">
+                            <Label>Guide sections</Label>
+                            {(guide.sections || []).map((section, sectionIndex) => (
+                              <div key={sectionIndex} className="rounded-lg border bg-white p-3">
+                                <div className="flex gap-2"><Input value={section.heading} onChange={(event) => updateGuide({ sections: guide.sections.map((item, index) => index === sectionIndex ? { ...item, heading: event.target.value } : item) })} placeholder="Section heading" /><Button variant="ghost" size="icon" className="text-red-500" onClick={() => updateGuide({ sections: guide.sections.filter((_, index) => index !== sectionIndex) })}><Trash2 className="h-4 w-4" /></Button></div>
+                                <Textarea className="mt-2 min-h-24" value={section.body} onChange={(event) => updateGuide({ sections: guide.sections.map((item, index) => index === sectionIndex ? { ...item, body: event.target.value } : item) })} placeholder="Original, question-specific explanation." />
+                              </div>
+                            ))}
+                            <Button variant="outline" size="sm" onClick={() => updateGuide({ sections: [...(guide.sections || []), { heading: '', body: '' }] })}><Plus className="mr-1 h-3 w-3" /> Add guide section</Button>
+                          </div>
+                          <div className="space-y-3">
+                            <Label>Guide FAQ</Label>
+                            {(guide.faq || []).map((item, faqIndex) => (
+                              <div key={faqIndex} className="rounded-lg border bg-white p-3">
+                                <div className="flex gap-2"><Input value={item.question} onChange={(event) => updateGuide({ faq: (guide.faq || []).map((faq, index) => index === faqIndex ? { ...faq, question: event.target.value } : faq) })} placeholder="Specific visitor question" /><Button variant="ghost" size="icon" className="text-red-500" onClick={() => updateGuide({ faq: (guide.faq || []).filter((_, index) => index !== faqIndex) })}><Trash2 className="h-4 w-4" /></Button></div>
+                                <Textarea className="mt-2" value={item.answer} onChange={(event) => updateGuide({ faq: (guide.faq || []).map((faq, index) => index === faqIndex ? { ...faq, answer: event.target.value } : faq) })} placeholder="Direct, factual answer." />
+                              </div>
+                            ))}
+                            <Button variant="outline" size="sm" onClick={() => updateGuide({ faq: [...(guide.faq || []), { question: '', answer: '' }] })}><Plus className="mr-1 h-3 w-3" /> Add guide FAQ</Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <Button variant="outline" size="sm" onClick={() => setTemplateMeta({ ...templateMeta, seo_guides: [...(templateMeta.seo_guides || []), { slug: '', title: '', description: '', heading: '', intro: '', keywords: [], sections: [{ heading: '', body: '' }], faq: [], published: false }] })}><Plus className="mr-1 h-3 w-3" /> Add guide page</Button>
+                  </div>
+                </details>
+                <details className="rounded-xl border border-slate-200 p-4">
                   <summary className="cursor-pointer font-semibold text-slate-700">Social sharing preview</summary>
                   <div className="mt-4 space-y-3">
                     <div><Label>Open Graph title</Label><Input value={templateMeta.og_title || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, og_title: event.target.value })} placeholder="Defaults to search title" className="mt-1" /></div>
                     <div><Label>Open Graph description</Label><Textarea value={templateMeta.og_description || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, og_description: event.target.value })} placeholder="Defaults to meta description" className="mt-1" /></div>
-                    <div><Label>Share image URL</Label><Input value={templateMeta.og_image || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, og_image: event.target.value })} placeholder="https://barckhat.com/oky-docky/images/w4-share.png" className="mt-1" /><p className="mt-1 text-xs text-slate-500">Use an absolute HTTPS image, ideally 1200 × 630.</p></div>
+                    <div><Label>Share image URL</Label><Input value={templateMeta.og_image || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, og_image: event.target.value })} placeholder="https://barckhat.com/oky-docky/images/w4-share.png" className="mt-1" /><p className="mt-1 text-xs text-slate-500">Use an absolute HTTPS image, ideally 1200 x 630.</p></div>
                   </div>
                 </details>
                 <details className="rounded-xl border border-slate-200 p-4">
@@ -897,6 +975,31 @@ export function FormBuilder({ onBack }: FormBuilderProps) {
                     <div><Label>Source authority</Label><Input value={templateMeta.source_authority || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, source_authority: event.target.value })} placeholder="Internal Revenue Service" className="mt-1" /></div>
                     <div><Label>Form revision</Label><Input value={templateMeta.form_revision || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, form_revision: event.target.value })} placeholder="2026" className="mt-1" /></div>
                     <div className="sm:col-span-2"><Label>Official source URL</Label><Input value={templateMeta.source_url || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, source_url: event.target.value })} placeholder="https://www.irs.gov/..." className="mt-1" /></div>
+                  </div>
+                </details>
+                <details className="rounded-xl border border-slate-200 p-4">
+                  <summary className="cursor-pointer font-semibold text-slate-700">Partner and professional resources</summary>
+                  <div className="mt-2 text-xs leading-5 text-slate-500">Optional services such as a notary, filing provider, registered agent, or document review. Never imply that a paid partner is required to download the PDF.</div>
+                  <div className="mt-4 space-y-4">
+                    {(templateMeta.partner_resources || []).map((resource, resourceIndex) => (
+                      <div key={resourceIndex} className="space-y-3 rounded-xl bg-slate-50 p-4">
+                        <div className="flex gap-2">
+                          <Input value={resource.title} onChange={(event) => setTemplateMeta({ ...templateMeta, partner_resources: (templateMeta.partner_resources || []).map((item, index) => index === resourceIndex ? { ...item, title: event.target.value } : item) })} placeholder="Need a notary?" />
+                          <Button variant="ghost" size="icon" className="text-red-500" onClick={() => setTemplateMeta({ ...templateMeta, partner_resources: (templateMeta.partner_resources || []).filter((_, index) => index !== resourceIndex) })}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                        <Textarea value={resource.description} onChange={(event) => setTemplateMeta({ ...templateMeta, partner_resources: (templateMeta.partner_resources || []).map((item, index) => index === resourceIndex ? { ...item, description: event.target.value } : item) })} placeholder="Explain when the optional service may be useful." />
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <Input value={resource.button_label} onChange={(event) => setTemplateMeta({ ...templateMeta, partner_resources: (templateMeta.partner_resources || []).map((item, index) => index === resourceIndex ? { ...item, button_label: event.target.value } : item) })} placeholder="Find a notary" />
+                          <Input value={resource.url} onChange={(event) => setTemplateMeta({ ...templateMeta, partner_resources: (templateMeta.partner_resources || []).map((item, index) => index === resourceIndex ? { ...item, url: event.target.value } : item) })} placeholder="https://partner.example/..." />
+                        </div>
+                        <Select value={resource.placement} onValueChange={(placement) => setTemplateMeta({ ...templateMeta, partner_resources: (templateMeta.partner_resources || []).map((item, index) => index === resourceIndex ? { ...item, placement: placement as 'landing' | 'before_download' | 'both' } : item) })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent><SelectItem value="landing">Landing page</SelectItem><SelectItem value="before_download">Before download</SelectItem><SelectItem value="both">Both locations</SelectItem></SelectContent>
+                        </Select>
+                        <Input value={resource.disclosure || ''} onChange={(event) => setTemplateMeta({ ...templateMeta, partner_resources: (templateMeta.partner_resources || []).map((item, index) => index === resourceIndex ? { ...item, disclosure: event.target.value } : item) })} placeholder="Optional third-party service. We may receive compensation for referrals." />
+                      </div>
+                    ))}
+                    <Button variant="outline" size="sm" onClick={() => setTemplateMeta({ ...templateMeta, partner_resources: [...(templateMeta.partner_resources || []), { title: '', description: '', button_label: '', url: '', placement: 'landing', disclosure: '' }] })}><Plus className="mr-1 h-3 w-3" /> Add resource</Button>
                   </div>
                 </details>
                 <div className="rounded-xl border border-slate-200 p-4">

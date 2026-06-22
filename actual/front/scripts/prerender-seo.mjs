@@ -37,7 +37,11 @@ for (const directory of directories) {
   const intro = meta.seo_intro || meta.description || description;
   const keywords = (meta.seo_keywords || meta.tags || []).join(', ');
   const canonical = `${siteUrl}/${id}`;
-  const faq = (meta.seo_faq || []).filter((item) => item.question && item.answer);
+  const defaultFaq = [
+    { question: `Can I complete ${meta.title || id} online?`, answer: 'You can prepare the document with guided questions and download a PDF. Complete any filing, delivery, signature, witness, or notarization steps required by the official instructions.' },
+    { question: 'Does Oky-Docky file the document for me?', answer: 'No. Oky-Docky prepares a PDF from your answers. Review the official instructions to determine where and how it must be submitted.' },
+  ];
+  const faq = (meta.seo_faq?.length ? meta.seo_faq : defaultFaq).filter((item) => item.question && item.answer);
   const structuredData = JSON.stringify({
     '@context': 'https://schema.org', '@graph': [{
       '@type': 'WebApplication', name: meta.title || id, description, url: canonical,
@@ -48,9 +52,25 @@ for (const directory of directories) {
       '@type': 'Question', name: item.question, acceptedAnswer: { '@type': 'Answer', text: item.answer },
     })) }] : [])],
   }).replace(/</g, '\\u003c');
-  const sectionsHtml = (meta.seo_sections || []).filter((section) => section.heading && section.body)
+  const defaultSections = [
+    { heading: `What is ${meta.title || id}?`, body: meta.description || `${meta.title || id} is a document you can prepare with the guided Oky-Docky workflow.` },
+    { heading: 'What information will you need?', body: 'Have the names, dates, addresses, identification details, and supporting records requested by the document available before you begin.' },
+    { heading: 'How the guided form works', body: 'Answer the questions, review the generated values, then download the prepared PDF. Check the official instructions before filing or signing it.' },
+  ];
+  const sections = meta.seo_sections?.length ? meta.seo_sections : defaultSections;
+  const sectionsHtml = sections.filter((section) => section.heading && section.body)
     .map((section) => `<section><h2>${escapeHtml(section.heading)}</h2><p>${escapeHtml(section.body)}</p></section>`).join('');
   const faqHtml = faq.length ? `<section><h2>Frequently asked questions</h2>${faq.map((item) => `<details><summary>${escapeHtml(item.question)}</summary><p>${escapeHtml(item.answer)}</p></details>`).join('')}</section>` : '';
+  const partnerResources = (meta.partner_resources || []).filter((item) =>
+    (item.placement === 'landing' || item.placement === 'both') && /^https?:\/\//i.test(item.url || '')
+  );
+  const partnerHtml = partnerResources.length ? `<section><h2>Optional professional services</h2>${partnerResources.map((item) => `<article><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.description)}</p><a href="${escapeHtml(item.url)}" rel="sponsored noreferrer">${escapeHtml(item.button_label || 'View resource')}</a><p><small>${escapeHtml(item.disclosure || 'Optional third-party service. Oky-Docky may receive compensation for referrals.')}</small></p></article>`).join('')}</section>` : '';
+  const guides = (meta.seo_guides || []).filter((guide) =>
+    guide.published !== false && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(guide.slug || '') &&
+    guide.title && guide.description && guide.heading && guide.intro &&
+    (guide.sections || []).some((section) => section.heading && section.body)
+  );
+  const guidesHtml = guides.length ? `<section><h2>Helpful ${escapeHtml(meta.title || 'form')} guides</h2><ul>${guides.map((guide) => `<li><a href="${canonical}/${escapeHtml(guide.slug)}">${escapeHtml(guide.heading)}</a> - ${escapeHtml(guide.description)}</li>`).join('')}</ul></section>` : '';
 
   let html = shell
     .replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/gi, '')
@@ -65,8 +85,41 @@ for (const directory of directories) {
   html = replaceMeta(html, 'twitter:description', description);
   html = html.replace(/<link\s+rel="canonical"[^>]*>/i, `<link rel="canonical" href="${escapeHtml(canonical)}" />`);
   html = html.replace('</head>', `    <script type="application/ld+json">${structuredData}</script>\n  </head>`);
-  html = html.replace('<div id="root"></div>', `<div id="root"><main style="max-width:900px;margin:60px auto;padding:24px;font-family:system-ui,sans-serif"><nav><a href="${siteUrl}/templates">All forms</a></nav><h1>${escapeHtml(heading)}</h1><p>${escapeHtml(intro)}</p>${sectionsHtml}${faqHtml}<p><a href="${canonical}/start">Start guided ${escapeHtml(meta.title || 'form')}</a></p></main></div>`);
+  html = html.replace('<div id="root"></div>', `<div id="root"><main style="max-width:900px;margin:60px auto;padding:24px;font-family:system-ui,sans-serif"><nav><a href="${siteUrl}/templates">All forms</a></nav><h1>${escapeHtml(heading)}</h1><p>${escapeHtml(intro)}</p>${sectionsHtml}${faqHtml}${guidesHtml}${partnerHtml}<p><a href="${canonical}/start">Start guided ${escapeHtml(meta.title || 'form')}</a></p></main></div>`);
   await writeFile(path.join(distDir, `${id}.html`), html, 'utf8');
+
+  for (const guide of guides) {
+    const guideCanonical = `${canonical}/${guide.slug}`;
+    const guideFaq = (guide.faq || []).filter((item) => item.question && item.answer);
+    const guideSectionsHtml = guide.sections.filter((section) => section.heading && section.body)
+      .map((section) => `<section><h2>${escapeHtml(section.heading)}</h2><p>${escapeHtml(section.body)}</p></section>`).join('');
+    const guideFaqHtml = guideFaq.length ? `<section><h2>Frequently asked questions</h2>${guideFaq.map((item) => `<details><summary>${escapeHtml(item.question)}</summary><p>${escapeHtml(item.answer)}</p></details>`).join('')}</section>` : '';
+    const guideStructuredData = JSON.stringify({
+      '@context': 'https://schema.org', '@graph': [{
+        '@type': 'Article', headline: guide.heading, description: guide.description,
+        mainEntityOfPage: guideCanonical, about: meta.title || id,
+        publisher: { '@type': 'Organization', name: 'Oky-Docky' },
+      }, ...(guideFaq.length ? [{ '@type': 'FAQPage', mainEntity: guideFaq.map((item) => ({
+        '@type': 'Question', name: item.question,
+        acceptedAnswer: { '@type': 'Answer', text: item.answer },
+      })) }] : [])],
+    }).replace(/</g, '\\u003c');
+    let guideHtml = shell
+      .replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/gi, '')
+      .replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(guide.title)}</title>`);
+    guideHtml = replaceMeta(guideHtml, 'description', guide.description);
+    guideHtml = replaceMeta(guideHtml, 'keywords', (guide.keywords || []).join(', '));
+    guideHtml = replaceMeta(guideHtml, 'robots', 'index,follow,max-snippet:-1,max-image-preview:large');
+    guideHtml = replaceMeta(guideHtml, 'og:title', guide.title, true);
+    guideHtml = replaceMeta(guideHtml, 'og:description', guide.description, true);
+    guideHtml = replaceMeta(guideHtml, 'og:url', guideCanonical, true);
+    guideHtml = guideHtml.replace(/<link\s+rel="canonical"[^>]*>/i, `<link rel="canonical" href="${escapeHtml(guideCanonical)}" />`);
+    guideHtml = guideHtml.replace('</head>', `    <script type="application/ld+json">${guideStructuredData}</script>\n  </head>`);
+    guideHtml = guideHtml.replace('<div id="root"></div>', `<div id="root"><main style="max-width:900px;margin:60px auto;padding:24px;font-family:system-ui,sans-serif"><nav><a href="${canonical}">${escapeHtml(meta.title || id)}</a></nav><article><h1>${escapeHtml(guide.heading)}</h1><p>${escapeHtml(guide.intro)}</p>${guideSectionsHtml}${guideFaqHtml}<p><a href="${canonical}/start">Fill out ${escapeHtml(meta.title || 'the form')} online</a></p></article></main></div>`);
+    await mkdir(path.join(distDir, id), { recursive: true });
+    await writeFile(path.join(distDir, id, `${guide.slug}.html`), guideHtml, 'utf8');
+  }
+
   let startHtml = shell.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(meta.title || id)} assistant | Oky-Docky</title>`);
   startHtml = replaceMeta(startHtml, 'robots', 'noindex,follow');
   startHtml = replaceMeta(startHtml, 'googlebot', 'noindex,follow');
