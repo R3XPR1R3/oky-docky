@@ -3,6 +3,7 @@ import { FileText, Sparkles, Shield, Clock, CheckCircle, ArrowRight, Zap, Settin
 import { Button } from './ui/button';
 import { LanguageSelector } from './LanguageSelector';
 import { useTranslation } from '../i18n/I18nContext';
+import { LandingQuestionDemo } from './LandingQuestionDemo';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -73,32 +74,8 @@ export function LandingPage({ onGetStarted, onHowItWorks, onPricing, onDisclaime
           <p className="text-sm text-slate-500 mt-4">{t('landing.noCreditCard')}</p>
         </motion.div>
 
-        <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.7, delay: 0.5 }} className="max-w-5xl mx-auto mt-16">
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl blur-3xl opacity-20"></div>
-            <div className="relative bg-white rounded-2xl shadow-2xl p-8 border border-slate-200">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center flex-shrink-0"><Sparkles className="w-5 h-5 text-white" /></div>
-                  <div className="flex-1"><div className="bg-slate-100 rounded-2xl rounded-tl-none p-4"><p className="text-slate-700">{t('landing.chatQuestion')}</p></div></div>
-                </div>
-                <div className="flex items-start gap-4 justify-end">
-                  <div className="flex-1 flex justify-end"><div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl rounded-tr-none p-4 max-w-md"><p className="text-white">{t('landing.chatAnswer')}</p></div></div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center flex-shrink-0"><Sparkles className="w-5 h-5 text-white" /></div>
-                  <div className="flex-1"><div className="bg-slate-100 rounded-2xl rounded-tl-none p-4"><p className="text-slate-700">{t('landing.chatFollowUp')}</p></div></div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.7, delay: 0.5 }} className="mx-auto mt-16 max-w-5xl">
+          <LandingQuestionDemo />
         </motion.div>
       </div>
 
