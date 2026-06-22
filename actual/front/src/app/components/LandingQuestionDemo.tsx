@@ -145,10 +145,18 @@ export function LandingQuestionDemo() {
                     {question.options?.map((option) => {
                       const selected = selectedValue === option;
                       return (
-                        <div key={option} className={`flex items-center gap-4 rounded-xl border-2 p-4 text-left transition-all ${selected ? 'border-indigo-500 bg-indigo-50 shadow-sm' : 'border-slate-200 bg-white'}`}>
+                        <div key={option} className={`relative flex items-center gap-4 rounded-xl border-2 p-4 text-left transition-all ${selected ? 'border-indigo-500 bg-indigo-50 shadow-sm' : 'border-slate-200 bg-white'}`}>
                           <RadioGroupItem value={option} id={`demo-${question.key}-${option}`} />
                           <span className="flex-1 font-medium text-slate-800">{option}</span>
                           {selected && <motion.span initial={reduceMotion ? false : { scale: 0 }} animate={{ scale: 1 }} className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600"><Check className="h-4 w-4 text-white" /></motion.span>}
+                          <AnimatePresence>
+                            {showPointer && option === question.answer && (
+                              <motion.span initial={{ opacity: 0, x: 45, y: 24 }} animate={{ opacity: 1, x: 0, y: 0 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.45 }} className="pointer-events-none absolute -bottom-3 left-2 z-10 drop-shadow-lg">
+                                <MousePointer2 className="h-9 w-9 fill-slate-900 text-white" />
+                                <motion.span initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: [0.5, 1.5], opacity: [0, 0.35, 0] }} transition={{ delay: 0.45, duration: 0.55 }} className="absolute -left-2 -top-2 h-10 w-10 rounded-full bg-indigo-500" />
+                              </motion.span>
+                            )}
+                          </AnimatePresence>
                         </div>
                       );
                     })}
@@ -159,14 +167,6 @@ export function LandingQuestionDemo() {
                   <div className="inline-flex items-center rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-3 font-semibold text-white shadow-lg">Continue <ArrowRight className="ml-2 h-4 w-4" /></div>
                 </motion.div>
 
-                <AnimatePresence>
-                  {showPointer && (
-                    <motion.div initial={{ opacity: 0, x: 50, y: 25 }} animate={{ opacity: 1, x: 0, y: 0 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.45 }} className="pointer-events-none absolute bottom-24 left-12 z-10 drop-shadow-lg sm:left-24">
-                      <MousePointer2 className="h-9 w-9 fill-slate-900 text-white" />
-                      <motion.span initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: [0.5, 1.5], opacity: [0, 0.35, 0] }} transition={{ delay: 0.45, duration: 0.55 }} className="absolute -left-2 -top-2 h-10 w-10 rounded-full bg-indigo-500" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
             </motion.div>
           </AnimatePresence>
