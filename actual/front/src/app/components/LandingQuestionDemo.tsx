@@ -87,9 +87,9 @@ export function LandingQuestionDemo() {
       advance(2600);
     } else if (question.type === 'text') {
       question.answer.split('').forEach((_, characterIndex) => {
-        later(() => setTypedValue(question.answer.slice(0, characterIndex + 1)), 700 + characterIndex * 190);
+        later(() => setTypedValue(question.answer.slice(0, characterIndex + 1)), 700 + characterIndex * 650);
       });
-      advance(700 + question.answer.length * 190 + 1500);
+      advance(700 + question.answer.length * 650 + 1500);
     } else {
       later(() => setShowPointer(true), 800);
       later(() => setSelectedValue(question.answer), 1300);
